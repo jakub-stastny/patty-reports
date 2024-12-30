@@ -28,8 +28,8 @@
           (response 400 data)
           (response 500 data))))
     (catch Exception e
-      (prn "EXCEPTION implement this")
-      (response 500 {:error 500}))))
+      (prn e)
+      (response 500 {:error (str (type e) ": " (.getMessage e))}))))
 
 (defroutes app
   (GET "/api/v1/ping" [] (response 200 {:status "OK"}))
