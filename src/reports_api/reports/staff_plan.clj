@@ -1,5 +1,6 @@
 (ns reports-api.reports.staff-plan
-  (:require [reports-api.helpers :as h]))
+  (:require [reports-api.helpers :as h]
+            [reports-api.validators :as v]))
 
 ;; https://docs.google.com/document/d/1clDJiSuQbARB1T8IuPnhjYDPIH2JcdLhJ-u9vfImTp8/edit?tab=t.0
 ;;
@@ -19,36 +20,17 @@
 ;; pay_changes.effective_data: UNIX timestamp in ms
 ;; pay_changes.new_value: number
 
-(def number-validator
-  {:type :number :validator #(and (number? %) (not (neg? %))) :message "must be a positive number"})
-
-(defn throw-validation-error [m k v]
-  (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
-
-(defn validate [m k validators]
-  (let [v (get m k)]
-    (doseq [{:keys [type validator message]} validators]
-      (when-not (validator v)
-        (println (str "Validator " type " failed for " k " = " (pr-str v)))
-        (throw-validation-error message k v)))))
-
-(def defaults {:number-of-hires 1})
+(def defaults {:projections-duration 1 :number-of-hires 1})
 
 (defn validate-inputs [raw-inputs]
-  (let [inputs (h/transform-keys-to-kebab-case raw-inputs)
-        ;; {:keys
-        ;;  [projection-start-date number-of-hires employment-start-date
-        ;;   employment-end-date pay-structure work-hours-per-week work-hours-per-year
-        ;;   base-pay benefits-allowance-%] :as inputs} inputs
-        ]
-
+  (let [inputs (merge defaults (h/transform-keys-to-kebab-case raw-inputs))]
     (if (:contains? inputs :projections-duration)
-      (validate inputs :projections-duration [number-validator {:type :1-to-5 :validator #(<= 1 % 5) :message "must be between 1 and 5"}]))
+      (v/validate inputs :projections-duration [v/number-validator {:type :1-to-5 :validator #(<= 1 % 5) :message "must be between 1 and 5"}]))
 
     (if (:contains? inputs :number-of-hires)
-      (validate inputs :number-of-hires [number-validator]))
+      (v/validate inputs :number-of-hires [v/number-validator]))
 
-    (merge defaults inputs)))
+    inputs))
 
 (defn handle [raw-inputs]
   (let [{:keys [number-of-hires] :as inputs} (validate-inputs raw-inputs)]
