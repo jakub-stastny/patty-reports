@@ -14,4 +14,6 @@
 * Deployment
 
 #+begin_src sh
+  fly deploy       Deploy Fly applications
+  fly logs         View app logs
 #+end_src
