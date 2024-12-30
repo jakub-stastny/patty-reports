@@ -1,0 +1,17 @@
+* About
+
+#+begin_src sh
+  # Run in development.
+  clojure -M -m reports-api.core
+
+  # Build Uber JAR.
+  clojure -T:build uber
+
+  # Run in production.
+  java -jar target/reports-api.jar
+#+end_src
+
+* Deployment
+
+#+begin_src sh
+#+end_src

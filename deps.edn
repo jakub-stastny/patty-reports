@@ -1,0 +1,11 @@
+{:paths ["src"]
+
+ :deps {ring/ring-core {:mvn/version "1.13.0"}
+        ring/ring-jetty-adapter {:mvn/version "1.13.0"}
+        compojure/compojure {:mvn/version "1.7.1"}}
+
+ :aliases
+ ;; Run with clojure -T:build fn-in-build
+ {:build
+  {:deps {io.github.clojure/tools.build {:mvn/version "0.10.6"}}
+   :ns-default build}}}
