@@ -1,19 +1,28 @@
 (ns reports-api.core
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [ring.adapter.jetty :refer [run-jetty]])
+            [cheshire.core :as json]
+            [ring.adapter.jetty :refer [run-jetty]]
+            [reports-api.reports.staff-plan :refer [handle-staff-plan]])
   (:gen-class))
 
+(defn format-json [object]
+  (json/generate-string object {:pretty true}))
+
+(defn parse-json-body [request]
+  "Parses the JSON body of the request into a Clojure map."
+  (let [body (:body request)]
+    (json/parse-stream (clojure.java.io/reader body) true)))
+
+(defn response [status body]
+  {:status status
+   :headers {"Content-Type" "application/json"}
+   :body (format-json body)})
+
 (defroutes app
-  (GET "/" [] {:status 200
-               :headers {"Content-Type" "application/json"}
-               :body "{\"message\": \"Welcome to my API!\"}"})
-  (GET "/hello" [] {:status 200
-                    :headers {"Content-Type" "application/json"}
-                    :body "{\"message\": \"Hello, world!\"}"})
-  (route/not-found {:status 404
-                    :headers {"Content-Type" "application/json"}
-                    :body "{\"error\": \"Not Found\"}"}))
+  (GET "/api/v1/ping" [] (response 200 {:status "OK"}))
+  (POST "/api/v1/reports/staff-plan" request (response 200 (format-json (handle-staff-plan (parse-json-body request)))))
+  (route/not-found (response 404 {:error "Not found"})))
 
 ;; Entry point
 (defn -main []
