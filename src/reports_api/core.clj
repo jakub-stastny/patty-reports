@@ -3,7 +3,7 @@
             [compojure.route :as route]
             [cheshire.core :as json]
             [ring.adapter.jetty :refer [run-jetty]]
-            [reports-api.reports.staff-plan :refer [handle-staff-plan]])
+            [reports-api.reports.staff-plan :refer [handle] :rename {handle handle-staff-plan}])
   (:gen-class))
 
 (defn format-json [object]
@@ -19,12 +19,23 @@
    :headers {"Content-Type" "application/json"}
    :body (format-json body)})
 
+(defn handler [handle-fn request]
+  (try
+    (response 200 (handle-fn (parse-json-body request)))
+    (catch clojure.lang.ExceptionInfo e
+      (let [data (ex-data e)]
+        (if (= :validation-error (:type data))
+          (response 400 data)
+          (response 500 data))))
+    (catch Exception e
+      (prn "EXCEPTION implement this")
+      (response 500 {:error 500}))))
+
 (defroutes app
   (GET "/api/v1/ping" [] (response 200 {:status "OK"}))
-  (POST "/api/v1/reports/staff-plan" request (response 200 (format-json (handle-staff-plan (parse-json-body request)))))
+  (POST "/api/v1/reports/staff-plan" request (handler handle-staff-plan request))
   (route/not-found (response 404 {:error "Not found"})))
 
-;; Entry point
 (defn -main []
-  (println "Starting server on port 8080...")
+  (println "Starting server on port 8080 ...")
   (run-jetty app {:port 8080 :join? false}))
