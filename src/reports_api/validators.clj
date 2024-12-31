@@ -1,4 +1,5 @@
-(ns reports-api.validators)
+(ns reports-api.validators
+  (:require [reports-api.time :as t]))
 
 (defn make-validator [type message validator]
   {:type type :validator validator :message message})
@@ -15,10 +16,19 @@
   (make-validator :string "must be a string"
                   #(and (string? %) %)))
 
+;; current-ms (System/currentTimeMillis)
+(def timestamp-validator
+  (make-validator :timestamp
+                  "must be a UNIX timestamp between 0 (year 1970) and 4102444800000 (year 2100)"
+                  #(and (number? %) (<= 0 % 4102444800000) %)))
+
 (defn generate-range-validator [min max]
   (make-validator (keyword (str min "-to-" max))
                   (str "must be between " min " and " max)
                   #(and (<= min % max))))
+
+(def dt-converter
+  (make-validator :dt-converter "" #(t/ts-to-date %)))
 
 (defn- throw-validation-error [m k v]
   (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
