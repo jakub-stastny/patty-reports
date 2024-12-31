@@ -15,6 +15,11 @@
   (make-validator :string "must be a string"
                   #(and (string? %) %)))
 
+(defn generate-range-validator [min max]
+  (make-validator (keyword (str min "-to-" max))
+                  (str "must be between " min " and " max)
+                  #(and (<= min % max))))
+
 (defn- throw-validation-error [m k v]
   (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
 
@@ -29,3 +34,6 @@
            (throw-validation-error message k current-value))))
      initial-value
      validators)))
+
+(defn validate-or-default [m k validators default-value]
+  (if (contains? m k) (validate m k validators) default-value))
