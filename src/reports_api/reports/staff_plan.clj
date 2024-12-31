@@ -43,15 +43,14 @@
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
         (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-(defn generate-report-month [month inputs]
+(defn generate-report-month [month {:keys [employment-start-date]}]
+  (prn :row month) ;;;
   {(t/format-month month) {}})
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
     (prn :validated-inputs inputs)
     (first (reduce (fn [[report month] _]
-                     (prn :reduce report month) ;;;
-                     [(merge report (generate-report-month month inputs))
-                      (t/next-month month)])
-                   [{} projections-start-date]
+                     [(conj report (generate-report-month month inputs)) (t/next-month month)])
+                   [[] projections-start-date]
                    (repeat (* projections-duration 12) nil)))))
