@@ -4,8 +4,16 @@
   {:type type :validator validator :message message})
 
 (def number-validator
-  (make-validator :number "must be a positive number"
+  (make-validator :number "must be 0 or larger"
                   #(and (number? %) (not (neg? %)) %)))
+
+(def positive-number-validator
+  (make-validator :positive-number "must be a positive number"
+                  #(and (number? %) (pos? %) %)))
+
+(def string-validator
+  (make-validator :string "must be a string"
+                  #(and (string? %) %)))
 
 (defn- throw-validation-error [m k v]
   (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))

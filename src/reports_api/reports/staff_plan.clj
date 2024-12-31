@@ -7,13 +7,10 @@
 ;;
 ;; Projections variables
 ;; projections_start_date: UNIX timestamp in ms
-;; projections_duration: number between one and five being the number of years
 ;;
 ;; Team variables
-;; number_of_hires: number
 ;; employment_start_date: UNIX timestamp in ms
 ;; employment_end_date: UNIX timestamp in ms
-;; pay_structure: "one of the following - Annual Salary, Monthly Salary, Weekly Salary, Hourly Rate"
 ;; work_hours_per_week: number
 ;; work_weeks_per_year: number
 ;; base_pay: number
@@ -21,31 +18,35 @@
 ;; pay_changes.effective_data: UNIX timestamp in ms
 ;; pay_changes.new_value: number
 
-(def defaults {:projections-duration 1 :number-of-hires 1})
-(def pay-structure-opts {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary "Weekly Salary" :weekly-salary "Hourly Rate" :hourly-rate})
+(def pay-structure-opts
+  {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary
+   "Weekly Salary" :weekly-salary "Hourly Rate" :hourly-rate})
 
-
+;; Custom validators.
 (def pay-structure-validator
   (v/make-validator :pay-structure
                     (str "must be one of: " (str/join "," (keys pay-structure-opts)))
                     (fn [v]
                       (when-let [matched-key (some #(and (= % v) %) (keys pay-structure-opts))]
-                        (prn :when-let (get pay-structure-opts matched-key)) ;;;;
                         (get pay-structure-opts matched-key)))))
 
+(def range-1-to-5-validator
+  (v/make-validator :1-to-5 "must be between 1 and 5" #(and (<= 1 % 5) %)))
+
+(defn validate-or-default [m k validators default-value]
+  (if (contains? m k) (v/validate m k validators) default-value))
+
 (defn validate-inputs [raw-inputs]
-  (let [inputs (merge defaults (h/transform-keys-to-kebab-case raw-inputs))]
-    (if (:contains? inputs :projections-duration)
-      (v/validate inputs :projections-duration [v/number-validator {:type :1-to-5 :validator #(and (<= 1 % 5) %) :message "must be between 1 and 5"}]))
-
-    (if (:contains? inputs :number-of-hires)
-      (v/validate inputs :number-of-hires [v/number-validator]))
-
-    (prn :x (v/validate inputs :pay-structure [pay-structure-validator]))
-
-    inputs))
+  (let [inputs (h/transform-keys-to-kebab-case raw-inputs)]
+    {:projections-duration (validate-or-default inputs :projections-duration [v/number-validator range-1-to-5-validator] 1)
+     :number-of-hires (validate-or-default inputs :number-of-hires [v/positive-number-validator] 1)
+     :work-weeks-per-year (validate-or-default inputs :work-weeks-per-year [v/number-validator] 0)
+     :work-hours-per-week (validate-or-default inputs :work-hours-per-week [v/number-validator] 0)
+     :base-pay (validate-or-default inputs :base-pay [v/number-validator] 0)
+     :business-function (validate-or-default inputs :business-function [v/string-validator] nil)
+     :pay-structure (v/validate inputs :pay-structure [pay-structure-validator])}))
 
 (defn handle [raw-inputs]
   (let [{:keys [number-of-hires] :as inputs} (validate-inputs raw-inputs)]
-    (prn :noh number-of-hires)
+    (prn :validated-inputs inputs)
     {:done "OK"}))

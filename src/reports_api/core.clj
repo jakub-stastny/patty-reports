@@ -32,7 +32,7 @@
       (response 500 {:error (str (type e) ": " (.getMessage e))}))))
 
 (defroutes app
-  (GET "/api/v1/ping" [] (response 200 {:status "OK"}))
+  (GET "/api/v1/ping" [] (response 200 {:status "OK" :response "pong"}))
   (POST "/api/v1/reports/staff-plan" request (handler handle-staff-plan request))
   (route/not-found (response 404 {:error "Not found"})))
 

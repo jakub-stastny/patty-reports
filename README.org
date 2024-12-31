@@ -3,17 +3,16 @@
 #+begin_src sh
   # Run in development.
   clojure -M -m reports-api.core
-
-  # Build Uber JAR.
-  clojure -T:build uber
-
-  # Run in production.
-  java -jar target/reports-api.jar
 #+end_src
 
 * Deployment
 
+Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
+
 #+begin_src sh
-  fly deploy       Deploy Fly applications
-  fly logs         View app logs
+  # Build the uberjar and deploy to Fly.
+  clojure -T:build uber && fly deploy
+
+  # Verify the service is running.
+  curl https://patty-reports.fly.dev/api/v1/ping
 #+end_src
