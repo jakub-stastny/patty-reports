@@ -42,8 +42,9 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-(defn calculate-base-pay [month {:keys [employment-start-date employment-end-date]}]
-  (prn :base-pay month)
+(defn calculate-monthly-pay [month {:keys [employment-start-date employment-end-date work-weeks-per-year
+                                        work-hours-per-week base-pay pay-changes pay-structure]}]
+  (prn :monthly-pay month)
   ;; work-weeks-per-year, work-hours-per-week
   ;; base-pay & pay-changes
   ;; pay-structure
@@ -53,11 +54,11 @@
   0)
 
 (defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
-  (let [base-pay (* (calculate-base-pay month inputs) number-of-hires)
-        benefits (* base-pay benefits-allowance)
-        employer-payroll-tax (* base-pay employer-tax-rate)
-        staff-cost (+ base-pay benefits employer-payroll-tax)]
-    {:month (t/format-month month) :base-pay base-pay :benefits benefits
+  (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
+        benefits (* monthly-pay benefits-allowance)
+        employer-payroll-tax (* monthly-pay employer-tax-rate)
+        staff-cost (+ monthly-pay benefits employer-payroll-tax)]
+    {:month (t/format-month month) :monthly-pay monthly-pay :benefits benefits
      :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn handle [raw-inputs]
