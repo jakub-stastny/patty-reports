@@ -29,7 +29,7 @@
 
     (-> {}
         (merge (validate-or-default :projections-duration [v/generate-range-validator 1 5] 1))
-        (merge (validate-or-default :projections-start-date [v/timestamp-validator v/dt-converter] (t/now)))
+        (merge (validate-or-default :projections-start-date [v/timestamp-validator v/month-converter] (t/current-month)))
 
         (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
         (merge (validate-or-default :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
@@ -41,23 +41,17 @@
         (merge (validate-or-default :business-function [v/string-validator] nil))
         (merge (validate :pay-structure [pay-structure-validator]))
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
-        (merge (map validate-pay-change (or (:pay-changes inputs) []))))
+        (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-    ;; {:projections-duration (v/validate-or-default inputs :projections-duration [v/number-validator (v/generate-range-validator 1 5)] 1)
-    ;;  :projections-start-date (v/validate-or-default inputs :projections-start-date [v/timestamp-validator v/dt-converter] (t/now))
-    ;;  :employment-start-date (v/validate inputs :employment-start-date [v/timestamp-validator v/dt-converter])
-    ;;  :employment-end-date (v/validate-or-default inputs :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10))
-    ;;  :number-of-hires (v/validate-or-default inputs :number-of-hires [v/positive-number-validator] 1)
-    ;;  :work-weeks-per-year (v/validate-or-default inputs :work-weeks-per-year [v/number-validator] 0)
-    ;;  :work-hours-per-week (v/validate-or-default inputs :work-hours-per-week [v/number-validator] 0)
-    ;;  :base-pay (v/validate-or-default inputs :base-pay [v/number-validator] 0)
-    ;;  :business-function (v/validate-or-default inputs :business-function [v/string-validator] nil)
-    ;;  :pay-structure (v/validate inputs :pay-structure [pay-structure-validator])
-    ;;  :benefits-allowance (v/validate-or-default inputs :benefits-allowance [(v/generate-range-validator 0 1)] 0)
-    ;;  :pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}
-    ))
+(defn generate-report-month [month inputs]
+  {(t/format-month month) {}})
 
 (defn handle [raw-inputs]
-  (let [{:keys [number-of-hires] :as inputs} (validate-inputs raw-inputs)]
+  (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
     (prn :validated-inputs inputs)
-    {:done "OK"}))
+    (first (reduce (fn [[report month] _]
+                     (prn :reduce report month) ;;;
+                     [(merge report (generate-report-month month inputs))
+                      (t/next-month month)])
+                   [{} projections-start-date]
+                   (repeat (* projections-duration 12) nil)))))

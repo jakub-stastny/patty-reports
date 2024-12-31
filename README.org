@@ -15,4 +15,7 @@ Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
 
   # Verify the service is running.
   curl https://patty-reports.fly.dev/api/v1/ping
+
+  # Staff report.
+  curl https://patty-reports.fly.dev/api/v1/reports/staff-plan --json '{"pay-structure": "Hourly Rate"}'
 #+end_src

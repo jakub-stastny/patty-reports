@@ -30,6 +30,9 @@
 (def dt-converter
   (make-validator :dt-converter "" #(t/ts-to-date %)))
 
+(def month-converter
+  (make-validator :month-converter "" #(t/extract-year-and-month (t/ts-to-date %))))
+
 (defn- throw-validation-error [m k v]
   (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
 
