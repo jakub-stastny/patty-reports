@@ -15,7 +15,35 @@ Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
 
   # Verify the service is running.
   curl https://patty-reports.fly.dev/api/v1/ping
+#+end_src
 
-  # Staff report.
-  curl https://patty-reports.fly.dev/api/v1/reports/staff-plan --json '{"pay-structure": "Hourly Rate"}'
+* API
+
+#+begin_src sh
+  # Make a request.
+  curl http://localhost:8080/api/v1/reports/staff-plan --json @requests/1-base.json | jq
+
+  # Shortcut (see .env/zsh.zsh).
+  report staff-plan requests/1-base.json
+#+end_src
+
+** Staff plan
+*** Minimal request
+Only required properties are provided.
+
+#+begin_src json :tangle requests/1-base.json
+  {"pay-structure": "Hourly Rate", "base-pay": 400}
+#+end_src
+
+*** Pay changes
+- ~projections-start-date~: January 2025.
+- ~pay-changes[0].effective-date~: (14th) February 2025.
+
+#+begin_src json :tangle requests/2-pay-changes.json
+  {
+    "projections-start-date": 1735687848739,
+    "pay-structure": "Weekly Salary",
+    "base-pay": 400,
+    "pay-changes": [{"effective-date": 1749792000000, "new-value": 450}]
+  }
 #+end_src
