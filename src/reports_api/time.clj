@@ -44,5 +44,9 @@
 (defn current-month []
   (extract-year-and-month (now)))
 
-(defn format-month [month]
-  (format "%d-%02d" (:year month) (:month month)))
+(defn format-month [{:keys [year month]}]
+  (format "%d-%02d" year month))
+
+(defn compare-month [m1 m2]
+  (compare (+ (* (:year m1) 12) (:month m1))
+           (+ (* (:year m2) 12) (:month m2))))
