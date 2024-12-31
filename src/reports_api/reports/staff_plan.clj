@@ -42,15 +42,34 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-(defn calculate-monthly-pay [month {:keys [employment-start-date employment-end-date work-weeks-per-year
-                                        work-hours-per-week base-pay pay-changes pay-structure]}]
+(defn calculate-pro-rata-base-pay [rate changes]
+  (let [rates (map (fn [ch]) changes)]
+    (if (some #(= 1 (:since %)) rates)
+      rates
+      (into [{:since 1 :rate rate}] rates))))
+
+;; TODO: Also consider employment-start-date/employment-end-date.
+(defn calculate-current-base-pay [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
+  (let [last-pay-change-before-current-month nil ;; TODO
+        current-base-pay-rate (if last-pay-change-before-current-month (:new-value last-pay-change-before-current-month) base-pay)
+        current-month-pay-changes []] ;; TODO
+    (cond
+      (empty? current-month-pay-changes)
+      [{:since 1 :rate current-base-pay-rate}]
+
+      (seq current-month-pay-changes)
+      (calculate-pro-rata-base-pay current-base-pay-rate current-month-pay-changes)
+
+      :else
+      (throw (ex-info "Unhandled clause" {:fn :calculate-current-base-pay :month month :base-pay base-pay :pay-changes pay-changes})))))
+
+(defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
   (prn :monthly-pay month)
+  (let [current-base-pay (calculate-current-base-pay month inputs)]
+    (prn :current-base-pay current-base-pay))
   ;; work-weeks-per-year, work-hours-per-week
   ;; base-pay & pay-changes
   ;; pay-structure
-
-  ;; TODO: compare empoyment start/end dates to the current month.
-  ;; Consider partial months.
   0)
 
 (defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
