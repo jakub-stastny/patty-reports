@@ -33,7 +33,6 @@
         (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
         (merge (validate-or-default :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
         (merge (validate-or-default :number-of-hires [v/positive-number-validator] 1))
-
         (merge (validate-or-default :work-weeks-per-year [v/number-validator] 0))
         (merge (validate-or-default :work-hours-per-week [v/number-validator] 0))
         (merge (validate-or-default :base-pay [v/number-validator] 0))
@@ -43,21 +42,18 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-;; When preparing the figures you need to consider the
-;; employment_start_date and employment_end_dates and compare them to
-;; each projection month. You should only calculate values during the
-;; time the person/group is employed. And you need to consider partial
-;; months - a projection month always starts on the 1st of the month
-;; but an employee could start or end on any date during a month so
-;; you need to do a pro-rata calculation.
-;;
-;; All the formulae need to be multiplied by number_of_hires
-(defn calculate-base-pay [{:keys [benefits-allowance employer-tax-rate]}]
+(defn calculate-base-pay [month {:keys [employment-start-date employment-end-date]}]
+  (prn :base-pay month)
+  ;; work-weeks-per-year, work-hours-per-week
+  ;; base-pay & pay-changes
+  ;; pay-structure
+
+  ;; TODO: compare empoyment start/end dates to the current month.
+  ;; Consider partial months.
   0)
 
-(defn generate-report-month [month {:keys [benefits-allowance employer-tax-rate] :as inputs}]
-  (prn :row month) ;;;
-  (let [base-pay (calculate-base-pay inputs)
+(defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
+  (let [base-pay (* (calculate-base-pay month inputs) number-of-hires)
         benefits (* base-pay benefits-allowance)
         employer-payroll-tax (* base-pay employer-tax-rate)
         staff-cost (+ base-pay benefits employer-payroll-tax)]
