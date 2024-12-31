@@ -22,9 +22,8 @@
   {:effective-date (v/validate pc :effective-date [v/timestamp-validator v/dt-converter])
    :new-value (v/validate pc :new-value [v/number-validator])})
 
-(defn validate-inputs [raw-inputs]
-  (let [inputs (h/transform-keys-to-kebab-case raw-inputs)
-        validate (fn [k validators] {k (v/validate inputs k validators)})
+(defn validate-inputs [inputs]
+  (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
 
     (-> {}
@@ -67,7 +66,7 @@
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-    (prn :validated-inputs inputs)
+    (prn :clean-inputs inputs)
     (first (reduce (fn [[report month] _]
                      [(conj report (generate-report-month month inputs)) (t/next-month month)])
                    [[] projections-start-date]

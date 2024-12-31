@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [cheshire.core :as json]
             [ring.adapter.jetty :refer [run-jetty]]
+            [reports-api.helpers :as h]
             [reports-api.reports.staff-plan :refer [handle] :rename {handle handle-staff-plan}])
   (:gen-class))
 
@@ -21,7 +22,12 @@
 
 (defn handler [handle-fn request]
   (try
-    (response 200 (handle-fn (parse-json-body request)))
+    (let [raw-inputs (parse-json-body request)
+          inputs (h/transform-keys-to-kebab-case raw-inputs)
+          _ (prn :provided-inputs inputs)
+          result (handle-fn inputs)
+          _ (prn :result result)]
+      (response 200 (h/transform-keys-to-snake-case result)))
     (catch clojure.lang.ExceptionInfo e
       (let [data (ex-data e)]
         (if (= :validation-error (:type data))
