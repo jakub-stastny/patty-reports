@@ -35,24 +35,43 @@
         (merge (validate-or-default :number-of-hires [v/positive-number-validator] 1))
         (merge (validate-or-default :work-weeks-per-year [v/number-validator] 0))
         (merge (validate-or-default :work-hours-per-week [v/number-validator] 0))
-        (merge (validate-or-default :base-pay [v/number-validator] 0))
+        (merge (validate :base-pay [v/number-validator]))
         (merge (validate-or-default :business-function [v/string-validator] nil))
         (merge (validate :pay-structure [pay-structure-validator]))
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
-        (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
+        (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
-(defn calculate-pro-rata-base-pay [rate changes]
-  (let [rates (map (fn [ch]) changes)]
+;; TODO
+(defn calculate-pro-rata-base-pay [rate current-month-pay-changes]
+  (prn :CPRBP rate current-month-pay-changes)
+  (let [rates (map (fn [ch]) current-month-pay-changes)]
     (if (some #(= 1 (:since %)) rates)
       rates
       (into [{:since 1 :rate rate}] rates))))
 
+;; TODO
+(defn find-last-pay-change-before-current-month [month pay-changes]
+  (prn :FLPCBCM month pay-changes)
+  (first (sort-by :month t/compare-month (filter #(identity) pay-changes))))
+
+;; TODO
+(defn filter-current-month-pay-changes [month pay-changes]
+  (prn :FCMPC month pay-changes)
+  [])
+
 ;; TODO: Also consider employment-start-date/employment-end-date.
 (defn calculate-current-base-pay [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
-  (let [last-pay-change-before-current-month nil ;; TODO
-        current-base-pay-rate (if last-pay-change-before-current-month (:new-value last-pay-change-before-current-month) base-pay)
-        current-month-pay-changes []] ;; TODO
+  (let [last-pay-change-before-current-month
+        (find-last-pay-change-before-current-month month pay-changes)
+
+        current-base-pay-rate
+        (if last-pay-change-before-current-month
+          (:new-value last-pay-change-before-current-month)
+          base-pay)
+
+        current-month-pay-changes
+        (filter-current-month-pay-changes month pay-changes)]
     (cond
       (empty? current-month-pay-changes)
       [{:since 1 :rate current-base-pay-rate}]
