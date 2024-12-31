@@ -41,11 +41,29 @@
         (merge (validate-or-default :business-function [v/string-validator] nil))
         (merge (validate :pay-structure [pay-structure-validator]))
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (map validate-pay-change (or (:pay-changes inputs) []))))))
 
-(defn generate-report-month [month {:keys [employment-start-date]}]
+;; When preparing the figures you need to consider the
+;; employment_start_date and employment_end_dates and compare them to
+;; each projection month. You should only calculate values during the
+;; time the person/group is employed. And you need to consider partial
+;; months - a projection month always starts on the 1st of the month
+;; but an employee could start or end on any date during a month so
+;; you need to do a pro-rata calculation.
+;;
+;; All the formulae need to be multiplied by number_of_hires
+(defn calculate-base-pay [{:keys [benefits-allowance employer-tax-rate]}]
+  0)
+
+(defn generate-report-month [month {:keys [benefits-allowance employer-tax-rate] :as inputs}]
   (prn :row month) ;;;
-  {(t/format-month month) {}})
+  (let [base-pay (calculate-base-pay inputs)
+        benefits (* base-pay benefits-allowance)
+        employer-payroll-tax (* base-pay employer-tax-rate)
+        staff-cost (+ base-pay benefits employer-payroll-tax)]
+    {:month (t/format-month month) :base-pay base-pay :benefits benefits
+     :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
