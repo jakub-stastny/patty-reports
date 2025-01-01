@@ -42,23 +42,22 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
-;; TODO
 (defn calculate-pro-rata-base-pay [rate current-month-pay-changes]
-  (prn :CPRBP rate current-month-pay-changes)
-  (let [rates (map (fn [ch]) current-month-pay-changes)]
+  (let [rates
+        (map (fn [pc]
+               {:since (.getDayOfMonth (:effective-date pc)) :rate (:new-value pc)})
+             current-month-pay-changes)]
     (if (some #(= 1 (:since %)) rates)
       rates
       (into [{:since 1 :rate rate}] rates))))
 
-;; TODO
 (defn find-last-pay-change-before-current-month [month pay-changes]
-  (prn :FLPCBCM month pay-changes)
-  (first (sort-by :month t/compare-month (filter #(identity) pay-changes))))
+  (let [prev-changes
+        (filter #(= 1 (t/compare-month month (t/extract-year-and-month (:effective-date %)))) pay-changes)]
+    (last (sort-by :effective-date prev-changes))))
 
-;; TODO
 (defn filter-current-month-pay-changes [month pay-changes]
-  (prn :FCMPC month pay-changes)
-  [])
+  (filter #(= 0 (t/compare-month month (t/extract-year-and-month (:effective-date %)))) pay-changes))
 
 ;; TODO: Also consider employment-start-date/employment-end-date.
 (defn calculate-current-base-pay [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
@@ -80,12 +79,15 @@
       (calculate-pro-rata-base-pay current-base-pay-rate current-month-pay-changes)
 
       :else
-      (throw (ex-info "Unhandled clause" {:fn :calculate-current-base-pay :month month :base-pay base-pay :pay-changes pay-changes})))))
+      (throw (ex-info "Unhandled clause"
+                      {:fn :calculate-current-base-pay :month month
+                       :base-pay base-pay :pay-changes pay-changes})))))
 
 (defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
-  (prn :monthly-pay month)
+  ;; (prn :monthly-pay month)
   (let [current-base-pay (calculate-current-base-pay month inputs)]
-    (prn :current-base-pay current-base-pay))
+    ;; (prn :current-base-pay current-base-pay)
+    )
   ;; work-weeks-per-year, work-hours-per-week
   ;; base-pay & pay-changes
   ;; pay-structure
