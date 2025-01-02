@@ -33,8 +33,8 @@
         (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
         (merge (validate-or-default :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
         (merge (validate-or-default :number-of-hires [v/positive-number-validator] 1))
-        (merge (validate-or-default :work-weeks-per-year [v/number-validator] 0))
-        (merge (validate-or-default :work-hours-per-week [v/number-validator] 0))
+        (merge (validate-or-default :work-weeks-per-year [v/number-validator] 52))
+        (merge (validate-or-default :work-hours-per-week [v/number-validator] 40))
         (merge (validate :base-pay [v/number-validator]))
         (merge (validate-or-default :business-function [v/string-validator] nil))
         (merge (validate :pay-structure [pay-structure-validator]))
@@ -60,7 +60,8 @@
   (filter #(= 0 (t/compare-month month (t/extract-year-and-month (:effective-date %)))) pay-changes))
 
 ;; TODO: Also consider employment-start-date/employment-end-date.
-(defn calculate-current-base-pay [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
+;; Just put {:since n :rate 0}
+(defn calculate-current-rates [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
   (let [last-pay-change-before-current-month
         (find-last-pay-change-before-current-month month pay-changes)
 
@@ -84,22 +85,30 @@
                        :base-pay base-pay :pay-changes pay-changes})))))
 
 (defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
-  ;; (prn :monthly-pay month)
-  (let [current-base-pay (calculate-current-base-pay month inputs)]
-    ;; (prn :current-base-pay current-base-pay)
-    )
-  ;; work-weeks-per-year, work-hours-per-week
-  ;; base-pay & pay-changes
-  ;; pay-structure
-  0)
+  ;; TODO: implement pro-rata.
+  (let [current-rates (calculate-current-rates month inputs)
+        percentage-of-working-time (/ 52 work-weeks-per-year)]
+    (case pay-structure
+      :hourly-rate (let [rate (:rate (first current-rates))]
+                   (int (* work-hours-per-week rate percentage-of-working-time)))
+
+      :weekly-salary (let [rate (:rate (first current-rates))
+                           weeks-per-month (/ 52 12)]
+                       (int (* weeks-per-month rate percentage-of-working-time)))
+
+      :monthly-salary (let [rate (:rate (first current-rates))]
+                        (int (* rate percentage-of-working-time)))
+
+      :annual-salary (let [rate (:rate (first current-rates))]
+                       (int (* (/ rate 12) percentage-of-working-time))))))
 
 (defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
   (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
         benefits (* monthly-pay benefits-allowance)
         employer-payroll-tax (* monthly-pay employer-tax-rate)
         staff-cost (+ monthly-pay benefits employer-payroll-tax)]
-    {:month (t/format-month month) :monthly-pay monthly-pay :benefits benefits
-     :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
+    {:month (t/format-month month) :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
+     :benefits benefits :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
