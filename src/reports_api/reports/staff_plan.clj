@@ -84,15 +84,34 @@
                       {:fn :calculate-current-base-pay :month month
                        :base-pay base-pay :pay-changes pay-changes})))))
 
+;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
+;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
+(defn convert-rates-to-ratios [rates]
+  (let [days-in-month 30]
+    (->> (partition 2 1 (concat rates [nil]))
+         (map (fn [[current next]]
+                (if current
+                  {:days (if next
+                           (- (:since next) (:since current))
+                           (- days-in-month (:since current) -1))
+                   :rate (:rate current)})))
+         (remove nil?))))
+
 (defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
   ;; TODO: implement pro-rata.
   (let [current-rates (calculate-current-rates month inputs)
+        current-ratios (convert-rates-to-ratios current-rates)
         percentage-of-working-time (/ 52 work-weeks-per-year)]
+    ;; (prn :cr current-rates current-ratios)
     (case pay-structure
       :hourly-rate (let [rate (:rate (first current-rates))]
-                   (int (* work-hours-per-week rate percentage-of-working-time)))
+                     ;; (when (> (count current-rates) 1)
+                     ;;   (prn :hr month current-rates)) ;;;;;;;
+                     (int (* work-hours-per-week rate percentage-of-working-time)))
 
       :weekly-salary (let [rate (:rate (first current-rates))
+                           ;; work-days-per-month (/ (* 365 (/ 5 7)) 12)
+                           ;; weeks-per-month (/ work-days-per-month 5)
                            weeks-per-month (/ 52 12)]
                        (int (* weeks-per-month rate percentage-of-working-time)))
 
