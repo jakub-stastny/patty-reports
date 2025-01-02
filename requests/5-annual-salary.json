@@ -1,5 +1,7 @@
 {
   "projections-start-date": 1735687848739,
+  "employment-start-date": 1738735200000,
+  "employment-end-date": 1762322400000,
   "pay-structure": "Annual Salary",
   "base-pay": 90000,
   "pay-changes": [

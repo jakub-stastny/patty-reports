@@ -7,7 +7,7 @@
 
 * Deployment
 
-Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
+  Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
 
 #+begin_src sh
   # Build the uberjar and deploy to Fly.
@@ -29,19 +29,28 @@ Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
 
 ** Staff plan
 *** Minimal request
-Only required properties are provided.
+  Only required properties are provided.
 
 #+begin_src json :tangle requests/1-base.json :mkdirp yes
   {"pay-structure": "Hourly Rate", "base-pay": 400}
 #+end_src
 
+*** Advanced requests
+**** Legend
+  This applies to all the following sections.
+
+  - ~projections-start-date~: 31/12/2024.
+  - ~pay-changes[0].effective-date~: 13/5/2025.
+  - ~employment-start-date~: 5/2/2025.
+  - ~employment-end-date~: 5/11/2025.
+
 *** Hourly rate
-- ~projections-start-date~: January 2025.
-- ~pay-changes[0].effective-date~: (14th) February 2025.
 
 #+begin_src json :tangle requests/2-hourly-rate.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1762322400000,
     "pay-structure": "Hourly Rate",
     "base-pay": 90,
     "pay-changes": [
@@ -52,12 +61,12 @@ Only required properties are provided.
 #+end_src
 
 *** Weekly salary
-- ~projections-start-date~: January 2025.
-- ~pay-changes[0].effective-date~: (14th) February 2025.
 
 #+begin_src json :tangle requests/3-weekly-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1762322400000,
     "pay-structure": "Weekly Salary",
     "base-pay": 3600,
     "pay-changes": [
@@ -68,12 +77,12 @@ Only required properties are provided.
 #+end_src
 
 *** Monthly salary
-- ~projections-start-date~: January 2025.
-- ~pay-changes[0].effective-date~: (14th) February 2025.
 
 #+begin_src json :tangle requests/4-monthly-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1762322400000,
     "pay-structure": "Monthly Salary",
     "base-pay": 7500,
     "pay-changes": [
@@ -84,12 +93,12 @@ Only required properties are provided.
 #+end_src
 
 *** Annual salary
-- ~projections-start-date~: January 2025.
-- ~pay-changes[0].effective-date~: (14th) February 2025.
 
 #+begin_src json :tangle requests/5-annual-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1762322400000,
     "pay-structure": "Annual Salary",
     "base-pay": 90000,
     "pay-changes": [
@@ -101,4 +110,4 @@ Only required properties are provided.
 
 * References
 
-- [[https://www.unixtimestamp.com][Unix timestamp online tool]].
+  - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
