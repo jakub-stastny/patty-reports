@@ -18,7 +18,7 @@
 ;; (defn date-to-ts [local-date-time]
 ;;   (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
 
-(defn extract-year-and-month [local-date-time]
+(defn date-to-month [local-date-time]
   {:year (.getYear local-date-time)
    :month (.getMonthValue local-date-time)})
 
@@ -48,15 +48,18 @@
      {:year years :month months})))
 
 (defn current-month []
-  (extract-year-and-month (now)))
+  (date-to-month (now)))
 
 (defn format-month [{:keys [year month]}]
   (format "%d-%02d" year month))
 
+(defn month-to-int [{:keys [year month] :as m}]
+  (assert-month m)
+  (+ (* year 12) month))
+
 (defn compare-month [m1 m2]
   (and (assert-month m1) (assert-month m2))
-  (compare (+ (* (:year m1) 12) (:month m1))
-           (+ (* (:year m2) 12) (:month m2))))
+  (compare (month-to-int m1) (month-to-int m2)))
 
 (defn month-to-ts [{:keys [year month] :as m}]
   (assert-month m)

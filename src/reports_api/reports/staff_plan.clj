@@ -42,7 +42,9 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
-(defn calculate-pro-rata-base-pay [rate current-month-pay-changes]
+;; TODO: Also consider employment-start-date/employment-end-date.
+;; Just put {:since n :rate 0}
+(defn calculate-pro-rata-base-pay [rate current-month-pay-changes employment-start-date employment-end-date]
   (let [rates
         (map (fn [pc]
                {:since (.getDayOfMonth (:effective-date pc)) :rate (:new-value pc)})
@@ -53,36 +55,43 @@
 
 (defn find-last-pay-change-before-current-month [month pay-changes]
   (let [prev-changes
-        (filter #(= 1 (t/compare-month month (t/extract-year-and-month (:effective-date %)))) pay-changes)]
+        (filter #(= 1 (t/compare-month month (t/date-to-month (:effective-date %)))) pay-changes)]
     (last (sort-by :effective-date prev-changes))))
 
 (defn filter-current-month-pay-changes [month pay-changes]
-  (filter #(= 0 (t/compare-month month (t/extract-year-and-month (:effective-date %)))) pay-changes))
+  (filter #(= 0 (t/compare-month month (t/date-to-month (:effective-date %)))) pay-changes))
 
-;; TODO: Also consider employment-start-date/employment-end-date.
-;; Just put {:since n :rate 0}
 (defn calculate-current-rates [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
   (let [last-pay-change-before-current-month
         (find-last-pay-change-before-current-month month pay-changes)
+        dt-to-int #(t/month-to-int (t/date-to-month %))
+
+        ;; TODO: <=, is the equality also OK?
+        working-on-the-1st
+        (<= (dt-to-int employment-start-date)
+            (t/month-to-int month)
+            (dt-to-int employment-end-date))
+
+        work-status-changes-this-month
+        (or (= month (dt-to-int employment-start-date))
+            (= month (dt-to-int employment-end-date)))
 
         current-base-pay-rate
-        (if last-pay-change-before-current-month
+        (cond
+          (not working-on-the-1st) 0
+
+          (and last-pay-change-before-current-month)
           (:new-value last-pay-change-before-current-month)
-          base-pay)
+
+          :else base-pay)
 
         current-month-pay-changes
         (filter-current-month-pay-changes month pay-changes)]
-    (cond
-      (empty? current-month-pay-changes)
+
+    (if (and (empty? current-month-pay-changes)
+             (not work-status-changes-this-month))
       [{:since 1 :rate current-base-pay-rate}]
-
-      (seq current-month-pay-changes)
-      (calculate-pro-rata-base-pay current-base-pay-rate current-month-pay-changes)
-
-      :else
-      (throw (ex-info "Unhandled clause"
-                      {:fn :calculate-current-base-pay :month month
-                       :base-pay base-pay :pay-changes pay-changes})))))
+      (calculate-pro-rata-base-pay current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
@@ -101,6 +110,7 @@
   (let [current-rates (calculate-current-rates month inputs)
         current-ratios (convert-rates-to-ratios current-rates)
         percentage-of-working-time (/ 52 work-weeks-per-year)]
+    ;; TODO: Refactor this.
     (case pay-structure
       :hourly-rate (int (reduce (fn [acc {:keys [days rate]}]
                                   (let [pro-rata-ratio (/ days 30)]
