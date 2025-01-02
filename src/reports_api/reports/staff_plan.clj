@@ -27,7 +27,7 @@
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
 
     (-> {}
-        (merge (validate-or-default :projections-duration [v/generate-range-validator 1 5] 1))
+        (merge (validate-or-default :projections-duration [(v/generate-range-validator 1 5)] 1))
         (merge (validate-or-default :projections-start-date [v/timestamp-validator v/month-converter] (t/current-month)))
 
         (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
@@ -98,28 +98,37 @@
          (remove nil?))))
 
 (defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
-  ;; TODO: implement pro-rata.
   (let [current-rates (calculate-current-rates month inputs)
         current-ratios (convert-rates-to-ratios current-rates)
         percentage-of-working-time (/ 52 work-weeks-per-year)]
-    ;; (prn :cr current-rates current-ratios)
     (case pay-structure
-      :hourly-rate (let [rate (:rate (first current-rates))]
-                     ;; (when (> (count current-rates) 1)
-                     ;;   (prn :hr month current-rates)) ;;;;;;;
-                     (int (* work-hours-per-week rate percentage-of-working-time)))
+      :hourly-rate (int (reduce (fn [acc {:keys [days rate]}]
+                                  (let [pro-rata-ratio (/ days 30)]
+                                    (+ acc
+                                       (* pro-rata-ratio work-hours-per-week rate percentage-of-working-time))))
+                                0 current-ratios))
 
-      :weekly-salary (let [rate (:rate (first current-rates))
-                           ;; work-days-per-month (/ (* 365 (/ 5 7)) 12)
-                           ;; weeks-per-month (/ work-days-per-month 5)
-                           weeks-per-month (/ 52 12)]
-                       (int (* weeks-per-month rate percentage-of-working-time)))
+      :weekly-salary (let [weeks-per-month (/ 52 12)]
+                       (int
+                        (reduce (fn [acc {:keys [days rate]}]
+                                  (let [pro-rata-ratio (/ days 30)]
+                                    (+ acc
+                                       (* pro-rata-ratio weeks-per-month rate percentage-of-working-time))))
+                                0 current-ratios)))
 
-      :monthly-salary (let [rate (:rate (first current-rates))]
-                        (int (* rate percentage-of-working-time)))
+      :monthly-salary (int
+                       (reduce (fn [acc {:keys [days rate]}]
+                                 (let [pro-rata-ratio (/ days 30)]
+                                   (+ acc
+                                      (* pro-rata-ratio rate percentage-of-working-time))))
+                               0 current-ratios))
 
-      :annual-salary (let [rate (:rate (first current-rates))]
-                       (int (* (/ rate 12) percentage-of-working-time))))))
+      :annual-salary (int
+                      (reduce (fn [acc {:keys [days rate]}]
+                                (let [pro-rata-ratio (/ days 30)]
+                                  (+ acc
+                                     (* pro-rata-ratio (/ rate 12) percentage-of-working-time))))
+                              0 current-ratios)))))
 
 (defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
   (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
