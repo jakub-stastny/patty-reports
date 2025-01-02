@@ -25,7 +25,7 @@
 (defn generate-range-validator [min max]
   (make-validator (keyword (str min "-to-" max))
                   (str "must be between " min " and " max)
-                  #(and (<= min % max))))
+                  #(and (<= min % max) %)))
 
 (def dt-converter
   (make-validator :dt-converter "" #(t/ts-to-date %)))
