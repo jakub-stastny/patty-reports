@@ -18,24 +18,30 @@
 ;; (defn date-to-ts [local-date-time]
 ;;   (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
 
-;; CHANGE: convert everything into {:month, :year} map.
 (defn extract-year-and-month [local-date-time]
   {:year (.getYear local-date-time)
    :month (.getMonthValue local-date-time)})
+
+(defn assert-month [{:keys [year month] :as m}]
+  (assert (int? year) (str "Year must be a number, got " (pr-str m)))
+  (assert (and (int? month) (<= 1 month 12))
+          (str "Month must be a number between 1 and 12, got " (pr-str m))))
 
 (defn next-month
   ([month] (next-month month 1))
 
   ([month step]
+   (assert-month month)
    (let [total-months (+ (* (:year month) 12) (:month month) step)
-         years (quot total-months 12)
-         months (mod total-months 12)]
+         years (quot (dec total-months) 12)
+         months (inc (mod (dec total-months) 12))]
      {:year years :month months})))
 
 (defn prev-month
   ([month] (prev-month month 1))
 
   ([month step]
+   (assert-month month)
    (let [total-months (+ (* (:year month) 12) (:month month) step)
          years (quot total-months 12)
          months (mod total-months 12)]
@@ -48,10 +54,12 @@
   (format "%d-%02d" year month))
 
 (defn compare-month [m1 m2]
+  (and (assert-month m1) (assert-month m2))
   (compare (+ (* (:year m1) 12) (:month m1))
            (+ (* (:year m2) 12) (:month m2))))
 
-(defn month-to-ts [{:keys [year month]}]
+(defn month-to-ts [{:keys [year month] :as m}]
+  (assert-month m)
   (-> (LocalDateTime/of year month 1 0 0)
       (.atZone ZoneOffset/UTC)
       (.toInstant)
