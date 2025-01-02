@@ -50,3 +50,9 @@
 (defn compare-month [m1 m2]
   (compare (+ (* (:year m1) 12) (:month m1))
            (+ (* (:year m2) 12) (:month m2))))
+
+(defn month-to-ts [{:keys [year month]}]
+  (-> (LocalDateTime/of year month 1 0 0)
+      (.atZone ZoneOffset/UTC)
+      (.toInstant)
+      (.toEpochMilli)))
