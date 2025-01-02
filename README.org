@@ -31,22 +31,74 @@ Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
 *** Minimal request
 Only required properties are provided.
 
-#+begin_src json :tangle requests/1-base.json
+#+begin_src json :tangle requests/1-base.json :mkdirp yes
   {"pay-structure": "Hourly Rate", "base-pay": 400}
 #+end_src
 
-*** Pay changes
+*** Hourly rate
 - ~projections-start-date~: January 2025.
 - ~pay-changes[0].effective-date~: (14th) February 2025.
 
-#+begin_src json :tangle requests/2-pay-changes.json
+#+begin_src json :tangle requests/2-hourly-rate.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
-    "pay-structure": "Weekly Salary",
-    "base-pay": 400,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
     "pay-changes": [
-        {"effective-date": 1749792000000, "new-value": 450},
-        {"effective-date": 1758174731000, "new-value": 475}
+        {"effective-date": 1749792000000, "new-value": 100},
+        {"effective-date": 1758174731000, "new-value": 120}
     ]
   }
 #+end_src
+
+*** Weekly salary
+- ~projections-start-date~: January 2025.
+- ~pay-changes[0].effective-date~: (14th) February 2025.
+
+#+begin_src json :tangle requests/3-weekly-salary.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "pay-structure": "Weekly Salary",
+    "base-pay": 3600,
+    "pay-changes": [
+        {"effective-date": 1749792000000, "new-value": 4000},
+        {"effective-date": 1758174731000, "new-value": 4800}
+    ]
+  }
+#+end_src
+
+*** Monthly salary
+- ~projections-start-date~: January 2025.
+- ~pay-changes[0].effective-date~: (14th) February 2025.
+
+#+begin_src json :tangle requests/4-monthly-salary.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "pay-structure": "Monthly Salary",
+    "base-pay": 7500,
+    "pay-changes": [
+        {"effective-date": 1749792000000, "new-value": 8333},
+        {"effective-date": 1758174731000, "new-value": 10000}
+    ]
+  }
+#+end_src
+
+*** Annual salary
+- ~projections-start-date~: January 2025.
+- ~pay-changes[0].effective-date~: (14th) February 2025.
+
+#+begin_src json :tangle requests/5-annual-salary.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "pay-structure": "Annual Salary",
+    "base-pay": 90000,
+    "pay-changes": [
+        {"effective-date": 1749792000000, "new-value": 100000},
+        {"effective-date": 1758174731000, "new-value": 120000}
+    ]
+  }
+#+end_src
+
+* References
+
+- [[https://www.unixtimestamp.com][Unix timestamp online tool]].

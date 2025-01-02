@@ -1,0 +1,9 @@
+{
+  "projections-start-date": 1735687848739,
+  "pay-structure": "Monthly Salary",
+  "base-pay": 7500,
+  "pay-changes": [
+      {"effective-date": 1749792000000, "new-value": 8333},
+      {"effective-date": 1758174731000, "new-value": 10000}
+  ]
+}
