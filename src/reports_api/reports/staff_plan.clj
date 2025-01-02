@@ -42,15 +42,22 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
-;; TODO: Also consider employment-start-date/employment-end-date.
-;; Just put {:since n :rate 0}
-(defn calculate-pro-rata-base-pay [rate current-month-pay-changes employment-start-date employment-end-date]
+(defn calculate-pro-rata-base-pay [month rate current-month-pay-changes employment-start-date employment-end-date]
   (let [rates
         (map (fn [pc]
                {:since (.getDayOfMonth (:effective-date pc)) :rate (:new-value pc)})
-             current-month-pay-changes)]
+             current-month-pay-changes)
+
+        rates
+        (if (= month (t/date-to-month employment-start-date))
+          (conj rates {:since (.getDayOfMonth employment-start-date) :rate rate}) rates)
+
+        rates
+        (if (= month (t/date-to-month employment-start-date))
+          (conj rates {:since (.getDayOfMonth employment-end-date) :rate rate}) rates)]
+
     (if (some #(= 1 (:since %)) rates)
-      rates
+      (into [] rates)
       (into [{:since 1 :rate rate}] rates))))
 
 (defn find-last-pay-change-before-current-month [month pay-changes]
@@ -91,7 +98,7 @@
     (if (and (empty? current-month-pay-changes)
              (not work-status-changes-this-month))
       [{:since 1 :rate current-base-pay-rate}]
-      (calculate-pro-rata-base-pay current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
+      (calculate-pro-rata-base-pay month current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
