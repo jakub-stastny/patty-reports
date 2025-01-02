@@ -33,7 +33,7 @@
         (if (= :validation-error (:type data))
           (response 400 data)
           (response 500 data))))
-    (catch Exception e
+    (catch Throwable e
       (prn e)
       (response 500 {:error (str (type e) ": " (.getMessage e))}))))
 
