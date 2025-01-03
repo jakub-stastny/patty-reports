@@ -19,8 +19,10 @@
                         (get pay-structure-opts matched-key)))))
 
 (defn validate-pay-change [pc]
-  {:effective-date (v/validate pc :effective-date [v/timestamp-validator v/dt-converter])
-   :new-value (v/validate pc :new-value [v/number-validator])})
+  (let [[ts _ value] (str/split pc #"\|")
+        [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
+    {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
+     :new-value (v/validate {:value value} :value [v/double-validator])}))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})

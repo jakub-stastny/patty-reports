@@ -8,6 +8,10 @@
   (make-validator :number "must be 0 or larger"
                   #(and (number? %) (not (neg? %)) %)))
 
+(def double-validator
+  (make-validator :double "must be 0.0 or larger"
+                  #(and (double? %) (not (neg? %)) %)))
+
 (def positive-number-validator
   (make-validator :positive-number "must be a positive number"
                   #(and (number? %) (pos? %) %)))

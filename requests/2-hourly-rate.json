@@ -5,7 +5,7 @@
   "pay-structure": "Hourly Rate",
   "base-pay": 90,
   "pay-changes": [
-      {"effective-date": 1743487200000, "new-value": 100},
-      {"effective-date": 1749708000000, "new-value": 120}
+    "1743487200000|Apr 01, 2025|100",
+    "1749708000000|Jun 12, 2025|120"
   ]
 }

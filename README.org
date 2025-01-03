@@ -31,6 +31,7 @@
 
 ** Staff plan
 *** Minimal request
+
   Only required properties are provided.
 
 #+begin_src json :tangle requests/1-base.json :mkdirp yes
@@ -56,8 +57,8 @@
     "pay-structure": "Hourly Rate",
     "base-pay": 90,
     "pay-changes": [
-        {"effective-date": 1743487200000, "new-value": 100},
-        {"effective-date": 1749708000000, "new-value": 120}
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
     ]
   }
 #+end_src
@@ -72,8 +73,8 @@
     "pay-structure": "Weekly Salary",
     "base-pay": 3600,
     "pay-changes": [
-        {"effective-date": 1743487200000, "new-value": 4000},
-        {"effective-date": 1749708000000, "new-value": 4800}
+      "1743487200000|Apr 01, 2025|4000",
+      "1749708000000|Jun 12, 2025|4800"
     ]
   }
 #+end_src
@@ -88,8 +89,8 @@
     "pay-structure": "Monthly Salary",
     "base-pay": 7500,
     "pay-changes": [
-        {"effective-date": 1743487200000, "new-value": 8333},
-        {"effective-date": 1749708000000, "new-value": 10000}
+      "1743487200000|Apr 01, 2025|8333",
+      "1749708000000|Jun 12, 2025|10000"
     ]
   }
 #+end_src
@@ -104,8 +105,8 @@
     "pay-structure": "Annual Salary",
     "base-pay": 90000,
     "pay-changes": [
-        {"effective-date": 1743487200000, "new-value": 100000},
-        {"effective-date": 1749708000000, "new-value": 120000}
+      "1743487200000|Apr 01, 2025|100000",
+      "1749708000000|Jun 12, 2025|120000"
     ]
   }
 #+end_src

@@ -5,7 +5,7 @@
   "pay-structure": "Monthly Salary",
   "base-pay": 7500,
   "pay-changes": [
-      {"effective-date": 1743487200000, "new-value": 8333},
-      {"effective-date": 1749708000000, "new-value": 10000}
+    "1743487200000|Apr 01, 2025|8333",
+    "1749708000000|Jun 12, 2025|10000"
   ]
 }
