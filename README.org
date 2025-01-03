@@ -32,7 +32,7 @@
   Only required properties are provided.
 
 #+begin_src json :tangle requests/1-base.json :mkdirp yes
-  {"pay-structure": "Hourly Rate", "base-pay": 400}
+  {"pay-structure": "Hourly Rate", "base-pay": 90}
 #+end_src
 
 *** Advanced requests
@@ -40,9 +40,9 @@
   This applies to all the following sections.
 
   - ~projections-start-date~: 31/12/2024.
-  - ~pay-changes[0].effective-date~: 13/5/2025.
   - ~employment-start-date~: 5/2/2025.
-  - ~employment-end-date~: 5/11/2025.
+  - ~employment-end-date~: 5/10/2025.
+  - ~pay-changes[0].effective-date~: 1/4/2025, 12/6/2025.
 
 *** Hourly rate
 
@@ -50,12 +50,12 @@
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
-    "employment-end-date": 1762322400000,
+    "employment-end-date": 1759644000000,
     "pay-structure": "Hourly Rate",
     "base-pay": 90,
     "pay-changes": [
-        {"effective-date": 1749792000000, "new-value": 100},
-        {"effective-date": 1758174731000, "new-value": 120}
+        {"effective-date": 1743487200000, "new-value": 100},
+        {"effective-date": 1749708000000, "new-value": 120}
     ]
   }
 #+end_src
@@ -66,12 +66,12 @@
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
-    "employment-end-date": 1762322400000,
+    "employment-end-date": 1759644000000,
     "pay-structure": "Weekly Salary",
     "base-pay": 3600,
     "pay-changes": [
-        {"effective-date": 1749792000000, "new-value": 4000},
-        {"effective-date": 1758174731000, "new-value": 4800}
+        {"effective-date": 1743487200000, "new-value": 4000},
+        {"effective-date": 1749708000000, "new-value": 4800}
     ]
   }
 #+end_src
@@ -82,12 +82,12 @@
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
-    "employment-end-date": 1762322400000,
+    "employment-end-date": 1759644000000,
     "pay-structure": "Monthly Salary",
     "base-pay": 7500,
     "pay-changes": [
-        {"effective-date": 1749792000000, "new-value": 8333},
-        {"effective-date": 1758174731000, "new-value": 10000}
+        {"effective-date": 1743487200000, "new-value": 8333},
+        {"effective-date": 1749708000000, "new-value": 10000}
     ]
   }
 #+end_src
@@ -98,12 +98,12 @@
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
-    "employment-end-date": 1762322400000,
+    "employment-end-date": 1759644000000,
     "pay-structure": "Annual Salary",
     "base-pay": 90000,
     "pay-changes": [
-        {"effective-date": 1749792000000, "new-value": 100000},
-        {"effective-date": 1758174731000, "new-value": 120000}
+        {"effective-date": 1743487200000, "new-value": 100000},
+        {"effective-date": 1749708000000, "new-value": 120000}
     ]
   }
 #+end_src

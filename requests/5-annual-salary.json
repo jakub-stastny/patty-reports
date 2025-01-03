@@ -1,11 +1,11 @@
 {
   "projections-start-date": 1735687848739,
   "employment-start-date": 1738735200000,
-  "employment-end-date": 1762322400000,
+  "employment-end-date": 1759644000000,
   "pay-structure": "Annual Salary",
   "base-pay": 90000,
   "pay-changes": [
-      {"effective-date": 1749792000000, "new-value": 100000},
-      {"effective-date": 1758174731000, "new-value": 120000}
+      {"effective-date": 1743487200000, "new-value": 100000},
+      {"effective-date": 1749708000000, "new-value": 120000}
   ]
 }
