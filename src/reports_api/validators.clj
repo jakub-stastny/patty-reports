@@ -2,7 +2,7 @@
   (:require [reports-api.time :as t]))
 
 (defn make-validator [type message validator]
-  {:type type :validator validator :message message})
+  {:type type :message message :validator validator})
 
 (def number-validator
   (make-validator :number "must be 0 or larger"

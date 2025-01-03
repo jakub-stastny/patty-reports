@@ -18,6 +18,20 @@
                       (when-let [matched-key (some #(and (= % v) %) (keys pay-structure-opts))]
                         (get pay-structure-opts matched-key)))))
 
+;;  -1 or 0 or 1 for (previous/same/following month).
+;; or 3, 6, 9, 12 for last month of a quarter
+;; or 1, 4, 7, 10 for month following end of a quarter
+(def employer-tax-timing-opts
+  {:prev-month -1 :same-month 0 :following-month 1
+   :last-month-of-quarter [3 6 9 12]
+   :month-following-end-of-quarter [1 4 7 10]})
+
+(def employer-tax-timing-validator
+  (v/make-validator :employer-tax-timing
+                    (str "must be one of: " (pr-str employer-tax-timing-opts))
+                    (fn [value]
+                      (some (fn [[k v]] (when (= v value) k)) employer-tax-timing-opts))))
+
 (defn validate-pay-change [pc]
   (let [[ts _ value] (str/split pc #"\|")
         [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
@@ -42,6 +56,7 @@
         (merge (validate :pay-structure [pay-structure-validator]))
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :employer-tax-timing [employer-tax-timing-validator] :same-month))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
 (defn calculate-pro-rata-base-pay [month base-pay rate current-month-pay-changes employment-start-date employment-end-date]
