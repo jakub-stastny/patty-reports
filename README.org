@@ -40,6 +40,7 @@
 
 *** Advanced requests
 **** Legend
+
   This applies to all the following sections.
 
   - ~projections-start-date~: 31/12/2024.
@@ -47,7 +48,7 @@
   - ~employment-end-date~: 5/10/2025.
   - ~pay-changes[0].effective-date~: 1/4/2025, 12/6/2025.
 
-*** Hourly rate
+**** Hourly rate
 
 #+begin_src json :tangle requests/2-hourly-rate.json :mkdirp yes
   {
@@ -63,7 +64,7 @@
   }
 #+end_src
 
-*** Weekly salary
+**** Weekly salary
 
 #+begin_src json :tangle requests/3-weekly-salary.json :mkdirp yes
   {
@@ -79,7 +80,7 @@
   }
 #+end_src
 
-*** Monthly salary
+**** Monthly salary
 
 #+begin_src json :tangle requests/4-monthly-salary.json :mkdirp yes
   {
@@ -95,7 +96,7 @@
   }
 #+end_src
 
-*** Annual salary
+**** Annual salary
 
 #+begin_src json :tangle requests/5-annual-salary.json :mkdirp yes
   {
