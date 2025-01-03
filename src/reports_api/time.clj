@@ -15,8 +15,11 @@
 (defn- now []
   (.toLocalDateTime (ZonedDateTime/now utc)))
 
-;; (defn date-to-ts [local-date-time]
-;;   (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
+(defn format-date [date]
+  (format "%d-%02d" (.getYear date) (.getMonthValue date)))
+
+(defn date-to-ts [local-date-time]
+  (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
 
 (defn date-to-month [local-date-time]
   {:year (.getYear local-date-time)
