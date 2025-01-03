@@ -19,6 +19,8 @@
 
 * API
 
+  Note that JSON keys of the request body can be either in snake_case or in kebab-case, it doesn't matter. All the response JSON keys are in snake_case.
+
 #+begin_src sh
   # Make a request.
   curl http://localhost:8080/api/v1/reports/staff-plan --json @requests/1-base.json | jq
