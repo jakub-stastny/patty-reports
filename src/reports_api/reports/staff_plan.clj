@@ -42,19 +42,19 @@
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
-(defn calculate-pro-rata-base-pay [month rate current-month-pay-changes employment-start-date employment-end-date]
+(defn calculate-pro-rata-base-pay [month base-pay rate current-month-pay-changes employment-start-date employment-end-date]
   (let [rates
         (map (fn [pc]
                {:since (.getDayOfMonth (:effective-date pc)) :rate (:new-value pc)})
              current-month-pay-changes)
 
         rates
-        (if (= month (t/date-to-month employment-start-date))
-          (conj rates {:since (.getDayOfMonth employment-start-date) :rate rate}) rates)
+        (if (= (t/format-month month) (t/format-date employment-start-date))
+          (conj rates {:since (.getDayOfMonth employment-start-date) :rate base-pay}) rates)
 
         rates
-        (if (= month (t/date-to-month employment-start-date))
-          (conj rates {:since (.getDayOfMonth employment-end-date) :rate rate}) rates)]
+        (if (= (t/format-month month) (t/format-date employment-end-date))
+          (conj rates {:since (.getDayOfMonth employment-end-date) :rate 0}) rates)]
 
     (if (some #(= 1 (:since %)) rates)
       (into [] rates)
@@ -73,16 +73,16 @@
         (find-last-pay-change-before-current-month month pay-changes)
         dt-to-int #(t/month-to-int (t/date-to-month %))
 
-        ;; TODO: <=, is the equality also OK?
         working-on-the-1st
-        (<= (dt-to-int employment-start-date)
-            (t/month-to-int month)
-            (dt-to-int employment-end-date))
+        (< (t/date-to-ts employment-start-date)
+           (t/month-to-ts month)
+           (t/date-to-ts employment-end-date))
 
         work-status-changes-this-month
-        (or (= month (dt-to-int employment-start-date))
-            (= month (dt-to-int employment-end-date)))
+        (or (= (t/format-month month) (t/format-date employment-start-date))
+            (= (t/format-month month) (t/format-date employment-end-date)))
 
+        ;; What pay-rate is vigent on the 1st.
         current-base-pay-rate
         (cond
           (not working-on-the-1st) 0
@@ -98,7 +98,7 @@
     (if (and (empty? current-month-pay-changes)
              (not work-status-changes-this-month))
       [{:since 1 :rate current-base-pay-rate}]
-      (calculate-pro-rata-base-pay month current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
+      (calculate-pro-rata-base-pay month base-pay current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
