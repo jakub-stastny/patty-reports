@@ -1,0 +1,13 @@
+{
+  "projections-start-date": 1735687848739,
+  "employment-start-date": 1738735200000,
+  "employment-end-date": 1759644000000,
+  "pay-structure": "Hourly Rate",
+  "base-pay": 90,
+  "pay-changes": [
+    "1743487200000|Apr 01, 2025|100",
+    "1749708000000|Jun 12, 2025|120"
+  ],
+  "employer-tax-timing": 1,
+  "employer-tax-rate": 0.20
+}

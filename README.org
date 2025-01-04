@@ -39,7 +39,7 @@
   {"pay-structure": "Hourly Rate", "base-pay": 90}
 #+end_src
 
-*** Advanced requests
+*** Pay structure
 **** Legend
 
   This applies to all the following sections.
@@ -47,7 +47,7 @@
   - ~projections-start-date~: 31/12/2024.
   - ~employment-start-date~: 5/2/2025.
   - ~employment-end-date~: 5/10/2025.
-  - ~pay-changes[0].effective-date~: 1/4/2025, 12/6/2025.
+  - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
 
 **** Hourly rate
 
@@ -110,6 +110,108 @@
       "1743487200000|Apr 01, 2025|100000",
       "1749708000000|Jun 12, 2025|120000"
     ]
+  }
+#+end_src
+
+*** Tax timing
+**** Legend
+
+  This applies to all the following sections.
+
+  - ~projections-start-date~: 31/12/2024.
+  - ~employment-start-date~: 5/2/2025.
+  - ~employment-end-date~: 5/10/2025.
+  - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
+
+**** Tax due previous month
+
+  This is currently calculated same way as the ~:same-month~ (value ~0~).
+
+#+begin_src json :tangle requests/6-previous-month.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "employer-tax-timing": -1,
+    "employer-tax-rate": 0.20
+  }
+#+end_src
+
+**** Tax due same month
+
+#+begin_src json :tangle requests/7-same-month.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "employer-tax-timing": 0,
+    "employer-tax-rate": 0.20
+  }
+#+end_src
+
+**** Tax due following month
+
+#+begin_src json :tangle requests/8-following-month.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "employer-tax-timing": 1,
+    "employer-tax-rate": 0.20
+  }
+#+end_src
+
+**** Tax due last month of a quarter
+
+#+begin_src json :tangle requests/9-last-month-of-quarter.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "employer-tax-timing": [3, 6, 9, 12],
+    "employer-tax-rate": 0.20
+  }
+#+end_src
+
+**** Tax due month following end of a quarter
+
+#+begin_src json :tangle requests/10-month-following-end-of-quarter.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "employer-tax-timing": [1, 4, 7, 10],
+    "employer-tax-rate": 0.20
   }
 #+end_src
 
