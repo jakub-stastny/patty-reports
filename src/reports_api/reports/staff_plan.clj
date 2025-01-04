@@ -38,6 +38,7 @@
     {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
      :new-value (v/validate {:value value} :value [v/double-validator])}))
 
+;; TODO: benefits_frequency
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -164,18 +165,74 @@
                                      (* pro-rata-ratio (/ rate 12) percentage-of-working-time))))
                               0 current-ratios)))))
 
-(defn generate-report-month [month {:keys [number-of-hires benefits-allowance employer-tax-rate] :as inputs}]
+(defn penultimate-or-first [v]
+  (if (< (count v) 2)
+    (first v)
+    (nth v (- (count v) 2))))
+
+(defn last-3-penultimate [v]
+  (let [n (count v)
+        start (max 0 (- n 4)) ; Start 3 items before the last
+        end (max 0 (- n 1))]  ; Exclude the last item
+    (subvec v start end)))
+
+(defn calculate-payroll-tax [months-till-current employer-tax-rate employer-tax-timing]
+  (prn :mtc employer-tax-rate employer-tax-timing months-till-current)
+  (case employer-tax-timing
+    ;; We just make an assumption that it is the same as the current
+    ;; month. Not accurate but close enough. Anything else is what we
+    ;; call spurious accuracy. The only thing to watch for is the
+    ;; number of days worked.
+    :prev-month
+    (* (:monthly-pay (last months-till-current)) employer-tax-rate)
+
+    :same-month
+    (* (:monthly-pay (last months-till-current)) employer-tax-rate)
+
+    :following-month
+    (* (:monthly-pay (penultimate-or-first months-till-current)) employer-tax-rate)
+
+    :last-month-of-quarter
+    (if (contains? #{3 6 9 12} (:month (:month (last months-till-current))))
+      (let [last-3-months
+            (last-3-penultimate (into [(first months-till-current) (first months-till-current)] months-till-current))]
+        (reduce (fn [acc {:keys [monthly-pay]}]
+                  (+ acc (* monthly-pay employer-tax-rate)))
+                0 last-3-months))
+
+      ;; No tax for the rest of the months.
+      0)
+
+    :month-following-end-of-quarter
+    (if (contains? #{1 4 7 10} (:month (:month (last months-till-current))))
+      (let [prev-3-months
+            (subvec (into [(first months-till-current) (first months-till-current) (first months-till-current)] months-till-current) 3)]
+        (reduce (fn [acc {:keys [monthly-pay]}]
+                  (+ acc (* monthly-pay employer-tax-rate)))
+                0 prev-3-months))
+
+      ;; No tax for the rest of the months.
+      0)))
+
+;; TODO: key-based like tax-timing or any number goes?
+(defn calculate-benefits [months-till-current benefits-allowance]
+  (* (:monthly-pay (last months-till-current)) benefits-allowance))
+
+(defn generate-report-month [prev-months month {:keys [number-of-hires benefits-allowance employer-tax-rate employer-tax-timing] :as inputs}]
   (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
-        benefits (* monthly-pay benefits-allowance)
-        employer-payroll-tax (* monthly-pay employer-tax-rate)
+        months-till-current (conj prev-months {:month month :monthly-pay monthly-pay})
+
+        benefits (calculate-benefits months-till-current benefits-allowance)
+        employer-payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate employer-tax-timing)
+
         staff-cost (+ monthly-pay benefits employer-payroll-tax)]
-    {:month (t/format-month month) :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
+    {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
      :benefits benefits :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
     (prn :clean-inputs inputs)
     (first (reduce (fn [[report month] _]
-                     [(conj report (generate-report-month month inputs)) (t/next-month month)])
+                     [(conj report (generate-report-month report month inputs)) (t/next-month month)])
                    [[] projections-start-date]
                    (repeat (* projections-duration 12) nil)))))
