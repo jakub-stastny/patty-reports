@@ -165,6 +165,10 @@
                                      (* pro-rata-ratio (/ rate 12) percentage-of-working-time))))
                               0 current-ratios)))))
 
+(defn last-3-items [v]
+  (let [n (count v)]
+    (subvec v (max 0 (- n 3)) n)))
+
 (defn penultimate-or-first [v]
   (if (< (count v) 2)
     (first v)
@@ -177,7 +181,6 @@
     (subvec v start end)))
 
 (defn calculate-payroll-tax [months-till-current employer-tax-rate employer-tax-timing]
-  (prn :mtc employer-tax-rate employer-tax-timing months-till-current)
   (case employer-tax-timing
     ;; We just make an assumption that it is the same as the current
     ;; month. Not accurate but close enough. Anything else is what we
@@ -195,7 +198,9 @@
     :last-month-of-quarter
     (if (contains? #{3 6 9 12} (:month (:month (last months-till-current))))
       (let [last-3-months
-            (last-3-penultimate (into [(first months-till-current) (first months-till-current)] months-till-current))]
+            (last-3-items
+             (into [(first months-till-current) (first months-till-current) (first months-till-current)]
+                   months-till-current))]
         (reduce (fn [acc {:keys [monthly-pay]}]
                   (+ acc (* monthly-pay employer-tax-rate)))
                 0 last-3-months))
@@ -206,7 +211,10 @@
     :month-following-end-of-quarter
     (if (contains? #{1 4 7 10} (:month (:month (last months-till-current))))
       (let [prev-3-months
-            (subvec (into [(first months-till-current) (first months-till-current) (first months-till-current)] months-till-current) 3)]
+            (last-3-penultimate (into [(first months-till-current)
+                                       (first months-till-current)
+                                       (first months-till-current)]
+                                      months-till-current))]
         (reduce (fn [acc {:keys [monthly-pay]}]
                   (+ acc (* monthly-pay employer-tax-rate)))
                 0 prev-3-months))
