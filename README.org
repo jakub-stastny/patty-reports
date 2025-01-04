@@ -8,6 +8,7 @@
 * Deployment
 
   Refer to the ~Dockerfile~. You must build the uberjar prior to deployment.
+  Refer to the references section below for the deployed app URL.
 
 #+begin_src sh
   # Build the uberjar and deploy to Fly.
@@ -115,3 +116,4 @@
 * References
 
   - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
+  - [[https://fly.io/apps/patty-reports][The app deployed to Fly.io]].
