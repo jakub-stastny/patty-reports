@@ -38,7 +38,13 @@
     {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
      :new-value (v/validate {:value value} :value [v/double-validator])}))
 
-;; TODO: benefits_frequency
+(def benefits-payment-frequency-validator
+  (v/make-validator :benefits-payment-frequency
+                    "must be either a number between 1 and 12 or an array of such numbers"
+                    (fn [v]
+                      (or (and (int? v) (<= 1 v 12) #{v})
+                          (and (vector? v) (every? int? v) (into (sorted-set) v))))))
+
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -55,7 +61,10 @@
         (merge (validate :base-pay [v/number-validator]))
         (merge (validate-or-default :business-function [v/string-validator] nil))
         (merge (validate :pay-structure [pay-structure-validator]))
+
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :benefits-payment-frequency [benefits-payment-frequency-validator] (into (sorted-set) (range 1 13))))
+
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :employer-tax-timing [employer-tax-timing-validator] :same-month))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
@@ -165,21 +174,6 @@
                                      (* pro-rata-ratio (/ rate 12) percentage-of-working-time))))
                               0 current-ratios)))))
 
-(defn last-3-items [v]
-  (let [n (count v)]
-    (subvec v (max 0 (- n 3)) n)))
-
-(defn penultimate-or-first [v]
-  (if (< (count v) 2)
-    (first v)
-    (nth v (- (count v) 2))))
-
-(defn last-3-penultimate [v]
-  (let [n (count v)
-        start (max 0 (- n 4)) ; Start 3 items before the last
-        end (max 0 (- n 1))]  ; Exclude the last item
-    (subvec v start end)))
-
 (defn calculate-payroll-tax [months-till-current employer-tax-rate employer-tax-timing]
   (case employer-tax-timing
     ;; We just make an assumption that it is the same as the current
@@ -193,44 +187,62 @@
     (* (:monthly-pay (last months-till-current)) employer-tax-rate)
 
     :following-month
-    (* (:monthly-pay (penultimate-or-first months-till-current)) employer-tax-rate)
+    (* (:monthly-pay (h/penultimate-or-first months-till-current)) employer-tax-rate)
 
     :last-month-of-quarter
     (if (contains? #{3 6 9 12} (:month (:month (last months-till-current))))
       (let [last-3-months
-            (last-3-items
+            (h/last-3-items
              (into [(first months-till-current) (first months-till-current) (first months-till-current)]
                    months-till-current))]
         (reduce (fn [acc {:keys [monthly-pay]}]
                   (+ acc (* monthly-pay employer-tax-rate)))
                 0 last-3-months))
 
-      ;; No tax for the rest of the months.
+      ;; No tax paid out this month.
       0)
 
     :month-following-end-of-quarter
     (if (contains? #{1 4 7 10} (:month (:month (last months-till-current))))
       (let [prev-3-months
-            (last-3-penultimate (into [(first months-till-current)
-                                       (first months-till-current)
-                                       (first months-till-current)]
-                                      months-till-current))]
+            (h/last-3-penultimate (into [(first months-till-current)
+                                         (first months-till-current)
+                                         (first months-till-current)]
+                                        months-till-current))]
         (reduce (fn [acc {:keys [monthly-pay]}]
                   (+ acc (* monthly-pay employer-tax-rate)))
                 0 prev-3-months))
 
-      ;; No tax for the rest of the months.
+      ;; No tax paid out this month.
       0)))
 
-;; TODO: key-based like tax-timing or any number goes?
-(defn calculate-benefits [months-till-current benefits-allowance]
-  (* (:monthly-pay (last months-till-current)) benefits-allowance))
+(defn calculate-benefits [months-till-current benefits-allowance benefits-payment-frequency]
+  (if (contains? benefits-payment-frequency (:month (:month (last months-till-current))))
+    (let [last-month-benefits-paid-out (h/get-prev-item benefits-payment-frequency (:month (:month (last months-till-current))))
+          offset-3-months-till-current (into [(first months-till-current)
+                                              (first months-till-current)
+                                              (first months-till-current)]
+                                             months-till-current)
 
-(defn generate-report-month [prev-months month {:keys [number-of-hires benefits-allowance employer-tax-rate employer-tax-timing] :as inputs}]
+          month-range-for-benefits (h/select-months-until
+                                    offset-3-months-till-current
+                                    last-month-benefits-paid-out)]
+
+      (prn :month-range-for-benefits month-range-for-benefits) ;;;
+      (reduce (fn [acc {:keys [monthly-pay]}]
+                (+ acc (* monthly-pay benefits-allowance)))
+              0 month-range-for-benefits))
+
+    ;; No benefits paid out this month.
+    0))
+
+(defn generate-report-month [prev-months month
+                             {:keys [number-of-hires benefits-allowance employer-tax-rate
+                                     employer-tax-timing benefits-payment-frequency] :as inputs}]
   (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
         months-till-current (conj prev-months {:month month :monthly-pay monthly-pay})
 
-        benefits (calculate-benefits months-till-current benefits-allowance)
+        benefits (calculate-benefits months-till-current benefits-allowance benefits-payment-frequency)
         employer-payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate employer-tax-timing)
 
         staff-cost (+ monthly-pay benefits employer-payroll-tax)]

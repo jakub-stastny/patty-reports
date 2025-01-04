@@ -215,6 +215,36 @@
   }
 #+end_src
 
+*** Benefits
+**** Legend
+
+  This applies to all the following sections.
+
+  - ~projections-start-date~: 31/12/2024.
+  - ~employment-start-date~: 5/2/2025.
+  - ~employment-end-date~: 5/10/2025.
+  - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
+
+**** Benefits paid each month
+
+  This is currently the default behaviour.
+
+#+begin_src json :tangle requests/11-monthly-benefits.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "employment-start-date": 1738735200000,
+    "employment-end-date": 1759644000000,
+    "pay-structure": "Hourly Rate",
+    "base-pay": 90,
+    "pay-changes": [
+      "1743487200000|Apr 01, 2025|100",
+      "1749708000000|Jun 12, 2025|120"
+    ],
+    "benefits-payment-frequency": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    "benefits-allowance": 0.33
+  }
+#+end_src
+
 * References
 
   - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
