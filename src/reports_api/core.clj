@@ -8,7 +8,8 @@
   (:gen-class))
 
 (defn format-json [object]
-  (json/generate-string object {:pretty true}))
+  ;; (json/generate-string object {:pretty true})
+  (json/generate-string object))
 
 (defn parse-json-body [request]
   "Parses the JSON body of the request into a Clojure map."
