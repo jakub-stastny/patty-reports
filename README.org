@@ -24,10 +24,10 @@
 
 #+begin_src sh
   # Make a request.
-  curl http://localhost:8080/api/v1/reports/staff-plan --json @requests/1-base.json | jq
+  curl http://localhost:8080/api/v1/reports/staff-plan --json @requests/01-base.json | jq
 
   # Shortcut (see .env/zsh.zsh).
-  report staff-plan requests/1-base.json
+  report staff-plan requests/01-base.json
 #+end_src
 
 ** Staff plan
@@ -35,7 +35,7 @@
 
   Only required properties are provided.
 
-#+begin_src json :tangle requests/1-base.json :mkdirp yes
+#+begin_src json :tangle requests/01-base.json :mkdirp yes
   {"pay-structure": "Hourly Rate", "base-pay": 90}
 #+end_src
 
@@ -51,7 +51,7 @@
 
 **** Hourly rate
 
-#+begin_src json :tangle requests/2-hourly-rate.json :mkdirp yes
+#+begin_src json :tangle requests/02-hourly-rate.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -67,7 +67,7 @@
 
 **** Weekly salary
 
-#+begin_src json :tangle requests/3-weekly-salary.json :mkdirp yes
+#+begin_src json :tangle requests/03-weekly-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -83,7 +83,7 @@
 
 **** Monthly salary
 
-#+begin_src json :tangle requests/4-monthly-salary.json :mkdirp yes
+#+begin_src json :tangle requests/04-monthly-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -99,7 +99,7 @@
 
 **** Annual salary
 
-#+begin_src json :tangle requests/5-annual-salary.json :mkdirp yes
+#+begin_src json :tangle requests/05-annual-salary.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -127,7 +127,7 @@
 
   This is currently calculated same way as the ~:same-month~ (value ~0~).
 
-#+begin_src json :tangle requests/6-previous-month.json :mkdirp yes
+#+begin_src json :tangle requests/06-previous-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -145,7 +145,7 @@
 
 **** Tax due same month
 
-#+begin_src json :tangle requests/7-same-month.json :mkdirp yes
+#+begin_src json :tangle requests/07-same-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -163,7 +163,7 @@
 
 **** Tax due following month
 
-#+begin_src json :tangle requests/8-following-month.json :mkdirp yes
+#+begin_src json :tangle requests/08-following-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -181,7 +181,7 @@
 
 **** Tax due last month of a quarter
 
-#+begin_src json :tangle requests/9-last-month-of-quarter.json :mkdirp yes
+#+begin_src json :tangle requests/09-last-month-of-quarter.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
