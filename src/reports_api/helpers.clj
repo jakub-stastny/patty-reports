@@ -49,10 +49,6 @@
       (last sorted-seq) (get sorted-seq (dec index)))))
 
 (defn select-months-until [months target-month]
-  (let [target (:month target-month)]
-    (->> (reverse months)                           ; Process months in reverse
-         (take-while #(not= (:month %) target))     ; Take all until target month
-         (cons (first (filter #(= (:month %) target) months))) ; Add target month explicitly
-         (remove nil?)                              ; Ensure no nil values in the result
-         reverse                                    ; Reverse to the original order
-         vec)))                                     ; Convert to a flat vector
+  (reverse
+   (take-while #(not= (:month (:month %)) target-month)
+               (reverse months))))

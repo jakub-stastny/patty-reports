@@ -249,7 +249,9 @@
      :benefits benefits :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn format-for-bubble [results]
+  ;; (prn :results results)
   (reduce (fn [acc {:keys [timestamp monthly-pay benefits employer-payroll-tax staff-cost]}]
+            ;; TODO (key acc), pull these out of the item (dont' destructure).
             (-> acc
                 (update :timestamp conj timestamp)
                 (update :monthly-pay conj monthly-pay)
