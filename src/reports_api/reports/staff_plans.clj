@@ -1,7 +1,6 @@
 (ns reports-api.reports.staff-plans
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
-            ;; [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.reports.staff-plan :as sp]))
 
@@ -17,7 +16,7 @@
                       (or (:staff inputs) []))})))
 
 (defn sum-projections [p1 p2]
-  (let [aggregate #(h/sum-vectors (mapv % p1) (mapv % p2))]
+  (let [aggregate #(h/sum-vectors (get p1 %) (get p2 %))]
     {:monthly-pay (aggregate :monthly-pay)
      :employer-payroll-tax (aggregate :employer-payroll-tax)
      :benefits (aggregate :benefits)
@@ -25,17 +24,13 @@
 
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
-            (prn :acc business-function acc (get acc business-function))
-            (println)
-            (if (get acc business-function)
-              (let [existing-bubble-formatted-projections (get acc business-function)
-                    bubble-formatted-projections (sp/format-for-bubble projections)]
+            (let [existing-bubble-formatted-projections (get acc business-function)
+                  bubble-formatted-projections (sp/format-for-bubble projections)]
+              (if (get acc business-function)
                 (merge acc {business-function (sum-projections existing-bubble-formatted-projections
-                                                               bubble-formatted-projections)}))
-
-              (merge acc {business-function (sp/format-for-bubble projections)})))
-
-          {:timestamp (:timestamp (first data))}
+                                                               bubble-formatted-projections)})
+                (merge acc {business-function (sp/format-for-bubble projections)}))))
+          {}
           data))
 
 (defn handle [raw-inputs]
@@ -54,5 +49,7 @@
                                        member)})
                       staff))
 
+        timestamps (map :timestamp (:projections (first results)))
+
         aggregated-results (aggregate-by-business-function results)]
-    aggregated-results))
+    (merge {:timestamps timestamps} aggregated-results)))
