@@ -18,7 +18,7 @@
 (defn sum-projections [p1 p2]
   (let [aggregate #(h/sum-vectors (get p1 %) (get p2 %))]
     {:monthly-pay (aggregate :monthly-pay)
-     :employer-payroll-tax (aggregate :employer-payroll-tax)
+     :payroll-tax (aggregate :payroll-tax)
      :benefits (aggregate :benefits)
      :staff-cost (aggregate :staff-cost)}))
 

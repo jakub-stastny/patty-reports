@@ -239,22 +239,22 @@
         months-till-current (conj prev-months {:month month :monthly-pay monthly-pay})
 
         benefits (calculate-benefits months-till-current benefits-allowance benefits-payment-frequency)
-        employer-payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate employer-tax-timing)
+        payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate employer-tax-timing)
 
-        staff-cost (+ monthly-pay benefits employer-payroll-tax)]
+        staff-cost (+ monthly-pay benefits payroll-tax)]
     {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
-     :benefits benefits :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
+     :benefits benefits :payroll-tax payroll-tax :staff-cost staff-cost}))
 
 (defn format-for-bubble [results]
-  (reduce (fn [acc {:keys [timestamp monthly-pay benefits employer-payroll-tax staff-cost]}]
+  (reduce (fn [acc {:keys [timestamp monthly-pay benefits payroll-tax staff-cost]}]
             ;; TODO (key acc), pull these out of the item (dont' destructure).
             (-> acc
                 (update :timestamp conj timestamp)
                 (update :monthly-pay conj monthly-pay)
                 (update :benefits conj benefits)
-                (update :employer-payroll-tax conj employer-payroll-tax)
+                (update :payroll-tax conj payroll-tax)
                 (update :staff-cost conj staff-cost)))
-          {:timestamp [] :monthly-pay [] :benefits [] :employer-payroll-tax [] :staff-cost []}
+          {:timestamp [] :monthly-pay [] :benefits [] :payroll-tax [] :staff-cost []}
           results))
 
 (defn generate-projections [projections-start-date projections-duration inputs]
@@ -273,7 +273,7 @@
            {:totals
             {:monthly-pay (sum-vals :monthly-pay)
              :benefits (sum-vals :benefits)
-             :employer-payroll-tax (sum-vals :employer-payroll-tax)
+             :payroll-tax (sum-vals :payroll-tax)
              :staff-cost (sum-vals :staff-cost)}})))
 
 (defn handle [raw-inputs]
