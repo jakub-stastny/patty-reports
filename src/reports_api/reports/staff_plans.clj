@@ -41,9 +41,21 @@
           data))
 
 (defn add-yearly-totals [results]
-  ;; TODO
-  results)
+  (let [aggregate
+        (fn [key]
+          ;; These totals are PER MONTH (as well as per year).
+          (reduce (fn [acc [key projections]]
+                    (prn :k key projections)
+                    0)
+                  0 results))]
+    (merge results
+           {:totals
+            {:monthly-pay (aggregate :monthly-pay)
+             :payroll-tax (aggregate :payroll-tax)
+             :benefits (aggregate :benefits)
+             :staff-cost (aggregate :staff-cost)}})))
 
+;; TODO: Add headcunt.
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration staff]}
         (validate-inputs raw-inputs)
