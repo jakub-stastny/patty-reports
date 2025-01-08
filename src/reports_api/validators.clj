@@ -54,3 +54,11 @@
 
 (defn validate-or-default [m k validators default-value]
   (if (contains? m k) (validate m k validators) default-value))
+
+(defn validate-projections-keys [inputs]
+  (let [validate-or-default
+        (fn [k validators default]
+          {k (validate-or-default inputs k validators default)})]
+    (->
+     (merge (validate-or-default :projections-duration [(generate-range-validator 1 5)] 1))
+     (merge (validate-or-default :projections-start-date [timestamp-validator month-converter] (t/current-month))))))

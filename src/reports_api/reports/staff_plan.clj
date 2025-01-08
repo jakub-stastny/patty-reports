@@ -48,8 +48,7 @@
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
 
     (-> {}
-        (merge (validate-or-default :projections-duration [(v/generate-range-validator 1 5)] 1))
-        (merge (validate-or-default :projections-start-date [v/timestamp-validator v/month-converter] (t/current-month)))
+        (merge (v/validate-projections-keys inputs))
 
         (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
         (merge (validate-or-default :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
