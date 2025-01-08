@@ -282,6 +282,26 @@
 #+end_src
 
 ** Staff plans
+#+begin_comment
+  Ministries in Orwell’s “Nineteen Eighty-Four”
+
+  1.	Ministry of Truth (Minitrue):
+  -	Responsible for propaganda, rewriting history, and ensuring that the Party’s version of events remains the only truth.
+  -	Ironically, it spreads lies and fabrications.
+
+  2.	Ministry of Peace (Minipax):
+  -	Oversees war efforts.
+  -	Ironically, it perpetuates continuous warfare to maintain social control.
+
+  3.	Ministry of Love (Miniluv):
+  -	Responsible for law enforcement, brainwashing, and torture.
+  -	Ironically, it is a place of fear and cruelty.
+
+  4.	Ministry of Plenty (Miniplenty):
+  -	Manages the economy and ensures scarcity to keep citizens dependent on the Party.
+  -	Ironically, it maintains poverty and rationing.
+#+end_comment
+
 *** One department
 
 #+begin_src json :tangle requests/20-staff-plans.json :mkdirp yes
