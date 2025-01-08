@@ -302,9 +302,26 @@
   -	Ironically, it maintains poverty and rationing.
 #+end_comment
 
+*** Without business function
+
+#+begin_src json :tangle requests/20-staff-plans-no-bizfn.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "staff": [
+      {
+        "pay-structure": "Hourly Rate",
+        "base-pay": 90,
+        "number-of-hires": 7,
+        "benefits-payment-frequency": 9,
+        "benefits-allowance": 0.33
+      }
+    ]
+  }
+#+end_src
+
 *** One department
 
-#+begin_src json :tangle requests/20-staff-plans.json :mkdirp yes
+#+begin_src json :tangle requests/21-staff-plans.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -326,3 +343,8 @@
     ]
   }
 #+end_src
+
+* References
+
+  - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
+  - [[https://fly.io/apps/patty-reports][The app deployed to Fly.io]].
