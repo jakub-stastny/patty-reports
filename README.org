@@ -321,7 +321,7 @@
 
 *** One department
 
-#+begin_src json :tangle requests/21-staff-plans.json :mkdirp yes
+#+begin_src json :tangle requests/21-staff-plans-one.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -337,6 +337,38 @@
         "pay-structure": "Hourly Rate",
         "base-pay": 60,
         "number-of-hires": 12,
+        "benefits-payment-frequency": 9,
+        "benefits-allowance": 0.2
+      }
+    ]
+  }
+#+end_src
+
+*** Multiple departments
+
+#+begin_src json :tangle requests/22-staff-plans-multi.json :mkdirp yes
+  {
+    "projections-start-date": 1735687848739,
+    "staff": [
+      {
+        "business-function": "Minitrue",
+        "pay-structure": "Hourly Rate",
+        "base-pay": 90,
+        "number-of-hires": 7,
+        "benefits-payment-frequency": 9,
+        "benefits-allowance": 0.33
+      }, {
+        "business-function": "Minitrue",
+        "pay-structure": "Hourly Rate",
+        "base-pay": 60,
+        "number-of-hires": 12,
+        "benefits-payment-frequency": 9,
+        "benefits-allowance": 0.2
+      }, {
+        "business-function": "Minipax",
+        "pay-structure": "Hourly Rate",
+        "base-pay": 75,
+        "number-of-hires": 20,
         "benefits-payment-frequency": 9,
         "benefits-allowance": 0.2
       }
