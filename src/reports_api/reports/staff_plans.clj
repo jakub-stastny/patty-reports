@@ -25,13 +25,24 @@
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
             (let [existing-bubble-formatted-projections (get acc business-function)
-                  bubble-formatted-projections (sp/format-for-bubble projections)]
-              (if (get acc business-function)
-                (merge acc {business-function (sum-projections existing-bubble-formatted-projections
-                                                               bubble-formatted-projections)})
-                (merge acc {business-function (sp/format-for-bubble projections)}))))
+                  bubble-formatted-projections (sp/add-yearly-totals (sp/format-for-bubble projections))]
+              (if existing-bubble-formatted-projections
+                (let [aggregated-projections
+                      (sum-projections existing-bubble-formatted-projections
+                                       bubble-formatted-projections)
+
+                      aggregated-projections-with-totals
+                      (merge aggregated-projections
+                             {:totals (sum-projections (:totals existing-bubble-formatted-projections)
+                                                       (:totals bubble-formatted-projections))})]
+                  (merge acc {business-function aggregated-projections-with-totals}))
+                (merge acc {business-function (dissoc bubble-formatted-projections :timestamp)}))))
           {}
           data))
+
+(defn add-yearly-totals [results]
+  ;; TODO
+  results)
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration staff]}
@@ -50,6 +61,6 @@
                       staff))
 
         timestamps (map :timestamp (:projections (first results)))
-
-        aggregated-results (aggregate-by-business-function results)]
-    (merge {:timestamps timestamps} aggregated-results)))
+        aggregated-results (aggregate-by-business-function results)
+        aggregated-results-with-totals (add-yearly-totals aggregated-results)]
+    (merge {:timestamps timestamps} aggregated-results-with-totals)))

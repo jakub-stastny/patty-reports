@@ -54,8 +54,9 @@
                (reverse months))))
 
 (defn sum-vectors [v1 v2]
-  (assert (and (vector? v1) (vector? v2))
-          (str "Arguments v1 and v2 must be vectors, got "
+  (assert (or (and (vector? v1) (vector? v2))
+              (and (seq? v1) (seq? v2)))
+          (str "Arguments v1 and v2 must be vectors or sequences, got "
                (pr-str {:v1 v1 :v2 v2})))
   (assert (= (count v1) (count v2))
           (str "Both v1 and v2 has to have the same number of items "
@@ -64,4 +65,4 @@
           (str "Both v1 and v2 has to be all numeric, got "
                (pr-str {:v1 v1 :v2 v2})))
 
-  (mapv + v1 v2))
+  (mapv + (vec v1) (vec v2)))
