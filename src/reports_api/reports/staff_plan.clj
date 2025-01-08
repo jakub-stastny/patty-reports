@@ -246,7 +246,6 @@
      :benefits benefits :employer-payroll-tax employer-payroll-tax :staff-cost staff-cost}))
 
 (defn format-for-bubble [results]
-  ;; (prn :results results)
   (reduce (fn [acc {:keys [timestamp monthly-pay benefits employer-payroll-tax staff-cost]}]
             ;; TODO (key acc), pull these out of the item (dont' destructure).
             (-> acc
@@ -258,11 +257,14 @@
           {:timestamp [] :monthly-pay [] :benefits [] :employer-payroll-tax [] :staff-cost []}
           results))
 
+(defn generate-projections [projections-start-date projections-duration inputs]
+  (first (reduce (fn [[report month] _]
+                   [(conj report (generate-report-month report month inputs)) (t/next-month month)])
+                 [[] projections-start-date]
+                 (repeat (* projections-duration 12) nil))))
+
 (defn handle [raw-inputs]
   (format-for-bubble
    (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
      (prn :clean-inputs inputs)
-     (first (reduce (fn [[report month] _]
-                      [(conj report (generate-report-month report month inputs)) (t/next-month month)])
-                    [[] projections-start-date]
-                    (repeat (* projections-duration 12) nil))))))
+     (generate-projections projections-start-date projections-duration inputs))))
