@@ -1,6 +1,6 @@
 (ns reports-api.reports.staff-plans
   (:require [clojure.string :as str]
-            ;; [reports-api.helpers :as h]
+            [reports-api.helpers :as h]
             ;; [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.reports.staff-plan :as sp]))
@@ -16,21 +16,8 @@
                       (comp validate-business-function sp/validate-inputs)
                       (or (:staff inputs) []))})))
 
-(defn sum-vectors [v1 v2]
-  (assert (and (vector? v1) (vector? v2))
-          (str "Arguments v1 and v2 must be vectors, got "
-               (pr-str {:v1 v1 :v2 v2})))
-  (assert (= (count v1) (count v2))
-          (str "Both v1 and v2 has to have the same number of items "
-               (pr-str {:v1 v1 :v2 v2})))
-  (assert (and (every? number? v1) (every? number? v2))
-          (str "Both v1 and v2 has to be all numeric, got "
-               (pr-str {:v1 v1 :v2 v2})))
-
-  (mapv + v1 v2))
-
 (defn sum-projections [p1 p2]
-  (let [aggregate #(sum-vectors (mapv % p1) (mapv % p2))]
+  (let [aggregate #(h/sum-vectors (mapv % p1) (mapv % p2))]
     {:monthly-pay (aggregate :monthly-pay)
      :employer-payroll-tax (aggregate :employer-payroll-tax)
      :benefits (aggregate :benefits)
