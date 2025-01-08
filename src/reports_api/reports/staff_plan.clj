@@ -1,5 +1,3 @@
-;; https://docs.google.com/document/d/1clDJiSuQbARB1T8IuPnhjYDPIH2JcdLhJ-u9vfImTp8/edit?tab=t.0
-
 (ns reports-api.reports.staff-plan
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]

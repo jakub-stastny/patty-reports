@@ -281,7 +281,11 @@
   }
 #+end_src
 
-* References
+** Staff plans
+*** Minimal request
 
-  - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
-  - [[https://fly.io/apps/patty-reports][The app deployed to Fly.io]].
+  Only required properties are provided.
+
+#+begin_src json :tangle requests/20-base.json :mkdirp yes
+  {"pay-structure": "Hourly Rate", "base-pay": 90, "business-function": "Minitrue"}
+#+end_src
