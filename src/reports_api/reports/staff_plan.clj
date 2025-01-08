@@ -263,8 +263,22 @@
                  [[] projections-start-date]
                  (repeat (* projections-duration 12) nil))))
 
+(defn add-yearly-totals [results]
+  (let [sum-vals
+        (fn [key]
+          (let [vals (get results key)
+                years (partition 12 vals)]
+            (map #(reduce + %) years)))]
+    (merge results
+           {:totals
+            {:monthly-pay (sum-vals :monthly-pay)
+             :benefits (sum-vals :benefits)
+             :employer-payroll-tax (sum-vals :employer-payroll-tax)
+             :staff-cost (sum-vals :staff-cost)}})))
+
 (defn handle [raw-inputs]
-  (format-for-bubble
-   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-     (prn :clean-inputs inputs)
-     (generate-projections projections-start-date projections-duration inputs))))
+  (add-yearly-totals
+   (format-for-bubble
+    (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
+      (prn :clean-inputs inputs)
+      (generate-projections projections-start-date projections-duration inputs)))))
