@@ -58,11 +58,14 @@
               (and (seq? v1) (seq? v2)))
           (str "Arguments v1 and v2 must be vectors or sequences, got "
                (pr-str {:v1 v1 :v2 v2})))
-  (assert (= (count v1) (count v2))
-          (str "Both v1 and v2 has to have the same number of items "
+  (assert (or (= (count v1) (count v2))
+              (or (empty? v1) (empty? v2)))
+          (str "Both v1 and v2 has to have the same number of items or one of them has to be empty, got "
                (pr-str {:v1 v1 :v2 v2})))
   (assert (and (every? number? v1) (every? number? v2))
           (str "Both v1 and v2 has to be all numeric, got "
                (pr-str {:v1 v1 :v2 v2})))
 
-  (mapv + (vec v1) (vec v2)))
+  (if (or (empty? v1) (empty? v2))
+    (if (empty? v1) v2 v1)
+    (mapv + (vec v1) (vec v2))))

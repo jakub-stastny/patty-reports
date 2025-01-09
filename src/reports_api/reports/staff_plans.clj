@@ -40,22 +40,41 @@
           {}
           data))
 
-(defn add-yearly-totals [results]
-  (let [aggregate
-        (fn [key]
-          ;; These totals are PER MONTH (as well as per year).
-          (reduce (fn [acc [key projections]]
-                    (prn :k key projections)
-                    0)
-                  0 results))]
-    (merge results
-           {:totals
-            {:monthly-pay (aggregate :monthly-pay)
-             :payroll-tax (aggregate :payroll-tax)
-             :benefits (aggregate :benefits)
-             :staff-cost (aggregate :staff-cost)}})))
+;; This adds both per-item totals as well as overall totals.
+(defn add-totals [results]
+  (reduce (fn [acc [biz-fn projections]]
+            (let [calc
+                  (fn [key]
+                    ;; Update per-item totals.
+                    (let [existing-data (get-in acc [biz-fn key])]
+                      (h/sum-vectors (or existing-data []) (get projections key))))
 
-;; TODO: Add headcunt.
+                  updated-acc
+                  (if (get-in acc [:projections biz-fn])
+                    (update acc :projections merge-with + {biz-fn projections})
+                    (update acc :projections merge {biz-fn projections}))]
+
+              (prn :acc biz-fn acc)
+              (prn :updated-acc updated-acc)
+              (prn :r {:totals {:monthly-pay (calc :monthly-pay)
+                                :payroll-tax (calc :payroll-tax)
+                                :benefits (calc :benefits)
+                                :staff-cost (calc :staff-cost)}})
+              (println)
+
+              (-> updated-acc
+                  (update-in [:totals :monthly-pay] h/sum-vectors (:monthly-pay projections))
+                  (update-in [:totals :payroll-tax] h/sum-vectors (:payroll-tax projections))
+                  (update-in [:totals :benefits] h/sum-vectors (:benefits projections))
+                  (update-in [:totals :staff-cost] h/sum-vectors (:staff-cost projections)))))
+
+          ;; TODO: :totals/:totals!!!
+          {:projections {}
+           :totals {:monthly-pay [] :payroll-tax [] :benefits [] :staff-cost []}}
+
+          results))
+
+;; TODO: Add headcuont.
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration staff]}
         (validate-inputs raw-inputs)
@@ -74,5 +93,5 @@
 
         timestamps (map :timestamp (:projections (first results)))
         aggregated-results (aggregate-by-business-function results)
-        aggregated-results-with-totals (add-yearly-totals aggregated-results)]
+        aggregated-results-with-totals (add-totals aggregated-results)]
     (merge {:timestamps timestamps} aggregated-results-with-totals)))
