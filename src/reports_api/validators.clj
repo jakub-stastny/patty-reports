@@ -30,14 +30,21 @@
                   "must be a UNIX timestamp between 0 (year 1970) and 4102444800000 (year 2100)"
                   #(and (number? %) (<= 0 % 4102444800000) %)))
 
+(def single-or-multiple-months-validator
+  (make-validator :single-or-multiple-months-validator
+                  "must be either a number between 1 and 12 or an array of such numbers"
+                  (fn [v]
+                    (or (and (int? v) (<= 1 v 12) #{v})
+                        (and (vector? v) (every? int? v) (into (sorted-set) v))))))
+
 (def optional-single-or-multiple-months-validator
   (make-validator :optional-months
                  "must be either nil, a number between 1 and 12, or an array of such numbers"
                  (fn [v]
-                   (when-let [result 
+                   (when-let [result
                              (or (nil? v)
                                  (and (int? v) (<= 1 v 12) #{v})
-                                 (and (sequential? v) 
+                                 (and (sequential? v)
                                       (every? #(and (int? %) (<= 1 % 12)) v)
                                       (into (sorted-set) v)))]
                      result))))

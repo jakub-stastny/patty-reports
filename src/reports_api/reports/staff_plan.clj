@@ -36,13 +36,6 @@
     {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
      :new-value (v/validate {:value value} :value [v/double-validator])}))
 
-(def benefits-payment-frequency-validator
-  (v/make-validator :benefits-payment-frequency
-                    "must be either a number between 1 and 12 or an array of such numbers"
-                    (fn [v]
-                      (or (and (int? v) (<= 1 v 12) #{v})
-                          (and (vector? v) (every? int? v) (into (sorted-set) v))))))
-
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -60,7 +53,7 @@
         (merge (validate :pay-structure [pay-structure-validator]))
 
         (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :benefits-payment-frequency [benefits-payment-frequency-validator] (into (sorted-set) (range 1 13))))
+        (merge (validate-or-default :benefits-payment-frequency [v/single-or-multiple-months-validator] (into (sorted-set) (range 1 13))))
 
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :employer-tax-timing [employer-tax-timing-validator] :same-month))
