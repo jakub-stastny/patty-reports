@@ -31,6 +31,9 @@
 #+end_src
 
 ** Staff plan
+
+~POST /api/v1/reports/staff-plan~
+
 *** Minimal request
 
   Only required properties are provided.
@@ -282,6 +285,9 @@
 #+end_src
 
 ** Staff plans
+
+~POST /api/v1/reports/staff-plan~
+
 #+begin_comment
   Ministries in Orwell’s “Nineteen Eighty-Four”
 
@@ -377,6 +383,9 @@
 #+end_src
 
 ** Sales forecast
+
+~POST /api/v1/reports/sales-forecast~
+
 *** Minimal request
 
   Only required properties are provided.
