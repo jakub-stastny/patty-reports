@@ -5,7 +5,8 @@
             [ring.adapter.jetty :refer [run-jetty]]
             [reports-api.helpers :as h]
             [reports-api.reports.staff-plan :refer [handle] :rename {handle handle-staff-plan}]
-            [reports-api.reports.staff-plans :refer [handle] :rename {handle handle-staff-plans}])
+            [reports-api.reports.staff-plans :refer [handle] :rename {handle handle-staff-plans}]
+            [reports-api.reports.sales-forecast :refer [handle] :rename {handle handle-sales-forecast}])
   (:gen-class))
 
 (defn format-json [object]
@@ -43,6 +44,7 @@
   (GET "/api/v1/ping" [] (response 200 {:status "OK" :response "pong"}))
   (POST "/api/v1/reports/staff-plan" request (handler handle-staff-plan request))
   (POST "/api/v1/reports/staff-plans" request (handler handle-staff-plans request))
+  (POST "/api/v1/reports/sales-forecast" request (handler handle-sales-forecast request))
   (route/not-found (response 404 {:error "Not found"})))
 
 (defn -main []
