@@ -286,7 +286,7 @@
 
 ** Staff plans
 
-~POST /api/v1/reports/staff-plan~
+~POST /api/v1/reports/staff-plans~
 
 #+begin_comment
   Ministries in Orwell’s “Nineteen Eighty-Four”
