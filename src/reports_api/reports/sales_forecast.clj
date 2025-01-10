@@ -20,6 +20,10 @@
    {"All customers VAT registered" :all-vat-registered
     "Some customers VAT registered" :some-vat-registered}))
 
+(def revenue-model-validator
+  (v/generate-options-validator :revenue-model
+   {"One-time purchase" :purchase "Subscription" :subscription}))
+
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -28,6 +32,7 @@
         (merge (validate-or-default :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
         (merge (validate-or-default :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
         (merge (validate-or-default :offering-type [offering-type-validator] :product))
+        (merge (validate-or-default :revenue-model [revenue-model-validator] :purchase))
         (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
