@@ -32,11 +32,20 @@
                   #(and (number? %) (<= 0 % 4102444800000) %)))
 
 (def single-or-multiple-months-validator
-  (make-validator :single-or-multiple-months-validator
+  (make-validator :single-or-multiple-months
                   "must be either a number between 1 and 12 or an array of such numbers"
                   (fn [v]
                     (or (and (int? v) (<= 1 v 12) #{v})
                         (and (vector? v) (every? int? v) (into (sorted-set) v))))))
+
+(def single-or-multiple-months-or-weekly-or-daily-validator
+  (make-validator :single-or-multiple-months-or-weekly-or-daily
+                  "must be either a number between 1 and 12 or an array of such numbers or 365 for daily or 52 for weekly"
+                  (fn [v]
+                    (or (and (int? v) (<= 1 v 12) #{v})
+                        (and (vector? v) (every? int? v) (into (sorted-set) v))
+                        (and (= 365 v) :daily)
+                        (and (= 52 v) :weekly)))))
 
 (def optional-single-or-multiple-months-validator
   (make-validator :optional-months
