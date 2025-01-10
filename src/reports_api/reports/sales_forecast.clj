@@ -41,6 +41,7 @@
         (merge (validate-or-default :typical-purchase-quantity [v/number-validator] 0))
         (merge (validate-or-default :annual-repeat-purchase [v/number-validator] 0))
         (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
+        (merge (validate-or-default :cost-of-sale [v/number-validator] 0))
         (merge (validate :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator]))
         (merge (validate-or-default :registered-for-vat [v/boolean-validator] true))
         (merge (validate-or-default :vat-payment-months [v/optional-single-or-multiple-months-validator] nil)))))
