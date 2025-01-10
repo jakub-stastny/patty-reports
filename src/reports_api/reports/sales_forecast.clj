@@ -26,11 +26,22 @@
                      (when-let [matched-key (some #(and (= % v) %) (keys eu-vat-approach-opts))]
                        (get eu-vat-approach-opts matched-key)))))
 
+(def offering-type-opts
+  {"Product" :product "Service" :service})
+
+(def offering-type-validator
+  (v/make-validator :offering-type
+                   (str "must be one of: " (str/join "," (keys offering-type-opts)))
+                   (fn [v]
+                     (when-let [matched-key (some #(and (= % v) %) (keys offering-type-opts))]
+                       (get offering-type-opts matched-key)))))
+
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
     (-> {}
         (merge (v/validate-projections-keys inputs))
+        (merge (validate-or-default :offering-type [offering-type-validator] :product))
         (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
