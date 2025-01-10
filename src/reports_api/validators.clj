@@ -20,6 +20,10 @@
   (make-validator :string "must be a string"
                   #(and (string? %) %)))
 
+(def boolean-validator
+  (make-validator :boolean "must be a boolean"
+                 #(and (boolean? %) %)))
+
 ;; current-ms (System/currentTimeMillis)
 (def timestamp-validator
   (make-validator :timestamp

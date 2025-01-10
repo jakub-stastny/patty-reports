@@ -34,7 +34,8 @@
         (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns)))))
+        (merge (validate-or-default :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns))
+        (merge (validate-or-default :registered-for-vat [v/boolean-validator] true)))))
 
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
