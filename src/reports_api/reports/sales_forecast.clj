@@ -4,31 +4,21 @@
             [reports-api.validators :as v]
             [clojure.string :as str]))
 
-(def customer-vat-status-opts
-  {"All customers VAT registered" :all-vat-registered 
-   "Some customers VAT registered" :some-vat-registered})
+(def eu-vat-approach-validator
+  (v/generate-options-validator
+   :eu-vat-approach
+   {"Own VAT Returns" :own-vat-returns
+    "Outsourced VAT management" :outsourced-vat-management}))
+
+(def offering-type-validator
+  (v/generate-options-validator
+   :offering-type {"Product" :product "Service" :service}))
 
 (def customer-vat-status-validator
-  (v/generate-options-validator "customer-vat-status" customer-vat-status-opts))
-
-(def eu-vat-approach-opts
-  {"Own VAT Returns" :own-vat-returns
-   "Outsourced VAT management" :outsourced-vat-management})
-
-(def eu-vat-approach-validator
-  (v/generate-options-validator "eu-vat-approach" eu-vat-approach-opts))
-
-(def offering-type-opts
-  {"Product" :product "Service" :service})
-
-(def offering-type-validator 
-  (v/generate-options-validator "offering-type" offering-type-opts))
-
-(def customer-vat-status-validator
-  (v/generate-options-validator "customer-vat-status" customer-vat-status-opts))
-
-(def eu-vat-approach-validator
-  (v/generate-options-validator "eu-vat-approach" eu-vat-approach-opts))
+  (v/generate-options-validator
+   :customer-vat-status
+   {"All customers VAT registered" :all-vat-registered
+    "Some customers VAT registered" :some-vat-registered}))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})

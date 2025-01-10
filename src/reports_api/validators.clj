@@ -1,5 +1,6 @@
 (ns reports-api.validators
-  (:require [reports-api.time :as t]))
+  (:require [clojure.string :as str]
+            [reports-api.time :as t]))
 
 (defn make-validator [type message validator]
   {:type type :message message :validator validator})

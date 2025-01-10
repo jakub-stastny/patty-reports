@@ -4,21 +4,11 @@
             [reports-api.time :as t]
             [reports-api.validators :as v]))
 
-(def pay-structure-opts
-  {"Annual Salary" :annual-salary 
-   "Monthly Salary" :monthly-salary})
-
 (def pay-structure-validator
-  (v/generate-options-validator "pay-structure" pay-structure-opts))
+  (v/generate-options-validator :pay-structure
+   {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary}))
 
 ;; Custom validators.
-(def pay-structure-validator
-  (v/make-validator :pay-structure
-                    (str "must be one of: " (str/join "," (keys pay-structure-opts)))
-                    (fn [v]
-                      (when-let [matched-key (some #(and (= % v) %) (keys pay-structure-opts))]
-                        (get pay-structure-opts matched-key)))))
-
 ;;  -1 or 0 or 1 for (previous/same/following month).
 ;; or 3, 6, 9, 12 for last month of a quarter
 ;; or 1, 4, 7, 10 for month following end of a quarter
