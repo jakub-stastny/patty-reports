@@ -38,6 +38,9 @@
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns))
         (merge (validate-or-default :starting-customers [v/number-validator] 0))
+        (merge (validate-or-default :typical-purchase-quantity [v/number-validator] 0))
+        (merge (validate-or-default :annual-repeat-purchase [v/number-validator] 0))
+        (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
         (merge (validate-or-default :registered-for-vat [v/boolean-validator] true))
         (merge (validate-or-default :vat-payment-months [v/optional-single-or-multiple-months-validator] nil)))))
 
