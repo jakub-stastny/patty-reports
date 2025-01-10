@@ -60,6 +60,13 @@
 (def month-converter
   (make-validator :month-converter "" #(t/date-to-month (t/ts-to-date %))))
 
+(defn generate-options-validator [field-name options-map]
+  (make-validator (keyword field-name)
+                 (str "must be one of: " (str/join "," (keys options-map)))
+                 (fn [v]
+                   (when-let [matched-key (some #(and (= % v) %) (keys options-map))]
+                     (get options-map matched-key)))))
+
 (defn- throw-validation-error [m k v]
   (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
 

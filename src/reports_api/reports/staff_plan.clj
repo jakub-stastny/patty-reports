@@ -5,8 +5,11 @@
             [reports-api.validators :as v]))
 
 (def pay-structure-opts
-  {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary
-   "Weekly Salary" :weekly-salary "Hourly Rate" :hourly-rate})
+  {"Annual Salary" :annual-salary 
+   "Monthly Salary" :monthly-salary})
+
+(def pay-structure-validator
+  (v/generate-options-validator "pay-structure" pay-structure-opts))
 
 ;; Custom validators.
 (def pay-structure-validator

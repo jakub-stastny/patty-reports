@@ -9,32 +9,26 @@
    "Some customers VAT registered" :some-vat-registered})
 
 (def customer-vat-status-validator
-  (v/make-validator :customer-vat-status
-                   (str "must be one of: " (str/join "," (keys customer-vat-status-opts)))
-                   (fn [v]
-                     (when-let [matched-key (some #(and (= % v) %) (keys customer-vat-status-opts))]
-                       (get customer-vat-status-opts matched-key)))))
+  (v/generate-options-validator "customer-vat-status" customer-vat-status-opts))
 
 (def eu-vat-approach-opts
   {"Own VAT Returns" :own-vat-returns
    "Outsourced VAT management" :outsourced-vat-management})
 
 (def eu-vat-approach-validator
-  (v/make-validator :eu-vat-approach
-                   (str "must be one of: " (str/join "," (keys eu-vat-approach-opts)))
-                   (fn [v]
-                     (when-let [matched-key (some #(and (= % v) %) (keys eu-vat-approach-opts))]
-                       (get eu-vat-approach-opts matched-key)))))
+  (v/generate-options-validator "eu-vat-approach" eu-vat-approach-opts))
 
 (def offering-type-opts
   {"Product" :product "Service" :service})
 
-(def offering-type-validator
-  (v/make-validator :offering-type
-                   (str "must be one of: " (str/join "," (keys offering-type-opts)))
-                   (fn [v]
-                     (when-let [matched-key (some #(and (= % v) %) (keys offering-type-opts))]
-                       (get offering-type-opts matched-key)))))
+(def offering-type-validator 
+  (v/generate-options-validator "offering-type" offering-type-opts))
+
+(def customer-vat-status-validator
+  (v/generate-options-validator "customer-vat-status" customer-vat-status-opts))
+
+(def eu-vat-approach-validator
+  (v/generate-options-validator "eu-vat-approach" eu-vat-approach-opts))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
