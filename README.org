@@ -376,6 +376,29 @@
   }
 #+end_src
 
+** Sales forecast
+*** Minimal request
+
+  Only required properties are provided.
+
+#+begin_src json :tangle requests/30-sales-forecast.json :mkdirp yes
+  {}
+#+end_src
+
+*** Pay structure
+**** Legend
+
+  This applies to all the following sections.
+
+  - ~projections-start-date~: 31/12/2024.
+  - ~employment-start-date~: 5/2/2025.
+  - ~employment-end-date~: 5/10/2025.
+  - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
+
+**** Hourly rate
+
+(code)
+
 * References
 
   - [[https://www.unixtimestamp.com][Unix timestamp online tool]].
