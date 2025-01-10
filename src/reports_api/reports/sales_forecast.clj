@@ -25,6 +25,8 @@
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
     (-> {}
         (merge (v/validate-projections-keys inputs))
+        (merge (validate-or-default :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
+        (merge (validate-or-default :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
         (merge (validate-or-default :offering-type [offering-type-validator] :product))
         (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
