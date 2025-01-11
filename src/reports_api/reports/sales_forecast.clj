@@ -24,6 +24,10 @@
   (v/generate-options-validator :revenue-model
    {"One-time purchase" :purchase "Subscription" :subscription}))
 
+(def monthly-contribution-validator)
+
+(def growth-curve-validator)
+
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -47,21 +51,21 @@
         (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
         (merge (validate :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator]))
         (merge (validate-or-default :retention-rate [(v/generate-range-validator 0 1)] 0))
-        ;; yoy-sales-growth
+        (merge (validate-or-default :yoy-sales-growth [growth-curve-validator] [0 0 0 0 0]))
         (merge (validate-or-default :selling-price [v/number-validator] 0))
-        ;; :selling-price-changes
+        (merge {:selling-price-changes (map v/validate-pay-change (or (:selling-price-changes inputs) []))})
         ;; :domestic-sales
         ;; :eu-sales
         ;; :rest-of-world-sales
-        ;; refund-returns-allowance
-        ;; sales-vat
-        ;; payment-terms-sales
+        (merge (validate-or-default :refund-returns-allowance [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :sales-vat [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :payment-terms-sales [v/month-timing-validator] :same-month))
         (merge (validate-or-default :cost-of-sale [v/number-validator] 0))
-        ;; cost-of-sale-changes
-        ;; cost-vat
-        ;; payment-terms-costs
-        ;; montly-contribution
-        )))
+        (merge {:cost-of-sale-changes (map v/validate-pay-change (or (:cost-of-sale-changes inputs) []))})
+        (merge (validate-or-default :cost-vat [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :payment-terms-costs [v/month-timing-validator] :same-month))
+        (merge (validate :monthly-contribution [monthly-contribution-validator])))))
+
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
     (prn :handle inputs)))
