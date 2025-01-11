@@ -116,3 +116,9 @@
     (->
      (merge (validate-or-default :projections-duration [(generate-range-validator 1 5)] 1))
      (merge (validate-or-default :projections-start-date [timestamp-validator month-converter] (t/current-month))))))
+
+(defn validate-pay-change [pc]
+  (let [[ts _ value] (str/split pc #"\|")
+        [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
+    {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
+     :new-value (v/validate {:value value} :value [v/double-validator])}))

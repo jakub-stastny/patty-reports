@@ -9,12 +9,6 @@
   (v/generate-options-validator :pay-structure
    {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary}))
 
-(defn validate-pay-change [pc]
-  (let [[ts _ value] (str/split pc #"\|")
-        [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-    {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
-     :new-value (v/validate {:value value} :value [v/double-validator])}))
-
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
@@ -36,7 +30,7 @@
 
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :month-timing [v/month-timing-validator] :same-month))
-        (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
+        (merge {:pay-changes (map v/validate-pay-change (or (:pay-changes inputs) []))}))))
 
 (defn calculate-pro-rata-base-pay [month base-pay rate current-month-pay-changes employment-start-date employment-end-date]
   (let [rates
