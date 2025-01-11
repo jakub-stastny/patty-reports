@@ -29,23 +29,39 @@
         validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
     (-> {}
         (merge (v/validate-projections-keys inputs))
-        (merge (validate-or-default :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
-        (merge (validate-or-default :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
-        (merge (validate-or-default :offering-type [offering-type-validator] :product))
-        (merge (validate-or-default :revenue-model [revenue-model-validator] :purchase))
-        (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
+
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
+        (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
         (merge (validate-or-default :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns))
+        (merge (validate-or-default :registered-for-vat [v/boolean-validator] true))
+        (merge (validate-or-default :vat-payment-frequency [v/optional-single-or-multiple-months-validator] nil))
+
+        (merge (validate-or-default :offering-type [offering-type-validator] :product))
+        (merge (validate-or-default :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
+        (merge (validate-or-default :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
+        (merge (validate-or-default :revenue-model [revenue-model-validator] :purchase))
         (merge (validate-or-default :starting-customers [v/number-validator] 0))
         (merge (validate-or-default :typical-purchase-quantity [v/number-validator] 0))
         (merge (validate-or-default :annual-repeat-purchase [v/number-validator] 0))
         (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
-        (merge (validate-or-default :cost-of-sale [v/number-validator] 0))
         (merge (validate :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator]))
-        (merge (validate-or-default :registered-for-vat [v/boolean-validator] true))
-        (merge (validate-or-default :vat-payment-months [v/optional-single-or-multiple-months-validator] nil)))))
-
+        (merge (validate-or-default :retention-rate [(v/generate-range-validator 0 1)] 0))
+        ;; yoy-sales-growth
+        (merge (validate-or-default :selling-price [v/number-validator] 0))
+        ;; :selling-price-changes
+        ;; :domestic-sales
+        ;; :eu-sales
+        ;; :rest-of-world-sales
+        ;; refund-returns-allowance
+        ;; sales-vat
+        ;; payment-terms-sales
+        (merge (validate-or-default :cost-of-sale [v/number-validator] 0))
+        ;; cost-of-sale-changes
+        ;; cost-vat
+        ;; payment-terms-costs
+        ;; montly-contribution
+        )))
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
     (prn :handle inputs)))
