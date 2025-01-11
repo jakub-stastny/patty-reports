@@ -24,9 +24,27 @@
   (v/generate-options-validator :revenue-model
    {"One-time purchase" :purchase "Subscription" :subscription}))
 
-(def monthly-contribution-validator)
+(def monthly-contribution-validator
+  (v/make-validator 
+   :monthly-contribution
+   "must be an array of 12 numbers between 0 and 1 that sum to 1.0"
+   (fn [v]
+     (when (and (sequential? v)
+                (= 12 (count v))
+                (every? number? v)
+                (every? #(<= 0 % 1) v)
+                (= 1.0 (double (reduce + v))))
+       v))))
 
-(def growth-curve-validator)
+(def growth-curve-validator
+  (v/make-validator
+   :growth-curve
+   "must be an array of up to 5 numbers"
+   (fn [v]
+     (when (and (sequential? v)
+                (<= (count v) 5)
+                (every? number? v))
+       v))))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
