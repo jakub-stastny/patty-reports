@@ -4,24 +4,10 @@
             [reports-api.time :as t]
             [reports-api.validators :as v]))
 
+;; Custom validators.
 (def pay-structure-validator
   (v/generate-options-validator :pay-structure
    {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary}))
-
-;; Custom validators.
-;;  -1 or 0 or 1 for (previous/same/following month).
-;; or 3, 6, 9, 12 for last month of a quarter
-;; or 1, 4, 7, 10 for month following end of a quarter
-(def employer-tax-timing-opts
-  {:prev-month -1 :same-month 0 :following-month 1
-   :last-month-of-quarter [3 6 9 12]
-   :month-following-end-of-quarter [1 4 7 10]})
-
-(def employer-tax-timing-validator
-  (v/make-validator :employer-tax-timing
-                    (str "must be one of: " (pr-str employer-tax-timing-opts))
-                    (fn [value]
-                      (some (fn [[k v]] (when (= v value) k)) employer-tax-timing-opts))))
 
 (defn validate-pay-change [pc]
   (let [[ts _ value] (str/split pc #"\|")
@@ -49,7 +35,7 @@
         (merge (validate-or-default :benefits-payment-frequency [v/single-or-multiple-months-validator] (into (sorted-set) (range 1 13))))
 
         (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :employer-tax-timing [employer-tax-timing-validator] :same-month))
+        (merge (validate-or-default :month-timing [v/month-timing-validator] :same-month))
         (merge {:pay-changes (map validate-pay-change (or (:pay-changes inputs) []))}))))
 
 (defn calculate-pro-rata-base-pay [month base-pay rate current-month-pay-changes employment-start-date employment-end-date]
@@ -157,8 +143,8 @@
                                      (* pro-rata-ratio (/ rate 12) percentage-of-working-time))))
                               0 current-ratios)))))
 
-(defn calculate-payroll-tax [months-till-current employer-tax-rate employer-tax-timing]
-  (case employer-tax-timing
+(defn calculate-payroll-tax [months-till-current employer-tax-rate month-timing]
+  (case month-timing
     ;; We just make an assumption that it is the same as the current
     ;; month. Not accurate but close enough. Anything else is what we
     ;; call spurious accuracy. The only thing to watch for is the
@@ -220,12 +206,12 @@
 
 (defn generate-report-month [prev-months month
                              {:keys [number-of-hires benefits-allowance employer-tax-rate
-                                     employer-tax-timing benefits-payment-frequency] :as inputs}]
+                                     month-timing benefits-payment-frequency] :as inputs}]
   (let [monthly-pay (* (calculate-monthly-pay month inputs) number-of-hires)
         months-till-current (conj prev-months {:month month :monthly-pay monthly-pay})
 
         benefits (calculate-benefits months-till-current benefits-allowance benefits-payment-frequency)
-        payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate employer-tax-timing)
+        payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate month-timing)
 
         staff-cost (+ monthly-pay benefits payroll-tax)]
     {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay

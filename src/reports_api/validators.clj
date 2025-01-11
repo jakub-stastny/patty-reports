@@ -47,6 +47,20 @@
                         (and (= 365 v) :daily)
                         (and (= 52 v) :weekly)))))
 
+;;  -1 or 0 or 1 for (previous/same/following month).
+;; or 3, 6, 9, 12 for last month of a quarter
+;; or 1, 4, 7, 10 for month following end of a quarter
+(def month-timing-opts
+  {:prev-month -1 :same-month 0 :following-month 1
+   :last-month-of-quarter [3 6 9 12]
+   :month-following-end-of-quarter [1 4 7 10]})
+
+(def month-timing-validator
+  (make-validator :month-timing
+                  (str "must be one of: " (pr-str month-timing-opts))
+                  (fn [value]
+                    (some (fn [[k v]] (when (= v value) k)) month-timing-opts))))
+
 (def optional-single-or-multiple-months-validator
   (make-validator :optional-months
                  "must be either nil, a number between 1 and 12, or an array of such numbers"
