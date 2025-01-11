@@ -120,5 +120,5 @@
 (defn validate-pay-change [pc]
   (let [[ts _ value] (str/split pc #"\|")
         [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-    {:effective-date (v/validate {:ts ts} :ts [v/timestamp-validator v/dt-converter])
-     :new-value (v/validate {:value value} :value [v/double-validator])}))
+    {:effective-date (validate {:ts ts} :ts [timestamp-validator dt-converter])
+     :new-value (validate {:value value} :value [double-validator])}))
