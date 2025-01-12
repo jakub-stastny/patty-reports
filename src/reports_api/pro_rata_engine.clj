@@ -5,67 +5,100 @@
   (:require [clojure.string :as str]
             [reports-api.time :as t]))
 
-(defn calculate-pro-rata-base-pay [month base-pay rate current-month-pay-changes employment-start-date employment-end-date]
+(defn- assert-change [{:keys [effective-date new-value]}]
+  (t/assert-date effective-date)
+  (assert (number? new-value)
+          (str "assert-change: new-value must be a number, got " (pr-str new-value))))
+
+(defn- assert-changes [changes]
+  (assert (sequential? changes)
+          (str "assert-changes: changes must be a sequential, got " (pr-str changes)))
+  (doseq [change changes] assert-change))
+
+;; Staff plan: employment-start/end-date, base-pay, all-changes
+;; Sales forecast: sales-start/end-date, selling-price, selling-price-changes
+(defn- calculate-pro-rata-initial-rate [month initial-rate rate current-month-changes start-date end-date]
+  (t/assert-month :calculate-pro-rata-initial-rate month)
+  (assert (and (number? initial-rate) (pos? initial-rate))
+          "calculate-pro-rata-initial-rate: initial-rate must be a positive number")
+  (assert (and (number? rate) (pos? rate))
+          "calculate-pro-rata-initial-rate: rate must be a positive number")
+  (assert-changes current-month-changes)
+  (and (t/assert-date :calculate-pro-rata-initial-rate start-date)
+       (t/assert-date :calculate-pro-rata-initial-rate end-date))
+
   (let [rates
         (map (fn [pc]
                {:since (.getDayOfMonth (:effective-date pc)) :rate (:new-value pc)})
-             current-month-pay-changes)
+             current-month-changes)
 
         rates
-        (if (= (t/format-month month) (t/format-date employment-start-date))
-          (conj rates {:since (.getDayOfMonth employment-start-date) :rate base-pay}) rates)
+        (if (= (t/format-month month) (t/format-date start-date))
+          (conj rates {:since (.getDayOfMonth start-date) :rate initial-rate}) rates)
 
         rates
-        (if (= (t/format-month month) (t/format-date employment-end-date))
-          (conj rates {:since (.getDayOfMonth employment-end-date) :rate 0}) rates)]
+        (if (= (t/format-month month) (t/format-date end-date))
+          (conj rates {:since (.getDayOfMonth end-date) :rate 0}) rates)]
 
     (if (some #(= 1 (:since %)) rates)
       (into [] rates)
       (into [{:since 1 :rate rate}] rates))))
 
-(defn find-last-pay-change-before-current-month [month pay-changes]
+(defn- find-last-pay-change-before-current-month [month all-changes]
   (let [prev-changes
-        (filter #(= 1 (t/compare-month month (t/date-to-month (:effective-date %)))) pay-changes)]
+        (filter #(= 1 (t/compare-month month (t/date-to-month (:effective-date %)))) all-changes)]
     (last (sort-by :effective-date prev-changes))))
 
-(defn filter-current-month-pay-changes [month pay-changes]
-  (filter #(= 0 (t/compare-month month (t/date-to-month (:effective-date %)))) pay-changes))
+(defn- filter-changes [month all-changes]
+  (filter #(= 0 (t/compare-month month (t/date-to-month (:effective-date %)))) all-changes))
 
-(defn calculate-current-rates [month {:keys [base-pay pay-changes employment-start-date employment-end-date]}]
+(defn calculate-current-rates [month initial-rate all-changes start-date end-date]
+  (prn :m month :ir initial-rate :ac all-changes :sd start-date :ed end-date)
+  (t/assert-month month)
+  (assert (and (number? initial-rate) (pos? initial-rate)) "Must be a positive number")
+  (assert-changes all-changes)
+  (and (t/assert-date start-date) (t/assert-date end-date))
+
   (let [last-pay-change-before-current-month
-        (find-last-pay-change-before-current-month month pay-changes)
+        (find-last-pay-change-before-current-month month all-changes)
         dt-to-int #(t/month-to-int (t/date-to-month %))
 
         working-on-the-1st
-        (< (t/date-to-ts employment-start-date)
+        (< (t/date-to-ts start-date)
            (t/month-to-ts month)
-           (t/date-to-ts employment-end-date))
+           (t/date-to-ts end-date))
 
         work-status-changes-this-month
-        (or (= (t/format-month month) (t/format-date employment-start-date))
-            (= (t/format-month month) (t/format-date employment-end-date)))
+        (or (= (t/format-month month) (t/format-date start-date))
+            (= (t/format-month month) (t/format-date end-date)))
 
         ;; What pay-rate is vigent on the 1st.
-        current-base-pay-rate
+        current-month-rate
         (cond
           (not working-on-the-1st) 0
 
           (and last-pay-change-before-current-month)
           (:new-value last-pay-change-before-current-month)
 
-          :else base-pay)
+          :else initial-rate)
 
-        current-month-pay-changes
-        (filter-current-month-pay-changes month pay-changes)]
+        all-changes
+        (filter-changes month all-changes)]
 
-    (if (and (empty? current-month-pay-changes)
+    (if (and (empty? all-changes)
              (not work-status-changes-this-month))
-      [{:since 1 :rate current-base-pay-rate}]
-      (calculate-pro-rata-base-pay month base-pay current-base-pay-rate current-month-pay-changes employment-start-date employment-end-date))))
+      [{:since 1 :rate current-month-rate}]
+      (calculate-pro-rata-initial-rate
+       month initial-rate current-month-rate all-changes start-date end-date))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
 (defn convert-rates-to-ratios [rates]
+  (assert (sequential? rates) (str "Must be a sequential, got " (pr-str rates)))
+  (assert (every? #(and (number? (:since %)) (number? (:rate %))) rates)
+          (str "Must contain maps with :since and :rate both being numbers, got "
+               (pr-str rates)))
+
   (let [days-in-month 30]
     (->> (partition 2 1 (concat rates [nil]))
          (map (fn [[current next]]

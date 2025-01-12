@@ -68,7 +68,7 @@
         (merge (validate-or-default :typical-purchase-quantity [v/number-validator] 0))
         (merge (validate-or-default :annual-repeat-purchase [v/number-validator] 0))
         (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
-        (merge (validate :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator]))
+        (merge (validate-or-default :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1))
         (merge (validate-or-default :retention-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :yoy-sales-growth [growth-curve-validator] [0 0 0 0 0]))
         (merge (validate-or-default :selling-price [v/number-validator] 0))

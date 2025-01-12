@@ -38,8 +38,8 @@
         (merge (validate-or-default :month-timing [v/month-timing-validator] :same-month))
         (merge {:pay-changes (map v/validate-pay-change (or (:pay-changes inputs) []))}))))
 
-(defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure] :as inputs}]
-  (let [current-rates (pr/calculate-current-rates month inputs)
+(defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure base-pay pay-changes employment-start-date employment-end-date]}]
+  (let [current-rates (pr/calculate-current-rates month base-pay pay-changes employment-start-date employment-end-date)
         current-ratios (pr/convert-rates-to-ratios current-rates)
         percentage-of-working-time (/ 52 work-weeks-per-year)]
     ;; TODO: Refactor this.

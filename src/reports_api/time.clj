@@ -25,10 +25,23 @@
   {:year (.getYear local-date-time)
    :month (.getMonthValue local-date-time)})
 
-(defn assert-month [{:keys [year month] :as m}]
-  (assert (int? year) (str "Year must be a number, got " (pr-str m)))
-  (assert (and (int? month) (<= 1 month 12))
-          (str "Month must be a number between 1 and 12, got " (pr-str m))))
+(defn assert-month
+  ([month] (assert-month nil month))
+
+  ([fn-name {:keys [year month] :as m}]
+   (let [label (if fn-name (str fn-name ": ") "")]
+     (assert (int? year)
+             (str label "Year must be a number, got " (pr-str m)))
+     (assert (and (int? month) (<= 1 month 12))
+             (str label "Month must be a number between 1 and 12, got " (pr-str m))))))
+
+(defn assert-date
+  ([date] (assert-date nil date))
+
+  ([fn-name date]
+   (let [label (if fn-name (str fn-name ": ") "")]
+     (assert (instance? LocalDateTime date)
+             (str label "Date must be an LocalDateTime, got " (pr-str date))))))
 
 (defn next-month
   ([month] (next-month month 1))
