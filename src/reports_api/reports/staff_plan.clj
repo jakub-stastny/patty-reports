@@ -8,8 +8,9 @@
 (def pay-structure-validator
   (v/generate-options-validator
    :pay-structure {"Hourly Rate" :hourly-rate
-                   "Annual Salary" :annual-salary
-                   "Monthly Salary" :monthly-salary}))
+                   "Weekly Salary" :weekly-salary
+                   "Monthly Salary" :monthly-salary
+                   "Annual Salary" :annual-salary}))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
