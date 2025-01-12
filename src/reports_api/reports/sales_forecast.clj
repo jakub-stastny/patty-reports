@@ -25,7 +25,7 @@
    {"One-time purchase" :purchase "Subscription" :subscription}))
 
 (def monthly-contribution-validator
-  (v/make-validator 
+  (v/make-validator
    :monthly-contribution
    "must be an array of 12 numbers between 0 and 1 that sum to 1.0"
    (fn [v]
@@ -73,9 +73,17 @@
         (merge (validate-or-default :yoy-sales-growth [growth-curve-validator] [0 0 0 0 0]))
         (merge (validate-or-default :selling-price [v/number-validator] 0))
         (merge {:selling-price-changes (map v/validate-pay-change (or (:selling-price-changes inputs) []))})
-        ;; :domestic-sales
-        ;; :eu-sales
-        ;; :rest-of-world-sales
+
+        ;; Each array position represents the percentage of total
+        ;; sales in that market for years 1-5. The company starts with
+        ;; 100% domestic sales, enters the EU in year 2 capturing 20%
+        ;; of sales, then expands to other international markets in
+        ;; year 3. By year 5, sales are split 45% domestic, 35% EU,
+        ;; and 20% rest of world.
+        (merge (validate-or-default :domestic-sales [growth-curve-validator] [1.00, 0.80, 0.65, 0.55, 0.45]))
+        (merge (validate-or-default :eu-sales [growth-curve-validator] [0.00, 0.20, 0.25, 0.30, 0.35]))
+        (merge (validate-or-default :rest-of-world-sales [growth-curve-validator] [0.00, 0.00, 0.10, 0.15, 0.20]))
+
         (merge (validate-or-default :refund-returns-allowance [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :sales-vat [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :payment-terms-sales [v/month-timing-validator] :same-month))
