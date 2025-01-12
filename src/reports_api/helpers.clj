@@ -69,3 +69,7 @@
   (if (or (empty? v1) (empty? v2))
     (if (empty? v1) v2 v1)
     (mapv + (vec v1) (vec v2))))
+
+(defn assertions [fn-name value checks message]
+  (assert (every? #(% value) checks)
+          (str (name fn-name) ": " message ", got " (pr-str value))))
