@@ -26,28 +26,26 @@
    :month (.getMonthValue local-date-time)})
 
 (defn assert-month
-  ([month] (assert-month nil month))
+  ([month] (assert-month :assert-month month))
 
   ([fn-name {:keys [year month] :as m}]
-   (let [label (if fn-name (str fn-name ": ") "")]
-     (assert (int? year)
-             (str label "Year must be a number, got " (pr-str m)))
-     (assert (and (int? month) (<= 1 month 12))
-             (str label "Month must be a number between 1 and 12, got " (pr-str m))))))
+   (assert (int? year)
+           (str (name fn-name) ": year must be a number, got " (pr-str m)))
+   (assert (and (int? month) (<= 1 month 12))
+           (str (name fn-name) ": month must be a number between 1 and 12, got " (pr-str m)))))
 
 (defn assert-date
-  ([date] (assert-date nil date))
+  ([date] (assert-date :assert-date date))
 
   ([fn-name date]
-   (let [label (if fn-name (str fn-name ": ") "")]
-     (assert (instance? LocalDateTime date)
-             (str label "Date must be an LocalDateTime, got " (pr-str date))))))
+   (assert (instance? LocalDateTime date)
+           (str (name fn-name) ": date must be an LocalDateTime, got " (pr-str date)))))
 
 (defn next-month
   ([month] (next-month month 1))
 
   ([month step]
-   (assert-month month)
+   (assert-month :next-month month)
    (let [total-months (+ (* (:year month) 12) (:month month) step)
          years (quot (dec total-months) 12)
          months (inc (mod (dec total-months) 12))]
@@ -57,7 +55,7 @@
   ([month] (prev-month month 1))
 
   ([month step]
-   (assert-month month)
+   (assert-month :prev-month month)
    (let [total-months (+ (* (:year month) 12) (:month month) step)
          years (quot total-months 12)
          months (mod total-months 12)]
@@ -70,15 +68,16 @@
   (format "%d-%02d" year month))
 
 (defn month-to-int [{:keys [year month] :as m}]
-  (assert-month m)
+  (assert-month :month-to-int m)
   (+ (* year 12) month))
 
 (defn compare-month [m1 m2]
-  (and (assert-month m1) (assert-month m2))
+  (and (assert-month :compare-month m1)
+       (assert-month :compare-month m2))
   (compare (month-to-int m1) (month-to-int m2)))
 
 (defn month-to-ts [{:keys [year month] :as m}]
-  (assert-month m)
+  (assert-month :month-to-ts m)
   (-> (LocalDateTime/of year month 1 0 0)
       (.atZone ZoneOffset/UTC)
       (.toInstant)

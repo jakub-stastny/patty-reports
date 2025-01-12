@@ -1,6 +1,3 @@
-;; TODO: Make generic.
-;; This has been copied from the staff-plan without any changes.
-
 (ns reports-api.pro-rata-engine
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
