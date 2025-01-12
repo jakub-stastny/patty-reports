@@ -47,12 +47,17 @@
                 (every? #(<= -0.1 % 5) v))
        v))))
 
+(defn generate-yoy-fulfills-projections-duration [c]
+  (v/make-validator
+   :yoy-fulfills-projections-duration
+   (str "must be a sequential of at least " c " items")
+   #(and (<= c (count %)) %)))
+
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
-        validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
-    (-> {}
-        (merge (v/validate-projections-keys inputs))
-
+        validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})
+        {:keys [projections-duration] :as clean-inputs} (v/validate-projections-keys inputs)]
+    (-> clean-inputs
         (merge (validate-or-default :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :bad-debt-provision [(v/generate-range-validator 0 1)] 0))
         (merge (validate-or-default :customer-vat-status [customer-vat-status-validator] :all-vat-registered))
@@ -70,7 +75,7 @@
         (merge (validate-or-default :yearly-purchase-frequency [v/number-validator] 0))
         (merge (validate-or-default :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1))
         (merge (validate-or-default :retention-rate [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :yoy-sales-growth [growth-curve-validator] [0 0 0 0 0]))
+        (merge (validate-or-default :yoy-sales-growth [growth-curve-validator (generate-yoy-fulfills-projections-duration projections-duration)] [0 0 0 0 0]))
         (merge (validate-or-default :selling-price [v/number-validator] 0))
         (merge {:selling-price-changes (map v/validate-pay-change (or (:selling-price-changes inputs) []))})
 
