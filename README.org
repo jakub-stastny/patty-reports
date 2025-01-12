@@ -310,7 +310,7 @@
 
 *** Without business function
 
-#+begin_src json :tangle data/requests/staff-plans/20-staff-plans-no-bizfn.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/01-staff-plans-no-bizfn.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -327,7 +327,7 @@
 
 *** One department
 
-#+begin_src json :tangle data/requests/staff-plans/21-staff-plans-one.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/02-staff-plans-one.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -352,7 +352,7 @@
 
 *** Multiple departments
 
-#+begin_src json :tangle data/requests/staff-plans/22-staff-plans-multi.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/03-staff-plans-multi.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
