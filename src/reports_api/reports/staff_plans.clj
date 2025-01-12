@@ -3,6 +3,7 @@
             [reports-api.helpers :as h]
             [reports-api.validators :as v]
             [reports-api.totals :as tot]
+            [reports-api.bubble :as b]
             [reports-api.reports.staff-plan :as sp]))
 
 (defn validate-business-function [cleaned-member]
@@ -26,7 +27,7 @@
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
             (let [existing-bubble-formatted-projections (get acc business-function)
-                  bubble-formatted-projections (tot/add-yearly-totals-one (sp/format-for-bubble projections))]
+                  bubble-formatted-projections (tot/add-yearly-totals-one (b/format-for-bubble-one projections))]
               (if existing-bubble-formatted-projections
                 (let [aggregated-projections
                       (sum-projections existing-bubble-formatted-projections

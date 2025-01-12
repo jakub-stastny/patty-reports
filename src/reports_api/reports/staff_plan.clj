@@ -4,6 +4,7 @@
             [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.totals :as tot]
+            [reports-api.bubble :as b]
             [reports-api.pro-rata-engine :as pr]))
 
 ;; Custom validators.
@@ -145,18 +146,6 @@
     {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
      :benefits benefits :payroll-tax payroll-tax :staff-cost staff-cost}))
 
-(defn format-for-bubble [results]
-  (reduce (fn [acc {:keys [timestamp monthly-pay benefits payroll-tax staff-cost]}]
-            ;; TODO (key acc), pull these out of the item (dont' destructure).
-            (-> acc
-                (update :timestamp conj timestamp)
-                (update :monthly-pay conj monthly-pay)
-                (update :benefits conj benefits)
-                (update :payroll-tax conj payroll-tax)
-                (update :staff-cost conj staff-cost)))
-          {:timestamp [] :monthly-pay [] :benefits [] :payroll-tax [] :staff-cost []}
-          results))
-
 (defn generate-projections [projections-start-date projections-duration inputs]
   (first (reduce (fn [[report month] _]
                    [(conj report (generate-report-month report month inputs)) (t/next-month month)])
@@ -165,7 +154,7 @@
 
 (defn handle [raw-inputs]
   (tot/add-yearly-totals-one
-   (format-for-bubble
+   (b/format-for-bubble-one
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
       ;; (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs)))))
