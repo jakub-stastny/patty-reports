@@ -6,8 +6,10 @@
 
 ;; Custom validators.
 (def pay-structure-validator
-  (v/generate-options-validator :pay-structure
-   {"Annual Salary" :annual-salary "Monthly Salary" :monthly-salary}))
+  (v/generate-options-validator
+   :pay-structure {"Hourly Rate" :hourly-rate
+                   "Annual Salary" :annual-salary
+                   "Monthly Salary" :monthly-salary}))
 
 (defn validate-inputs [inputs]
   (let [validate (fn [k validators] {k (v/validate inputs k validators)})
