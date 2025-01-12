@@ -38,7 +38,7 @@
 
   Only required properties are provided.
 
-#+begin_src json :tangle requests/01-base.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/01-base.json :mkdirp yes
   {"pay-structure": "Hourly Rate", "base-pay": 90}
 #+end_src
 
@@ -54,7 +54,7 @@
 
 **** Hourly rate
 
-#+begin_src json :tangle requests/02-pay-structure-hourly.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/02-pay-structure-hourly.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -70,7 +70,7 @@
 
 **** Weekly salary
 
-#+begin_src json :tangle requests/03-pay-structure-weekly.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/03-pay-structure-weekly.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -86,7 +86,7 @@
 
 **** Monthly salary
 
-#+begin_src json :tangle requests/04-pay-structure-monthly.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/04-pay-structure-monthly.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -102,7 +102,7 @@
 
 **** Annual salary
 
-#+begin_src json :tangle requests/05-pay-structure-annually.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/05-pay-structure-annually.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -130,7 +130,7 @@
 
   This is currently calculated same way as the ~:same-month~ (value ~0~).
 
-#+begin_src json :tangle requests/06-tax-previous-month.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/06-tax-previous-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -148,7 +148,7 @@
 
 **** Tax due same month
 
-#+begin_src json :tangle requests/07-tax-same-month.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/07-tax-same-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -166,7 +166,7 @@
 
 **** Tax due following month
 
-#+begin_src json :tangle requests/08-tax-following-month.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/08-tax-following-month.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -184,7 +184,7 @@
 
 **** Tax due last month of a quarter
 
-#+begin_src json :tangle requests/09-tax-last-month-of-quarter.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/09-tax-last-month-of-quarter.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -202,7 +202,7 @@
 
 **** Tax due month following end of a quarter
 
-#+begin_src json :tangle requests/10-tax-month-following-end-of-quarter.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/10-tax-month-following-end-of-quarter.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -232,7 +232,7 @@
 
   This is currently the default behaviour.
 
-#+begin_src json :tangle requests/11-benefits-monthly.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/11-benefits-monthly.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -250,7 +250,7 @@
 
 **** Benefits paid every quarter
 
-#+begin_src json :tangle requests/12-benefits-quaterly.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/12-benefits-quaterly.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -268,7 +268,7 @@
 
 **** Benefits paid annually
 
-#+begin_src json :tangle requests/13-benefits-annually.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plan/13-benefits-annually.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "employment-start-date": 1738735200000,
@@ -310,7 +310,7 @@
 
 *** Without business function
 
-#+begin_src json :tangle requests/20-staff-plans-no-bizfn.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/20-staff-plans-no-bizfn.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -327,7 +327,7 @@
 
 *** One department
 
-#+begin_src json :tangle requests/21-staff-plans-one.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/21-staff-plans-one.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -352,7 +352,7 @@
 
 *** Multiple departments
 
-#+begin_src json :tangle requests/22-staff-plans-multi.json :mkdirp yes
+#+begin_src json :tangle data/requests/staff-plans/22-staff-plans-multi.json :mkdirp yes
   {
     "projections-start-date": 1735687848739,
     "staff": [
@@ -390,7 +390,7 @@
 
   Only required properties are provided.
 
-#+begin_src json :tangle requests/30-sales-forecast.json :mkdirp yes
+#+begin_src json :tangle data/requests/sales-forecast/01-basic.json :mkdirp yes
   {}
 #+end_src
 
