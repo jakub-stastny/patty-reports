@@ -3,6 +3,7 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]
             [reports-api.validators :as v]
+            [reports-api.totals :as tot]
             [reports-api.pro-rata-engine :as pr]))
 
 ;; Custom validators.
@@ -162,22 +163,9 @@
                  [[] projections-start-date]
                  (repeat (* projections-duration 12) nil))))
 
-(defn add-yearly-totals [results]
-  (let [sum-vals
-        (fn [key]
-          (let [vals (get results key)
-                years (partition 12 vals)]
-            (map #(reduce + %) years)))]
-    (merge results
-           {:totals
-            {:monthly-pay (sum-vals :monthly-pay)
-             :benefits (sum-vals :benefits)
-             :payroll-tax (sum-vals :payroll-tax)
-             :staff-cost (sum-vals :staff-cost)}})))
-
 (defn handle [raw-inputs]
-  (add-yearly-totals
+  (tot/add-yearly-totals-one
    (format-for-bubble
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-      (prn :clean-inputs inputs)
+      ;; (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs)))))
