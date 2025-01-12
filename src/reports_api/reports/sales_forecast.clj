@@ -39,11 +39,12 @@
 (def growth-curve-validator
   (v/make-validator
    :growth-curve
-   "must be an array of up to 5 numbers"
+   "must be an array of up to 5 numbers between -0.1 and 5"
    (fn [v]
      (when (and (sequential? v)
                 (<= (count v) 5)
-                (every? number? v))
+                (every? number? v)
+                (every? #(<= -0.1 % 5) v))
        v))))
 
 (defn validate-inputs [inputs]
