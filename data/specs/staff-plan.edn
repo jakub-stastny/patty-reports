@@ -1,11 +1,11 @@
 {:endpoint "/api/v1/reports/staff-plan"
  :requests
  [{:label "No data, invalid request"
-   :request-data-path "tests/data/request/01-no-data.json"
+   :request-data {}
    :expected-output {:status 400
                      :body {:error "Go fuck yourself!"}}}
 
   {:label "Valid request with complete data"
-   :request-data-path "tests/data/request/02-valid-data.json"
+   :request-data-path "data/requests/staff-plan/01-base.json"
    :expected-output {:status 200
                      :body {:success true}}}]}

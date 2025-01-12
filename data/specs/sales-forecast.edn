@@ -1,0 +1,2 @@
+{:endpoint "/api/v1/reports/sales-forecast"
+ :requests []}
