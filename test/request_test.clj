@@ -10,7 +10,7 @@
   (assert (map? data) (str "Data must be a map, got" (pr-str data)))
 
   (-> (mock/request :post endpoint)
-      (mock/json-body (json/generate-string data))))
+      (mock/json-body data)))
 
 (defn run-test-case [endpoint {:keys [label request-data request-data-path expected-output] :as spec}]
   (assert label (str "Test must have a label, got " (pr-str spec)))
@@ -25,25 +25,14 @@
                          (json/parse-string (slurp request-data-path)))
 
           response (app (build-mock endpoint request-data))]
-      (prn :rd request-data)
       (println "~ Request payload" (pr-str request-data))
-      ;; (prn :resp response)
-      ))
+      (println "~ Response" (pr-str response))
 
-  ;; (testing label
-  ;;   (let [request-data (json/parse-string (slurp request-data-path))
-  ;;         response (app (mock/request :post "/api/v1/reports/staff-plan"
-  ;;                                     :content-type "application/json"
-  ;;                                     :body (json/generate-string request-data)))
-  ;;         actual-status (:status response)
-  ;;         actual-body (-> response :body (json/parse-string true))]
-  ;;     (is (= (:status expected-output) actual-status)
-  ;;         (str "Expected status " (:status expected-output)
-  ;;              " but got " actual-status))
-  ;;     (is (= (:body expected-output) actual-body)
-  ;;         (str "Expected response body " (:body expected-output)
-  ;;              " but got " actual-body))))
-  )
+      (is (= (:status expected-output) (:status response))
+          (str "Expected status " (:status expected-output) ", but got " (:status response)))
+
+      (is (= (:body expected-output) (json/parse-string (:body response)))
+          (str "Expected body " (pr-str (:body expected-output)) ", but got " (:body response))))))
 
 (defn test-endpoint [{:keys [endpoint requests] :as spec}]
   (assert endpoint (str "Test must have an endpoint, got " (pr-str spec)))
