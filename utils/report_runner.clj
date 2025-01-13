@@ -1,14 +1,6 @@
 (ns report-runner
   (:require [clojure.edn :as edn]))
 
-;; (defn load-endpoint [{:keys [endpoint requests] :as spec}]
-;;   (assert endpoint (str "Test must have an endpoint, got " (pr-str spec)))
-;;   (assert (vector? requests)
-;;           (str "Test must have an array of requests, got " (pr-str spec)))
-
-;;   (doseq [r requests] (run-test-case endpoint r)))
-
-
 (defn -main
   ([path] (-main path nil))
 
