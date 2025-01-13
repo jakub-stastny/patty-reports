@@ -16,27 +16,24 @@
                    "Annual Salary" :annual-salary}))
 
 (defn validate-inputs [inputs]
-  (let [validate (fn [k validators] {k (v/validate inputs k validators)})
-        validate-or-default (fn [k validators default] {k (v/validate-or-default inputs k validators default)})]
-
-    (-> {}
-        (merge (v/validate-projections-keys inputs))
-
-        (merge (validate-or-default :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10)))
-        (merge (validate-or-default :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10)))
-        (merge (validate-or-default :number-of-hires [v/positive-number-validator] 1))
-        (merge (validate-or-default :work-weeks-per-year [v/number-validator] 52))
-        (merge (validate-or-default :work-hours-per-week [v/number-validator] 40))
-        (merge (validate :base-pay [v/number-validator]))
-        (merge (validate-or-default :business-function [v/string-validator] nil))
-        (merge (validate :pay-structure [pay-structure-validator]))
-
-        (merge (validate-or-default :benefits-allowance [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :benefits-payment-frequency [v/single-or-multiple-months-validator] (into (sorted-set) (range 1 13))))
-
-        (merge (validate-or-default :employer-tax-rate [(v/generate-range-validator 0 1)] 0))
-        (merge (validate-or-default :month-timing [v/month-timing-validator] :same-month))
-        (merge {:pay-changes (map v/validate-pay-change (or (:pay-changes inputs) []))}))))
+  (let [validate (fn [state & args] (apply v/validate state inputs args))
+        months-12 (into (sorted-set) (range 1 13))]
+    (v/ensure-valid
+     (-> {:errors {} :data {}}
+         (v/validate-projections-keys inputs)
+         (validate :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10))
+         (validate :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10))
+         (validate :number-of-hires [v/positive-number-validator] 1)
+         (validate :work-weeks-per-year [v/number-validator] 52)
+         (validate :work-hours-per-week [v/number-validator] 40)
+         (validate :base-pay [v/number-validator])
+         (validate :business-function [v/string-validator] nil)
+         (validate :pay-structure [pay-structure-validator])
+         (validate :benefits-allowance [(v/generate-range-validator 0 1)] 0)
+         (validate :benefits-payment-frequency [v/single-or-multiple-months-validator] months-12)
+         (validate :employer-tax-rate [(v/generate-range-validator 0 1)] 0)
+         (validate :month-timing [v/month-timing-validator] :same-month)
+         (v/validate-rate-changes inputs :pay-changes)))))
 
 (defn calculate-monthly-pay [month {:keys [work-weeks-per-year work-hours-per-week pay-structure base-pay pay-changes employment-start-date employment-end-date]}]
   (let [current-rates (pr/calculate-current-rates month base-pay pay-changes employment-start-date employment-end-date)
@@ -156,5 +153,5 @@
   (tot/add-yearly-totals-one
    (b/format-for-bubble-one
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-      ;; (prn :clean-inputs inputs)
+      (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs)))))

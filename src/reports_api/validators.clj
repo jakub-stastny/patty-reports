@@ -91,10 +91,11 @@
                    (when-let [matched-key (some #(and (= % v) %) (keys options-map))]
                      (get options-map matched-key)))))
 
-(defn ensure-valid [{:keys [errors]}]
-  (when-not (empty? errors)
+(defn ensure-valid [{:keys [errors data]}]
+  (if-not (empty? errors)
     (throw (ex-info "Validation error"
-                    {:type :validation-error :reason errors}))))
+                    {:type :validation-error :reason errors}))
+    data))
 
 (defn validate
   ([state inputs k validators]
@@ -127,8 +128,22 @@
       (validate inputs :projections-duration [(generate-range-validator 1 5)] 1)
       (validate inputs :projections-start-date [timestamp-validator month-converter] (t/current-month))))
 
-(defn validate-pay-change [pc]
-  (let [[ts _ value] (str/split pc #"\|")
-        [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-    {:effective-date (validate {:ts ts} :ts [timestamp-validator dt-converter])
-     :new-value (validate {:value value} :value [double-validator])}))
+(defn validate-rate-change [serialised-change]
+  (if (re-matches #"\d+\|[^|]+\|\|[\d.]+" serialised-change)
+    (let [[ts _ value] (str/split serialised-change #"\|")
+          [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
+      {:effective-date (validate {:ts ts} :ts [timestamp-validator dt-converter])
+       :new-value (validate {:value value} :value [double-validator])})
+
+    {:error serialised-change}))
+
+(defn validate-rate-changes [state inputs key-name]
+  (let [changes (or (get inputs key-name) [])
+        results (map validate-rate-change changes)
+        results (group-by #(if (contains? % :error) :errors :ok) changes)]
+    (if (:errors results)
+      (let [err-vals (str/join ", " (:errors results))
+            label "The following values are not in the correct format"
+            message (str label ": " err-vals)]
+        (update state :errors merge {key-name message}))
+      (update state :data merge {key-name changes}))))
