@@ -5,6 +5,7 @@
             [cheshire.core :as json]
             [reports-api.core :refer [app]]))
 
+;; This is filled in the customer runner.
 (def ^:dynamic *test-data* [])
 
 (defn build-mock [endpoint data]

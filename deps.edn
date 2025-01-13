@@ -13,6 +13,10 @@
          :extra-paths ["test"]
          :main-opts ["-m" "test-runner"]}
 
+  ;; clojure -M:report data/specs/staff-plan.edn 0
+  :report {:extra-paths ["utils"]
+           :main-opts ["-m" "report-runner"]}
+
   ;; Run with clojure -T:build fn-in-build
   :build
   {:deps {io.github.clojure/tools.build {:mvn/version "0.10.6"}}
