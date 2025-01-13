@@ -91,31 +91,41 @@
                    (when-let [matched-key (some #(and (= % v) %) (keys options-map))]
                      (get options-map matched-key)))))
 
-(defn- throw-validation-error [m k v]
-  (throw (ex-info "Validation error" {:type :validation-error :reason m :key k :value v})))
+(defn ensure-valid [{:keys [errors]}]
+  (when-not (empty? errors)
+    (throw (ex-info "Validation error"
+                    {:type :validation-error :reason errors}))))
 
-(defn validate [m k validators]
-  (let [initial-value (get m k)]
-    (reduce
-     (fn [current-value {:keys [type validator message]}]
-       (if-let [validation-result (validator current-value)]
-         validation-result
-         (do
-           (println (str "Validator " type " failed for " k " = " (pr-str current-value)))
-           (throw-validation-error message k current-value))))
-     initial-value
-     validators)))
+(defn validate
+  ([state inputs k validators]
+   (validate state inputs k validators ::undefined))
 
-(defn validate-or-default [m k validators default-value]
-  (if (contains? m k) (validate m k validators) default-value))
+  ([state inputs k validators default-value]
+   (let [initial-value (get inputs k)]
+     (if (and (nil? initial-value) (not= default-value ::undefined))
+       (update state :data merge {k default-value})
+       (reduce
+        (fn [current-value {:keys [type validator message]}]
+          (try
+            (if-let [validation-result (validator current-value)]
+              (update state :data merge {k validation-result})
+              (update state :errors merge {k {:type type :message message :value current-value}}))
+            (catch Exception error
+              (println "\nError when running a custom validator")
+              (prn {:validator type :initial-value initial-value :current-value current-value})
+              (println)
+              (prn error)
+              (throw (ex-info "Error when running a custom validator"
+                              {:validator type :initial-value initial-value :current-value current-value})))))
+        initial-value
+        validators)))))
 
-(defn validate-projections-keys [inputs]
-  (let [validate-or-default
-        (fn [k validators default]
-          {k (validate-or-default inputs k validators default)})]
-    (->
-     (merge (validate-or-default :projections-duration [(generate-range-validator 1 5)] 1))
-     (merge (validate-or-default :projections-start-date [timestamp-validator month-converter] (t/current-month))))))
+(defn validate-or-default [m k validators default-value])
+
+(defn validate-projections-keys [state inputs]
+  (-> state
+      (validate inputs :projections-duration [(generate-range-validator 1 5)] 1)
+      (validate inputs :projections-start-date [timestamp-validator month-converter] (t/current-month))))
 
 (defn validate-pay-change [pc]
   (let [[ts _ value] (str/split pc #"\|")
