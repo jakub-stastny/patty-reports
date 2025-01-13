@@ -27,14 +27,15 @@
   (try
     (let [raw-inputs (parse-json-body request)
           inputs (h/transform-keys-to-kebab-case raw-inputs)
-          _ (prn :provided-inputs inputs)
+          ;; _ (prn :provided-inputs inputs)
           result (handle-fn inputs)
-          _ (prn :response result)]
+          ;; _ (prn :response result)
+          ]
       (response 200 (h/transform-keys-to-snake-case result)))
     (catch clojure.lang.ExceptionInfo e
       (let [data (ex-data e)]
         (if (= :validation-error (:type data))
-          (response 400 data)
+          (response 400 (merge {:error (:type data)} (dissoc data :type)))
           (response 500 data))))
     (catch Throwable e
       (prn e)

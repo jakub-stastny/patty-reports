@@ -86,7 +86,7 @@
 
 (defn generate-options-validator [field-name options-map]
   (make-validator (keyword field-name)
-                 (str "must be one of: " (str/join "," (keys options-map)))
+                 (str "must be one of: " (str/join ", " (keys options-map)))
                  (fn [v]
                    (when-let [matched-key (some #(and (= % v) %) (keys options-map))]
                      (get options-map matched-key)))))

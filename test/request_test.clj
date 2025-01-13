@@ -19,7 +19,7 @@
   (assert (or request-data request-data-path)
           (str "Test must have either request-data or request-data-path, got " (pr-str spec)))
 
-  (println "~ Spec" (pr-str spec))
+  (println (str "\n\033[1;32m~ " (:label spec) ":\033[0m"))
 
   (testing label
     (let [request-data (if request-data
@@ -31,8 +31,8 @@
 
           {:keys [status headers body] :as response} (app (build-mock endpoint request-data))
 
-          data (json/parse-string body)]
-      (println "\033[0;33m← HTTP" status "\033[0m")
+          data (json/parse-string body true)]
+      (println "\n\033[0;33m← HTTP" status "\033[0m")
       (println " " (pr-str data))
 
       (is (= (:status expected-output) (:status response))

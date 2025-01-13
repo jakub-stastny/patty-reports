@@ -32,15 +32,8 @@
 
 ** Staff plan
 
-~POST /api/v1/reports/staff-plan~
-
-*** Minimal request
-
-  Only required properties are provided.
-
-#+begin_src json :tangle data/requests/staff-plan/01-base.json :mkdirp yes
-  {"pay-structure": "Hourly Rate", "base-pay": 90}
-#+end_src
+  - *Endpoint:* ~POST /api/v1/reports/staff-plan~
+  - *Test:* ~clojure -M:test data/specs/staff-plan.edn~
 
 *** Pay structure
 **** Legend
