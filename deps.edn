@@ -13,11 +13,19 @@
          :extra-paths ["test"]
          :main-opts ["-m" "test-runner"]}
 
+  ;; List all indices:
+  ;; clojure -M:report data/specs/staff-plan.edn
+  ;;
+  ;; Run the first index:
   ;; clojure -M:report data/specs/staff-plan.edn 0
-  :report {:extra-paths ["utils"]
-           :main-opts ["-m" "report-runner"]}
+  :report {:extra-paths ["utils"] :main-opts ["-m" "report-runner"]}
 
-  ;; Run with clojure -T:build fn-in-build
+  ;; clojure -M:refresh data/specs/staff-plan.edn
+  :refresh {:extra-paths ["utils"]
+            :extra-deps {clj-http/clj-http {:mvn/version "3.13.0"}}
+            :main-opts ["-m" "refresh-runner"]}
+
+  ;; Run with clojure -T:build fn-in-build, such as clojure -T:build uber.
   :build
   {:deps {io.github.clojure/tools.build {:mvn/version "0.10.6"}}
    :ns-default build}}}
