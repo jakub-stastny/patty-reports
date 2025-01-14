@@ -1,5 +1,6 @@
 (ns reports-api.validators
   (:require [clojure.string :as str]
+            [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
 (defn make-validator [type message validator]
@@ -85,7 +86,10 @@
   (make-validator :month-converter "" #(t/date-to-month (t/ts-to-date %))))
 
 (defn generate-options-validator [field-name options-map]
-  (make-validator (keyword field-name)
+  (h/assertions :generate-options-validator field-name [keyword?] "field-name must be a keyword")
+  (h/assertions :generate-options-validator options-map [map?] "options-map must be a map")
+
+  (make-validator field-name
                  (str "must be one of: " (str/join ", " (keys options-map)))
                  (fn [v]
                    (when-let [matched-key (some #(and (= % v) %) (keys options-map))]
@@ -139,21 +143,20 @@
       (validate inputs :projections-start-date [timestamp-validator month-converter] (t/current-month))))
 
 (defn validate-rate-change [serialised-change]
-  (if (re-matches #"\d+\|[^|]+\|\|[\d.]+" serialised-change)
+  (if (re-matches #"\d+\|[^|]+\|[\d.]+" serialised-change)
     (let [[ts _ value] (str/split serialised-change #"\|")
           [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-      {:effective-date (validate {:ts ts} :ts [timestamp-validator dt-converter])
-       :new-value (validate {:value value} :value [double-validator])})
+      {:effective-date (validate {} {:ts ts} :ts [timestamp-validator dt-converter])
+       :new-value (validate {} {:value value} :value [double-validator])})
 
     {:error serialised-change}))
 
 (defn validate-rate-changes [state inputs key-name]
   (let [changes (or (get inputs key-name) [])
         results (map validate-rate-change changes)
-        results (group-by #(if (contains? % :error) :errors :ok) changes)]
+        results (group-by #(if (contains? % :error) :errors :ok) results)]
     (if (:errors results)
-      (let [err-vals (str/join ", " (:errors results))
-            label "The following values are not in the correct format"
-            message (str label ": " err-vals)]
-        (update state :errors merge {key-name message}))
+      (let [values (mapv :error (:errors results))
+            message "The following values are not in the correct format"]
+        (update state :errors merge {key-name {:message message :values values}}))
       (update state :data merge {key-name changes}))))
