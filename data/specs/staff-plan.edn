@@ -504,4 +504,29 @@
       :staff_cost [45362.58]}}}}
   {:label "Benefits paid annually",
    :request-data-path
-   "data/requests/staff-plan/13-benefits-annually.json"}]}
+   "data/requests/staff-plan/13-benefits-annually.json",
+   :expected-output
+   {:status 200,
+    :body
+    {:timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+     :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :totals
+     {:monthly_pay [34266],
+      :benefits [0],
+      :payroll_tax [0],
+      :staff_cost [34266]}}}}]}
