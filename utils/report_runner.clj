@@ -13,7 +13,10 @@
     (prn (json/parse-string out true))))
 
 (defn -main
-  ([path] (-main path nil))
+  ([path]
+   (let [{:keys [requests]} (edn/read-string (slurp path))]
+     (doseq [[index {:keys [label]}] (map-indexed vector requests)]
+       (println (str "~ \033[1;32m" index "\033[0m: " label)))))
 
   ([path index-str]
    (let [{:keys [endpoint requests]} (edn/read-string (slurp path))
