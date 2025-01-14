@@ -1,2 +1,6 @@
-{:endpoint "/api/v1/reports/staff-plans"
- :requests []}
+{:endpoint "/api/v1/reports/staff-plans",
+ :requests
+ [{:label "Without business function",
+   :request-data-path
+   "data/requests/staff-plans/01-staff-plans-no-bizfn.json",
+   :expected-output {}}]}

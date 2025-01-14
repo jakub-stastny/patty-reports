@@ -16,7 +16,7 @@
   (spit path (format-edn data)))
 
 (defn refresh-requests [{:keys [endpoint requests]}]
-  (mapv (fn [{:keys [request-data request-data-path] :as request}]
+  (mapv (fn [{:keys [label request-data request-data-path] :as request}]
           (let [response
                 (if request-data
                   (post endpoint (json/generate-string request-data))
@@ -24,7 +24,9 @@
 
                 status (:status response)
                 body (json/parse-string (:body response) true)]
-            (merge request {:expected-output {:status status :body body}})))
+            (if (= status 500)
+              (throw (ex-info "HTTP 500" {:endpoint endpoint :label label}))
+              (merge request {:expected-output {:status status :body body}}))))
         requests))
 
 (defn -main [path]
