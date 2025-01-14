@@ -22,7 +22,7 @@
 
   ;; clojure -M:refresh data/specs/staff-plan.edn
   :refresh {:extra-paths ["utils"]
-            :extra-deps {clj-http/clj-http {:mvn/version "3.13.0"}}
+            :extra-deps {org.babashka/http-client {:mvn/version "0.3.11"}}
             :main-opts ["-m" "refresh-runner"]}
 
   ;; Run with clojure -T:build fn-in-build, such as clojure -T:build uber.
