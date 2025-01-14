@@ -153,5 +153,5 @@
   (tot/add-yearly-totals-one
    (b/format-for-bubble-one
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-      ;; (prn :clean-inputs inputs)
+      (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs)))))

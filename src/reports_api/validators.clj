@@ -146,7 +146,7 @@
   (if (re-matches #"\d+\|[^|]+\|[\d.]+" serialised-change)
     (let [[ts _ value] (str/split serialised-change #"\|")
           [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-      {:effective-date (validate {} {:ts ts} :ts [timestamp-validator dt-converter])
+      {:effective-date (validate {} {:value ts} :value [timestamp-validator dt-converter])
        :new-value (validate {} {:value value} :value [double-validator])})
 
     {:error serialised-change}))
@@ -154,9 +154,13 @@
 (defn validate-rate-changes [state inputs key-name]
   (let [changes (or (get inputs key-name) [])
         results (map validate-rate-change changes)
-        results (group-by #(if (contains? % :error) :errors :ok) results)]
-    (if (:errors results)
+        grouped-results (group-by #(if (contains? % :error) :errors :ok) results)]
+    (if (:errors grouped-results)
       (let [values (mapv :error (:errors results))
             message "The following values are not in the correct format"]
         (update state :errors merge {key-name {:message message :values values}}))
-      (update state :data merge {key-name changes}))))
+      (let [values
+            (mapv (fn [{:keys [effective-date new-value] :as pc}]
+                    {:effective-date (get-in effective-date [:data :value])
+                     :new-value (get-in new-value [:data :value])}) results)]
+        (update state :data merge {key-name values})))))
