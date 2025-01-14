@@ -4,6 +4,11 @@
             [clojure.java.shell :refer [sh]]
             [cheshire.core :as json]))
 
+;; TODO: Use babashka HTTP library as the refresher does.
+
+;; TODO: A simple layer to manipulate our particular EDN format,
+;; so I don't have to check request-data/request-data-path etc.
+
 (defn url [endpoint]
   (str "http://localhost:8080" endpoint))
 
