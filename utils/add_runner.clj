@@ -22,7 +22,7 @@
   (spit path (format-edn data)))
 
 (defn -main [path]
-  (let [data (edn/read-string (slurp path))
+  (let [{:keys [requests] :as data} (edn/read-string (slurp path))
         new-request (-> {}
                         (read-from-stdin "Label" :label)
                         (read-from-stdin "Request data path" :request-data-path))]
