@@ -501,4 +501,7 @@
      {:monthly_pay [34266],
       :benefits [11096.58],
       :payroll_tax [0],
-      :staff_cost [45362.58]}}}}]}
+      :staff_cost [45362.58]}}}}
+  {:label "Benefits paid annually",
+   :request-data-path
+   "data/requests/staff-plan/13-benefits-annually.json"}]}

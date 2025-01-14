@@ -29,5 +29,5 @@
     (save-edn path (merge data {:requests (into requests [new-request])}))
     (println "The following request was added:")
     (println (str "\n  " (pr-str new-request)))
-    (println "Don't forget to retrieve its response by running:")
+    (println "\nDon't forget to retrieve its response by running:")
     (println "\n  clojure -M:refresh" path)))
