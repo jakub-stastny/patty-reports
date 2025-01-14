@@ -104,21 +104,31 @@
   ([state inputs k validators default-value]
    (let [initial-value (get inputs k)]
      (if (and (nil? initial-value) (not= default-value ::undefined))
+       ;; Use default value if values wasn't provided.
        (update state :data merge {k default-value})
+
+       ;; Validate provided value.
        (reduce
-        (fn [current-value {:keys [type validator message]}]
-          (try
-            (if-let [validation-result (validator current-value)]
-              (update state :data merge {k validation-result})
-              (update state :errors merge {k {:type type :message message :value current-value}}))
-            (catch Exception error
-              (println "\nError when running a custom validator")
-              (prn {:validator type :initial-value initial-value :current-value current-value})
-              (println)
-              (prn error)
-              (throw (ex-info "Error when running a custom validator"
-                              {:validator type :initial-value initial-value :current-value current-value})))))
-        initial-value
+        (fn [state {:keys [type validator message]}]
+          (let [current-value (get-in state [:data k])
+                errors (get-in state [:errors k])]
+            (if errors
+              ;; Early termination: if previous validations failed,
+              ;; don't try to validate the incorrect value any further.
+              errors
+
+              (try
+                (if-let [validation-result (validator current-value)]
+                  (update state :data merge {k validation-result})
+                  (update state :errors merge {k {:type type :message message :value current-value}}))
+                (catch Exception error
+                  (println "\nError when running a custom validator")
+                  (prn {:validator type :initial-value initial-value :current-value current-value})
+                  (println)
+                  (prn error)
+                  (throw (ex-info "Error when running a custom validator"
+                                  {:validator type :initial-value initial-value :current-value current-value})))))))
+        (update state :data merge {k initial-value})
         validators)))))
 
 (defn validate-or-default [m k validators default-value])
