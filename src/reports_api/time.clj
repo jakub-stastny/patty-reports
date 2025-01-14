@@ -1,29 +1,14 @@
 (ns reports-api.time
-  (:import [java.time Instant LocalDateTime ZoneId ZonedDateTime ZoneOffset]))
+  (:import [java.time Instant LocalDateTime ZoneId ZonedDateTime ZoneOffset])
+  (:require [reports-api.helpers :as h]))
 
 (def utc (ZoneId/of "UTC"))
 
-(defn ts-to-date [ts]
-  (LocalDateTime/ofInstant (Instant/ofEpochMilli ts) utc))
-
-(defn years-from [ts years]
-  (ts-to-date (+ ts (* years 31536000000))))
-
-(defn years-from-now [years]
-  (years-from (System/currentTimeMillis) years))
-
-(defn- now []
-  (.toLocalDateTime (ZonedDateTime/now utc)))
-
-(defn format-date [date]
-  (format "%d-%02d" (.getYear date) (.getMonthValue date)))
-
-(defn date-to-ts [local-date-time]
-  (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
-
-(defn date-to-month [local-date-time]
-  {:year (.getYear local-date-time)
-   :month (.getMonthValue local-date-time)})
+(defn assert-timestamp
+  ([ts]
+   (assert-timestamp :assert-timestamp ts))
+  ([fn-name ts]
+   (h/assertions fn-name ts [int?] "Timestamp must be a number")))
 
 (defn assert-month
   ([month] (assert-month :assert-month month))
@@ -40,6 +25,35 @@
   ([fn-name date]
    (assert (instance? LocalDateTime date)
            (str (name fn-name) ": date must be an LocalDateTime, got " (pr-str date)))))
+
+(defn ts-to-date [ts]
+  (assert-timestamp :ts-to-date ts)
+  (LocalDateTime/ofInstant (Instant/ofEpochMilli ts) utc))
+
+(defn years-from [ts years]
+  (assert-timestamp :years-from ts)
+  (h/assertions :years-from years [int?] "Years must be a number")
+  (ts-to-date (+ ts (* years 31536000000))))
+
+(defn years-from-now [years]
+  (h/assertions :years-from years [int?] "Years must be a number")
+  (years-from (System/currentTimeMillis) years))
+
+(defn- now []
+  (.toLocalDateTime (ZonedDateTime/now utc)))
+
+(defn format-date [date]
+  (assert-date :format-date date)
+  (format "%d-%02d" (.getYear date) (.getMonthValue date)))
+
+(defn date-to-ts [local-date-time] ;; Rename to date as in format-date?
+  (assert-date :date-to-ts local-date-time)
+  (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
+
+(defn date-to-month [local-date-time] ;; Rename to date as in format-date?
+  (assert-date :date-to-month local-date-time)
+  {:year (.getYear local-date-time)
+   :month (.getMonthValue local-date-time)})
 
 (defn next-month
   ([month] (next-month month 1))
@@ -64,7 +78,8 @@
 (defn current-month []
   (date-to-month (now)))
 
-(defn format-month [{:keys [year month]}]
+(defn format-month [{:keys [year month] :as m}]
+  (assert-month :format-month m)
   (format "%d-%02d" year month))
 
 (defn month-to-int [{:keys [year month] :as m}]
