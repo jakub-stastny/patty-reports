@@ -3,28 +3,15 @@
  [{:label "Empty payload, invalid request"
    :request-data {}
    :expected-output {:status 400
-                     :body {:error "validation-error",
-                            :reason
-                            {:base-pay
-                             {:type "number", :message "must be 0 or larger", :value nil},
-                             :pay-structure
-                             {:type "pay-structure",
-                              :message "must be one of: Hourly Rate, Weekly Salary, Monthly Salary, Annual Salary",
-                              :value nil}}}}}
+                     :body {:error "validation-error", :reason {:base-pay {:type "number", :message "must be 0 or larger", :value nil}, :pay-structure {:type "pay-structure", :message "must be one of: Hourly Rate, Weekly Salary, Monthly Salary, Annual Salary", :value nil}}}}}
 
   {:label "Minimal valid request"
-   ;; :request-data-path "data/requests/staff-plan/01-base.json"
    :request-data {:pay-structure "Hourly Rate" :base-pay 90}
    :expected-output {:status 200
-                     :body {:timestamp [1735689600000 1738368000000 1740787200000
-                                        1743465600000 1746057600000 1748736000000
-                                        1751328000000 1754006400000 1756684800000
-                                        1759276800000 1761955200000 1764547200000],
-                            :monthly_pay [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
-                            :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
-                            :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
-                            :staff_cost [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
-                            :totals {:monthly_pay [43200],
-                                     :benefits [0],
-                                     :payroll_tax [0],
-                                     :staff_cost [43200]}}}}]}
+                     :body {:timestamp [1735689600000 1738368000000 1740787200000 1743465600000 1746057600000 1748736000000 1751328000000 1754006400000 1756684800000 1759276800000 1761955200000 1764547200000], :monthly_pay [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600], :benefits [0 0 0 0 0 0 0 0 0 0 0 0], :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0], :staff_cost [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600], :totals {:monthly_pay [43200], :benefits [0], :payroll_tax [0], :staff_cost [43200]}}}}
+
+  {:label "Hourly rate with pay changes"
+   :request-data-path "data/requests/staff-plan/02-pay-structure-hourly.json"
+   :expected-output {:status 200
+                     :body {}
+                     }}]}
