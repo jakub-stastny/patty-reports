@@ -168,3 +168,16 @@
                     {:effective-date (get-in effective-date [:data :value])
                      :new-value (get-in new-value [:data :value])}) results)]
         (update state :data merge {key-name values})))))
+
+;; TODO: Refactor validate-rate-changes to use this fn.
+(defn validate-items [state key-name validator-fn items]
+  ;; Results should have the following format:
+  ;; [{:error {:base-pay {:type :number, :message "must be 0 or larger", :value nil},
+  ;;           :business-function {:type :string, :message "must be a string", :value nil}}}]
+  (let [results (mapv validator-fn items)
+        grouped-results (group-by #(if (contains? % :error) :errors :ok) results)]
+    (if (:errors grouped-results)
+      (let [values (mapv :error (:errors grouped-results))
+            message "The following values are not in the correct format"]
+        (update state :errors merge {key-name {:message message :values values}}))
+      (update state :data merge {key-name results}))))

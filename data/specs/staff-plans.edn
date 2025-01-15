@@ -7,33 +7,212 @@
     :body
     {:error "validation-error",
      :reason
-     {:base-pay
-      {:type "number", :message "must be 0 or larger", :value nil},
-      :business-function
-      {:type "string", :message "must be a string", :value nil}}}}}
+     {:staff
+      {:message "The following values are not in the correct format",
+       :values
+       [{:base-pay
+         {:type "number", :message "must be 0 or larger", :value nil},
+         :business-function
+         {:type "string",
+          :message "must be a string",
+          :value nil}}]}}}}}
   {:label "One department",
    :request-data-path
    "data/requests/staff-plans/02-staff-plans-one.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamps [],
-     :projections {},
+    {:timestamps
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
+     :projections
+     {:Minitrue
+      {:monthly_pay
+       [54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000],
+       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+       :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+       :staff_cost
+       [54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000],
+       :totals
+       {:monthly_pay [648000],
+        :payroll_tax [0],
+        :benefits [0],
+        :staff_cost [648000]}}},
      :totals
-     {:monthly_pay [],
-      :payroll_tax [],
-      :benefits [],
-      :staff_cost []}}}}
+     {:monthly_pay
+      [54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000],
+      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+      :staff_cost
+      [54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000
+       54000]}}}}
   {:label "Multiple departments",
    :request-data-path
    "data/requests/staff-plans/03-staff-plans-multi.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamps [],
-     :projections {},
+    {:timestamps
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
+     :projections
+     {:Minitrue
+      {:monthly_pay
+       [54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000],
+       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+       :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+       :staff_cost
+       [54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000
+        54000],
+       :totals
+       {:monthly_pay [648000],
+        :payroll_tax [0],
+        :benefits [0],
+        :staff_cost [648000]}},
+      :Minipax
+      {:monthly_pay
+       [60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000],
+       :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+       :staff_cost
+       [60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000
+        60000],
+       :totals
+       {:monthly_pay [720000],
+        :benefits [0],
+        :payroll_tax [0],
+        :staff_cost [720000]}}},
      :totals
-     {:monthly_pay [],
-      :payroll_tax [],
-      :benefits [],
-      :staff_cost []}}}}]}
+     {:monthly_pay
+      [114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000],
+      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+      :staff_cost
+      [114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000
+       114000]}}}}]}

@@ -6,16 +6,19 @@
             [reports-api.bubble :as b]
             [reports-api.reports.staff-plan :as sp]))
 
-(defn validate-business-function [cleaned-member]
-  (v/validate cleaned-member :business-function [v/string-validator])
-  cleaned-member)
+(defn validator-fn [member]
+  (try (sp/validate-inputs member v/undefined)
+       (catch clojure.lang.ExceptionInfo error
+         {:error (:reason (ex-data error))})))
+
+(defn validate-staff [state inputs]
+  (v/validate-items state :staff validator-fn (or (:staff inputs) [])))
 
 (defn validate-inputs [inputs]
-  (-> {}
-      (merge (v/validate-projections-keys inputs))
-      (merge {:staff (map
-                      (comp validate-business-function sp/validate-inputs)
-                      (or (:staff inputs) []))})))
+  (v/ensure-valid
+   (-> {:errors {} :data {}}
+       (v/validate-projections-keys inputs)
+       (validate-staff inputs))))
 
 (defn sum-projections [p1 p2]
   (let [aggregate #(h/sum-vectors (get p1 %) (get p2 %))]
