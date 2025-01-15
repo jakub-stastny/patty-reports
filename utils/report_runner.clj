@@ -4,6 +4,8 @@
             [clojure.java.shell :refer [sh]]
             [cheshire.core :as json]))
 
+;; TODO: Maybe report to curl-runner, clj -M:curl
+
 ;; TODO: Use babashka HTTP library as the refresher does.
 
 ;; TODO: A simple layer to manipulate our particular EDN format,
