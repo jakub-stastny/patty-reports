@@ -101,13 +101,17 @@
                     {:type :validation-error :reason errors}))
     data))
 
+;; Apparently if I assign it ::undefined, I won't be able
+;; to access the var and neither will it show in ns-interns.
+(def undefined :undefined)
+
 (defn validate
   ([state inputs k validators]
-   (validate state inputs k validators ::undefined))
+   (validate state inputs k validators undefined))
 
   ([state inputs k validators default-value]
    (let [initial-value (get inputs k)]
-     (if (and (nil? initial-value) (not= default-value ::undefined))
+     (if (and (nil? initial-value) (not= default-value undefined))
        ;; Use default value if values wasn't provided.
        (update state :data merge {k default-value})
 
