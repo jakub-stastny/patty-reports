@@ -177,7 +177,7 @@
       ;; for the validators to operate on. This is the way we get around it.
       (let [helper
             (fn [value validators]
-              (let [result (validate {} {:value ts} :value validators)]
+              (let [result (validate {} {:value value} :value validators)]
                 (get-in result [:data :value])))
 
             result

@@ -12,7 +12,7 @@
          {:error (:reason (ex-data error))})))
 
 (defn validate-staff [state inputs]
-  (v/validate-items state :staff validator-fn (or (:staff inputs) [])))
+  (v/validate-items state inputs :staff validator-fn))
 
 (defn validate-inputs [inputs]
   (v/ensure-valid
@@ -47,8 +47,10 @@
 
 ;; TODO: Add headcuont.
 (defn handle [raw-inputs]
-  (let [{:keys [projections-start-date projections-duration staff]}
+  (let [{:keys [projections-start-date projections-duration staff] :as inputs}
         (validate-inputs raw-inputs)
+
+        _ (prn :clean-inputs inputs)
 
         staff
         (map #(dissoc % :projections-start-date :projections-duration) staff)
