@@ -139,45 +139,53 @@
         (update state :data merge {k initial-value})
         validators)))))
 
-(defn validate-or-default [m k validators default-value])
+(defn validate-or-default [m k validators default-value]
+  (prn :DEPRECATED :validate-or-default k))
 
 (defn validate-projections-keys [state inputs]
   (-> state
-      (validate inputs :projections-duration [(generate-range-validator 1 5)] 1)
-      (validate inputs :projections-start-date [timestamp-validator month-converter] (t/current-month))))
+      (validate inputs :projections-duration
+                [(generate-range-validator 1 5)] 1)
+      (validate inputs :projections-start-date
+                [timestamp-validator month-converter]
+                (t/current-month))))
 
-(defn validate-rate-change [serialised-change]
-  (if (re-matches #"\d+\|[^|]+\|[\d.]+" serialised-change)
-    (let [[ts _ value] (str/split serialised-change #"\|")
-          [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
-      {:effective-date (validate {} {:value ts} :value [timestamp-validator dt-converter])
-       :new-value (validate {} {:value value} :value [double-validator])})
+(defn validate-items [state inputs key-name validator-fn]
+  (let [items (or (get inputs key-name) [])
+        ;; Results should have the following format:
+        ;; {:property-1 value-1 :property-2 value-2}
 
-    {:error serialised-change}))
-
-(defn validate-rate-changes [state inputs key-name]
-  (let [changes (or (get inputs key-name) [])
-        results (map validate-rate-change changes)
-        grouped-results (group-by #(if (contains? % :error) :errors :ok) results)]
-    (if (:errors grouped-results)
-      (let [values (mapv :error (:errors results))
-            message "The following values are not in the correct format"]
-        (update state :errors merge {key-name {:message message :values values}}))
-      (let [values
-            (mapv (fn [{:keys [effective-date new-value] :as pc}]
-                    {:effective-date (get-in effective-date [:data :value])
-                     :new-value (get-in new-value [:data :value])}) results)]
-        (update state :data merge {key-name values})))))
-
-;; TODO: Refactor validate-rate-changes to use this fn.
-(defn validate-items [state key-name validator-fn items]
-  ;; Results should have the following format:
-  ;; [{:error {:base-pay {:type :number, :message "must be 0 or larger", :value nil},
-  ;;           :business-function {:type :string, :message "must be a string", :value nil}}}]
-  (let [results (mapv validator-fn items)
+        ;; Errors should have the following format:
+        ;; [{:error validators-results}], such as:
+        ;; [{:error {:base-pay {:type :number, :message "must be 0 or larger", :value nil},
+        ;;           :business-function {:type :string, :message "must be a string", :value nil}}}]
+        results (mapv validator-fn items)
         grouped-results (group-by #(if (contains? % :error) :errors :ok) results)]
     (if (:errors grouped-results)
       (let [values (mapv :error (:errors grouped-results))
             message "The following values are not in the correct format"]
         (update state :errors merge {key-name {:message message :values values}}))
       (update state :data merge {key-name results}))))
+
+(defn validate-rate-change [serialised-change]
+  (if (re-matches #"\d+\|[^|]+\|[\d.]+" serialised-change)
+    (let [[ts _ value] (str/split serialised-change #"\|")
+          [ts value] [(Long/parseLong ts) (Double/parseDouble value)]]
+
+      ;; Here we're bending the validate fn for our needs by giving it {:value v} instead of inputs.
+      ;; It doesn't have sense to give it inputs, because properties that are lists are out of scope
+      ;; for the validators to operate on. This is the way we get around it.
+      (let [helper
+            (fn [value validators]
+              (let [result (validate {} {:value ts} :value validators)]
+                (get-in result [:data :value])))
+
+            result
+            {:effective-date (helper ts [timestamp-validator dt-converter])
+             :new-value (helper value [double-validator])}]
+        result))
+
+    {:error serialised-change}))
+
+(defn validate-rate-changes [state inputs key-name]
+  (validate-items state inputs key-name validate-rate-change))
