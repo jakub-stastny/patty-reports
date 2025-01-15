@@ -379,14 +379,6 @@
 
 ~POST /api/v1/reports/sales-forecast~
 
-*** Minimal request
-
-  Only required properties are provided.
-
-#+begin_src json :tangle data/requests/sales-forecast/01-basic.json :mkdirp yes
-  {}
-#+end_src
-
 *** Pay structure
 **** Legend
 
@@ -397,9 +389,12 @@
   - ~employment-end-date~: 5/10/2025.
   - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
 
-**** Hourly rate
+**** Minimal request
 
-(code)
+#+begin_src json :tangle data/requests/sales-forecast/01-basic.json :mkdirp yes
+  {
+  }
+#+end_src
 
 * References
 
