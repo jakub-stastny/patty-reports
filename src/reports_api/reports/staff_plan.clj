@@ -15,7 +15,7 @@
                    "Monthly Salary" :monthly-salary
                    "Annual Salary" :annual-salary}))
 
-(defn validate-inputs [inputs]
+(defn validate-inputs [inputs biz-fn-default]
   (let [validate (fn [state & args] (apply v/validate state inputs args))
         months-12 (into (sorted-set) (range 1 13))]
     (v/ensure-valid
@@ -27,7 +27,7 @@
          (validate :work-weeks-per-year [v/number-validator] 52)
          (validate :work-hours-per-week [v/number-validator] 40)
          (validate :base-pay [v/number-validator])
-         (validate :business-function [v/string-validator] nil)
+         (validate :business-function [v/string-validator] biz-fn-default)
          (validate :pay-structure [pay-structure-validator])
          (validate :benefits-allowance [(v/generate-range-validator 0 1)] 0)
          (validate :benefits-payment-frequency [v/single-or-multiple-months-validator] months-12)
@@ -152,6 +152,6 @@
 (defn handle [raw-inputs]
   (tot/add-yearly-totals-one
    (b/format-for-bubble-one
-    (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-      (prn :clean-inputs inputs)
+    (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs nil)]
+      ;; (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs)))))
