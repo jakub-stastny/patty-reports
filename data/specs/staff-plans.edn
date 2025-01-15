@@ -1,6 +1,51 @@
 {:endpoint "/api/v1/reports/staff-plans",
  :requests
- [{:label "Without business function",
+ [{:label "With an invalid staff member",
+   :request-data
+   {:projections-start-date 1735687848739,
+    :staff [{:pay-structure "Hourly Rate"}]},
+   :expected-output
+   {:status 400,
+    :body
+    {:error "validation-error",
+     :reason
+     {:base-pay
+      {:type "number", :message "must be 0 or larger", :value nil},
+      :business-function
+      {:type "string", :message "must be a string", :value nil}}}}}
+  {:label "Without business function",
    :request-data-path
    "data/requests/staff-plans/01-staff-plans-no-bizfn.json",
-   :expected-output {}}]}
+   :expected-output
+   {:status 400,
+    :body
+    {:error "validation-error",
+     :reason
+     {:business-function
+      {:type "string", :message "must be a string", :value nil}}}}}
+  {:label "One department",
+   :request-data-path
+   "data/requests/staff-plans/02-staff-plans-one.json",
+   :expected-output
+   {:status 200,
+    :body
+    {:timestamps [],
+     :projections {},
+     :totals
+     {:monthly_pay [],
+      :payroll_tax [],
+      :benefits [],
+      :staff_cost []}}}}
+  {:label "Multiple departments",
+   :request-data-path
+   "data/requests/staff-plans/03-staff-plans-multi.json",
+   :expected-output
+   {:status 200,
+    :body
+    {:timestamps [],
+     :projections {},
+     :totals
+     {:monthly_pay [],
+      :payroll_tax [],
+      :benefits [],
+      :staff_cost []}}}}]}
