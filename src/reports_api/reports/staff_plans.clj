@@ -22,10 +22,9 @@
 
 (defn sum-projections [p1 p2]
   (let [aggregate #(h/sum-vectors (get p1 %) (get p2 %))]
-    {:monthly-pay (aggregate :monthly-pay)
-     :payroll-tax (aggregate :payroll-tax)
-     :benefits (aggregate :benefits)
-     :staff-cost (aggregate :staff-cost)}))
+    (reduce (fn [acc key]
+              (merge acc {key (aggregate key)}))
+            {} sp/keys)))
 
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
