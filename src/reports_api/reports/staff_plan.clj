@@ -130,6 +130,16 @@
     ;; No benefits paid out this month.
     0))
 
+;; TODO: Change all the other fns to simply pass inputs and use any f* thing from it it wants.
+(defn calculate-headcount [month {:keys [employment-start-date employment-end-date number-of-hires]}]
+  (let [work-marker-rate 0.999
+        current-rates (pr/calculate-current-rates month work-marker-rate [] employment-start-date employment-end-date)
+        current-ratios (pr/convert-rates-to-ratios current-rates)
+        working-days (or (first (filter #(= (:rate %) work-marker-rate) current-ratios)))
+        working-days (if working-days (:days working-days) 0)
+        working-ratio (/ working-days 30)]
+    (* number-of-hires working-ratio)))
+
 (defn generate-report-month [prev-months month
                              {:keys [number-of-hires benefits-allowance employer-tax-rate
                                      month-timing benefits-payment-frequency] :as inputs}]
@@ -139,9 +149,11 @@
         benefits (calculate-benefits months-till-current benefits-allowance benefits-payment-frequency)
         payroll-tax (calculate-payroll-tax months-till-current employer-tax-rate month-timing)
 
-        staff-cost (+ monthly-pay benefits payroll-tax)]
+        staff-cost (+ monthly-pay benefits payroll-tax)
+
+        headcount (calculate-headcount month inputs)]
     {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
-     :benefits benefits :payroll-tax payroll-tax :staff-cost staff-cost}))
+     :benefits benefits :payroll-tax payroll-tax :staff-cost staff-cost :headcount headcount}))
 
 (defn generate-projections [projections-start-date projections-duration inputs]
   (first (reduce (fn [[report month] _]
@@ -154,4 +166,6 @@
    (b/format-for-bubble-one
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs nil)]
       ;; (prn :clean-inputs inputs)
-      (generate-projections projections-start-date projections-duration inputs)))))
+      (generate-projections projections-start-date projections-duration inputs))
+
+    [:timestamp :monthly-pay :benefits :payroll-tax :staff-cost :headcount])))
