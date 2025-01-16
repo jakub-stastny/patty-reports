@@ -19,7 +19,14 @@
    :expected-output
    {:status 200,
     :body
-    {:timestamp
+    {:monthly_pay
+     [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
+     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+     :staff_cost
+     [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
+     :headcount [1 1 1 1 1 1 1 1 1 1 1 1],
+     :timestamp
      [1735689600000
       1738368000000
       1740787200000
@@ -32,25 +39,25 @@
       1759276800000
       1761955200000
       1764547200000],
-     :monthly_pay
-     [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
-     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
-     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
-     :staff_cost
-     [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
-     :headcount [1 1 1 1 1 1 1 1 1 1 1 1],
      :totals
      {:monthly_pay [43200],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [43200]}}}}
+      :staff_cost [43200],
+      :headcount [1]}}}}
   {:label "Hourly rate with pay changes",
    :request-data-path
    "data/requests/staff-plan/02-pay-structure-hourly.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+     :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :headcount
+     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
      [1733011200000
       1735689600000
       1738368000000
@@ -63,24 +70,27 @@
       1756684800000
       1759276800000
       1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
-     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
-     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
-     :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
-     :headcount
-     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [34266]}}}}
+      :staff_cost [34266],
+      :headcount [0.6666666666666667]}}}}
   {:label "Weekly salary with pay changes",
    :request-data-path
    "data/requests/staff-plan/03-pay-structure-weekly.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
+    {:monthly_pay
+     [0 0 13520 15600 17333 17333 19528 20800 20800 20800 2773 0],
+     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+     :staff_cost
+     [0 0 13520 15600 17333 17333 19528 20800 20800 20800 2773 0],
+     :headcount
+     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
      [1733011200000
       1735689600000
       1738368000000
@@ -93,26 +103,27 @@
       1756684800000
       1759276800000
       1761955200000],
-     :monthly_pay
-     [0 0 13520 15600 17333 17333 19528 20800 20800 20800 2773 0],
-     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
-     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
-     :staff_cost
-     [0 0 13520 15600 17333 17333 19528 20800 20800 20800 2773 0],
-     :headcount
-     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
      :totals
      {:monthly_pay [148487],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [148487]}}}}
+      :staff_cost [148487],
+      :headcount [0.6666666666666667]}}}}
   {:label "Monthly salary with pay changes",
    :request-data-path
    "data/requests/staff-plan/04-pay-structure-monthly.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
+    {:monthly_pay
+     [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
+     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
+     :staff_cost
+     [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
+     :headcount
+     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
      [1733011200000
       1735689600000
       1738368000000
@@ -125,39 +136,19 @@
       1756684800000
       1759276800000
       1761955200000],
-     :monthly_pay
-     [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
-     :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
-     :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
-     :staff_cost
-     [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
-     :headcount
-     [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
      :totals
      {:monthly_pay [71387],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [71387]}}}}
+      :staff_cost [71387],
+      :headcount [0.6666666666666667]}}}}
   {:label "Annual salary with pay changes",
    :request-data-path
    "data/requests/staff-plan/05-pay-structure-annually.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay
+    {:monthly_pay
      [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
@@ -165,31 +156,32 @@
      [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [71387],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [71387]}}}}
+      :staff_cost [71387],
+      :headcount [0.6666666666666667]}}}}
   {:label "Tax due previous month",
    :request-data-path
    "data/requests/staff-plan/06-tax-previous-month.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -219,31 +211,32 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [6853.2],
-      :staff_cost [41119.2]}}}}
+      :staff_cost [41119.2],
+      :headcount [0.6666666666666667]}}}}
   {:label "Tax due same month",
    :request-data-path
    "data/requests/staff-plan/07-tax-same-month.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -273,31 +266,32 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [6853.2],
-      :staff_cost [41119.2]}}}}
+      :staff_cost [41119.2],
+      :headcount [0.6666666666666667]}}}}
   {:label "Tax due following month",
    :request-data-path
    "data/requests/staff-plan/08-tax-following-month.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -327,31 +321,32 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [6853.2],
-      :staff_cost [41119.2]}}}}
+      :staff_cost [41119.2],
+      :headcount [0.6666666666666667]}}}}
   {:label "Tax due last month of a quarter",
    :request-data-path
    "data/requests/staff-plan/09-tax-last-month-of-quarter.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -381,31 +376,32 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [6853.2],
-      :staff_cost [41119.2]}}}}
+      :staff_cost [41119.2],
+      :headcount [0.6666666666666667]}}}}
   {:label "Tax due month following end of a quarter",
    :request-data-path
    "data/requests/staff-plan/10-tax-month-following-end-of-quarter.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -435,18 +431,7 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
-     :totals
-     {:monthly_pay [34266],
-      :benefits [0],
-      :payroll_tax [6853.2],
-      :staff_cost [41119.2]}}}}
-  {:label "Benefits paid each month",
-   :request-data-path
-   "data/requests/staff-plan/11-benefits-monthly.json",
-   :expected-output
-   {:status 200,
-    :body
-    {:timestamp
+     :timestamp
      [1733011200000
       1735689600000
       1738368000000
@@ -459,7 +444,19 @@
       1756684800000
       1759276800000
       1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :totals
+     {:monthly_pay [34266],
+      :benefits [0],
+      :payroll_tax [6853.2],
+      :staff_cost [41119.2],
+      :headcount [0.6666666666666667]}}}}
+  {:label "Benefits paid each month",
+   :request-data-path
+   "data/requests/staff-plan/11-benefits-monthly.json",
+   :expected-output
+   {:status 200,
+    :body
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits
      [0.0
       0.0
@@ -489,49 +486,39 @@
       0.0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [11307.78],
       :payroll_tax [0],
-      :staff_cost [45573.78]}}}}
+      :staff_cost [45573.78],
+      :headcount [0.6666666666666667]}}}}
   {:label "Benefits paid every quarter",
    :request-data-path
    "data/requests/staff-plan/12-benefits-quaterly.json",
    :expected-output
    {:status 200,
     :body
-    {:timestamp
-     [1733011200000
-      1735689600000
-      1738368000000
-      1740787200000
-      1743465600000
-      1746057600000
-      1748736000000
-      1751328000000
-      1754006400000
-      1756684800000
-      1759276800000
-      1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0.0 0 0 2217.6000000000004 0 0 4126.98 0 0 4752.0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
      :staff_cost
      [0.0 0 3120 5817.6 4000 4000 8632.98 4800 4800 9552.0 640 0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
-     :totals
-     {:monthly_pay [34266],
-      :benefits [11096.58],
-      :payroll_tax [0],
-      :staff_cost [45362.58]}}}}
-  {:label "Benefits paid annually",
-   :request-data-path
-   "data/requests/staff-plan/13-benefits-annually.json",
-   :expected-output
-   {:status 200,
-    :body
-    {:timestamp
+     :timestamp
      [1733011200000
       1735689600000
       1738368000000
@@ -544,14 +531,40 @@
       1756684800000
       1759276800000
       1761955200000],
-     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+     :totals
+     {:monthly_pay [34266],
+      :benefits [11096.58],
+      :payroll_tax [0],
+      :staff_cost [45362.58],
+      :headcount [0.6666666666666667]}}}}
+  {:label "Benefits paid annually",
+   :request-data-path
+   "data/requests/staff-plan/13-benefits-annually.json",
+   :expected-output
+   {:status 200,
+    :body
+    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
      :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :headcount
      [0 0 0.8666666666666667 1 1 1 1 1 1 1 0.1333333333333333 0],
+     :timestamp
+     [1733011200000
+      1735689600000
+      1738368000000
+      1740787200000
+      1743465600000
+      1746057600000
+      1748736000000
+      1751328000000
+      1754006400000
+      1756684800000
+      1759276800000
+      1761955200000],
      :totals
      {:monthly_pay [34266],
       :benefits [0],
       :payroll_tax [0],
-      :staff_cost [34266]}}}}]}
+      :staff_cost [34266],
+      :headcount [0.6666666666666667]}}}}]}
