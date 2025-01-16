@@ -36,10 +36,6 @@
                     (update acc :projections merge {biz-fn projections}))]
 
               (reduce (fn [acc key]
-                        (println)
-                        (prn :reduce key acc)
-                        (prn :a (get projections key))
-                        (prn :b (get acc :totals key))
                         (update-in acc [:totals key] h/sum-vectors (get projections key)))
                       updated-acc keys)))
 
