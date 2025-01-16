@@ -30,7 +30,10 @@
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
             (let [existing-bubble-formatted-projections (get acc business-function)
-                  bubble-formatted-projections (tot/add-yearly-totals-one (b/format-for-bubble-one projections))]
+                  bubble-formatted-projections
+                  (tot/add-yearly-totals-one
+                   (b/format-for-bubble-one projections (conj sp/keys :timestamp))
+                   sp/keys)]
               (if existing-bubble-formatted-projections
                 (let [aggregated-projections
                       (sum-projections existing-bubble-formatted-projections
@@ -45,7 +48,6 @@
           {}
           data))
 
-;; TODO: Add headcuont.
 (defn handle [raw-inputs]
   (let [{:keys [projections-start-date projections-duration staff] :as inputs}
         (validate-inputs raw-inputs)

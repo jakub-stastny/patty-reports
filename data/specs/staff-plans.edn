@@ -182,11 +182,13 @@
         60000
         60000
         60000],
+       :headcount [20 20 20 20 20 20 20 20 20 20 20 20],
        :totals
        {:monthly_pay [720000],
         :benefits [0],
         :payroll_tax [0],
-        :staff_cost [720000]}}},
+        :staff_cost [720000],
+        :headcount [20]}}},
      :totals
      {:monthly_pay
       [114000
