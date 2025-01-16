@@ -50,8 +50,8 @@
         54000
         54000
         54000],
-       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
        :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
        :staff_cost
        [54000
         54000
@@ -65,11 +65,13 @@
         54000
         54000
         54000],
+       :headcount [19 19 19 19 19 19 19 19 19 19 19 19],
        :totals
        {:monthly_pay [648000],
-        :payroll_tax [0],
         :benefits [0],
-        :staff_cost [648000]}}},
+        :payroll_tax [0],
+        :staff_cost [648000],
+        :headcount [19]}}},
      :totals
      {:monthly_pay
       [54000
@@ -84,8 +86,8 @@
        54000
        54000
        54000],
-      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
       :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
       :staff_cost
       [54000
        54000
@@ -98,7 +100,8 @@
        54000
        54000
        54000
-       54000]}}}}
+       54000],
+      :headcount [19 19 19 19 19 19 19 19 19 19 19 19]}}}}
   {:label "Multiple departments",
    :request-data-path
    "data/requests/staff-plans/03-staff-plans-multi.json",
@@ -133,8 +136,8 @@
         54000
         54000
         54000],
-       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
        :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+       :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
        :staff_cost
        [54000
         54000
@@ -148,11 +151,13 @@
         54000
         54000
         54000],
+       :headcount [19 19 19 19 19 19 19 19 19 19 19 19],
        :totals
        {:monthly_pay [648000],
-        :payroll_tax [0],
         :benefits [0],
-        :staff_cost [648000]}},
+        :payroll_tax [0],
+        :staff_cost [648000],
+        :headcount [19]}},
       :Minipax
       {:monthly_pay
        [60000
@@ -203,8 +208,8 @@
        114000
        114000
        114000],
-      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
       :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
+      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
       :staff_cost
       [114000
        114000
@@ -217,4 +222,5 @@
        114000
        114000
        114000
-       114000]}}}}]}
+       114000],
+      :headcount [39 39 39 39 39 39 39 39 39 39 39 39]}}}}]}
