@@ -161,7 +161,7 @@
                  [[] projections-start-date]
                  (repeat (* projections-duration 12) nil))))
 
-(def keys [:monthly-pay :benefits :payroll-tax :staff-cost :headcount])
+(def xkeys [:monthly-pay :benefits :payroll-tax :staff-cost :headcount])
 
 (defn handle [raw-inputs]
   (tot/add-yearly-totals-one
@@ -169,5 +169,5 @@
     (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs nil)]
       ;; (prn :clean-inputs inputs)
       (generate-projections projections-start-date projections-duration inputs))
-    (conj keys :timestamp))
-   keys))
+    (conj xkeys :timestamp))
+   xkeys))

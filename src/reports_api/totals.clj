@@ -22,7 +22,7 @@
          (reduce (generate-reduce-fn results) {:totals {}} keys)))
 
 ;; This adds both per-item totals as well as overall totals.
-(defn add-totals-all [results]
+(defn add-totals-all [results keys]
   (reduce (fn [acc [biz-fn projections]]
             (let [calc
                   (fn [key]
@@ -35,22 +35,15 @@
                     (update acc :projections merge-with + {biz-fn projections})
                     (update acc :projections merge {biz-fn projections}))]
 
-              (prn :acc biz-fn acc)
-              (prn :updated-acc updated-acc)
-              (prn :r {:totals {:monthly-pay (calc :monthly-pay)
-                                :payroll-tax (calc :payroll-tax)
-                                :benefits (calc :benefits)
-                                :staff-cost (calc :staff-cost)}})
-              (println)
-
-              (-> updated-acc
-                  (update-in [:totals :monthly-pay] h/sum-vectors (:monthly-pay projections))
-                  (update-in [:totals :payroll-tax] h/sum-vectors (:payroll-tax projections))
-                  (update-in [:totals :benefits] h/sum-vectors (:benefits projections))
-                  (update-in [:totals :staff-cost] h/sum-vectors (:staff-cost projections)))))
+              (reduce (fn [acc key]
+                        (println)
+                        (prn :reduce key acc)
+                        (prn :a (get projections key))
+                        (prn :b (get acc :totals key))
+                        (update-in acc [:totals key] h/sum-vectors (get projections key)))
+                      updated-acc keys)))
 
           ;; TODO: :totals/:totals!!!
-          {:projections {}
-           :totals {:monthly-pay [] :payroll-tax [] :benefits [] :staff-cost []}}
+          {:projections {} :totals (zipmap keys (repeat []))}
 
           results))

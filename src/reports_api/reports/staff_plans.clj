@@ -24,15 +24,15 @@
   (let [aggregate #(h/sum-vectors (get p1 %) (get p2 %))]
     (reduce (fn [acc key]
               (merge acc {key (aggregate key)}))
-            {} sp/keys)))
+            {} sp/xkeys)))
 
 (defn aggregate-by-business-function [data]
   (reduce (fn [acc {:keys [business-function projections]}]
             (let [existing-bubble-formatted-projections (get acc business-function)
                   bubble-formatted-projections
                   (tot/add-yearly-totals-one
-                   (b/format-for-bubble-one projections (conj sp/keys :timestamp))
-                   sp/keys)]
+                   (b/format-for-bubble-one projections (conj sp/xkeys :timestamp))
+                   sp/xkeys)]
               (if existing-bubble-formatted-projections
                 (let [aggregated-projections
                       (sum-projections existing-bubble-formatted-projections
@@ -67,5 +67,5 @@
 
         timestamps (map :timestamp (:projections (first results)))
         aggregated-results (aggregate-by-business-function results)
-        aggregated-results-with-totals (tot/add-totals-all aggregated-results)]
+        aggregated-results-with-totals (tot/add-totals-all aggregated-results sp/xkeys)]
     (merge {:timestamps timestamps} aggregated-results-with-totals)))
