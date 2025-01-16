@@ -21,6 +21,7 @@
     (v/ensure-valid
      (-> {:errors {} :data {}}
          (v/validate-projections-keys inputs)
+         (validate :object-id [v/string-validator])
          (validate :employment-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10))
          (validate :employment-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10))
          (validate :number-of-hires [v/positive-number-validator] 1)
@@ -164,10 +165,9 @@
 (def xkeys [:monthly-pay :benefits :payroll-tax :staff-cost :headcount])
 
 (defn handle [raw-inputs]
-  (tot/add-yearly-totals-one
-   (b/format-for-bubble-one
-    (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs nil)]
-      ;; (prn :clean-inputs inputs)
-      (generate-projections projections-start-date projections-duration inputs))
-    (conj xkeys :timestamp))
-   xkeys))
+  (let [{:keys [projections-start-date projections-duration object-id] :as inputs} (validate-inputs raw-inputs nil)
+        ;; _ (prn :clean-inputs inputs)
+        projections (generate-projections projections-start-date projections-duration inputs)
+        bubble-formatted-projections (b/format-for-bubble-one projections (conj xkeys :timestamp))
+        results (tot/add-yearly-totals-one bubble-formatted-projections xkeys)]
+    (merge {:object-id object-id} results)))

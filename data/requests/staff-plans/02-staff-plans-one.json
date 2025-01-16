@@ -3,6 +3,7 @@
   "staff": [
     {
       "business-function": "Minitrue",
+      "object-id": "h48dh57dhfi",
       "pay-structure": "Hourly Rate",
       "base-pay": 90,
       "number-of-hires": 7,
@@ -10,6 +11,7 @@
       "benefits-allowance": 0.33
     }, {
       "business-function": "Minitrue",
+      "object-id": "2jd82mnchw63mj",
       "pay-structure": "Hourly Rate",
       "base-pay": 60,
       "number-of-hires": 12,

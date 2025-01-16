@@ -10,7 +10,9 @@
      {:staff
       {:message "The following values are not in the correct format",
        :values
-       [{:base-pay
+       [{:object-id
+         {:type "string", :message "must be a string", :value nil},
+         :base-pay
          {:type "number", :message "must be 0 or larger", :value nil},
          :business-function
          {:type "string",

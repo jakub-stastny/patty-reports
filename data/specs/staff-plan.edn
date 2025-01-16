@@ -7,7 +7,9 @@
     :body
     {:error "validation-error",
      :reason
-     {:base-pay
+     {:object-id
+      {:type "string", :message "must be a string", :value nil},
+      :base-pay
       {:type "number", :message "must be 0 or larger", :value nil},
       :pay-structure
       {:type "pay-structure",
@@ -15,11 +17,15 @@
        "must be one of: Hourly Rate, Weekly Salary, Monthly Salary, Annual Salary",
        :value nil}}}}}
   {:label "Minimal valid request",
-   :request-data {:pay-structure "Hourly Rate", :base-pay 90},
+   :request-data
+   {:object-id "hdk4hd8fnj4",
+    :pay-structure "Hourly Rate",
+    :base-pay 90},
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay
+    {:object_id "hdk4hd8fnj4",
+     :monthly_pay
      [3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600 3600],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
@@ -51,7 +57,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
      :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
@@ -82,7 +89,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay
+    {:object_id "h48dh57dhfi",
+     :monthly_pay
      [0 0 13520 15600 17333 17333 19528 20800 20800 20800 2773 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
@@ -115,7 +123,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay
+    {:object_id "h48dh57dhfi",
+     :monthly_pay
      [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
@@ -148,7 +157,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay
+    {:object_id "h48dh57dhfi",
+     :monthly_pay
      [0 0 6500 7500 8333 8333 9388 10000 10000 10000 1333 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
@@ -181,7 +191,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -236,7 +247,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -291,7 +303,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -346,7 +359,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -401,7 +415,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax
      [0.0
@@ -456,7 +471,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits
      [0.0
       0.0
@@ -511,7 +527,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0.0 0 0 2217.6000000000004 0 0 4126.98 0 0 4752.0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
      :staff_cost
@@ -543,7 +560,8 @@
    :expected-output
    {:status 200,
     :body
-    {:monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
+    {:object_id "h48dh57dhfi",
+     :monthly_pay [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
      :benefits [0 0 0 0 0 0 0 0 0 0 0 0],
      :payroll_tax [0 0 0 0 0 0 0 0 0 0 0 0],
      :staff_cost [0 0 3120 3600 4000 4000 4506 4800 4800 4800 640 0],
