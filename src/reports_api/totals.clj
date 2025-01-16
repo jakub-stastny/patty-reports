@@ -2,18 +2,24 @@
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]))
 
-(defn add-yearly-totals-one [results]
-  (let [sum-vals
-        (fn [key]
-          (let [vals (get results key)
-                years (partition 12 vals)]
-            (map #(reduce + %) years)))]
-    (merge results
-           {:totals
-            {:monthly-pay (sum-vals :monthly-pay)
-             :benefits (sum-vals :benefits)
-             :payroll-tax (sum-vals :payroll-tax)
-             :staff-cost (sum-vals :staff-cost)}})))
+;; One person working for 12 months non-accumulative, unlike say tax,
+;; which adds up. Hence we need to divide month-person by 12.
+(def filters {:headcount (fn [years-vals] (map #(/ % 12) years-vals))})
+
+(defn- generate-reduce-fn [results]
+  (fn [acc key]
+    (let [vals (get results key)
+          years (partition 12 vals)
+          value (map #(reduce + %) years)
+
+          processed-value
+          (if-let [filter (get filters key)]
+            (filter value) value)]
+      (update acc :totals merge {key processed-value}))))
+
+(defn add-yearly-totals-one [results keys]
+  (merge results
+         (reduce (generate-reduce-fn results) {:totals {}} keys)))
 
 ;; This adds both per-item totals as well as overall totals.
 (defn add-totals-all [results]
