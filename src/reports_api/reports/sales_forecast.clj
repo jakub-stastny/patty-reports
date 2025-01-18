@@ -48,7 +48,8 @@
    #(and (<= c (count %)) %)))
 
 (defn validate-inputs [inputs]
-  (let [validate (fn [state & args] (apply v/validate state inputs args))]
+  (let [validate (fn [state & args] (apply v/validate state inputs args))
+        months-12 (into (sorted-set) (range 1 13))]
     (v/ensure-valid
      (as-> {:errors {} :data {}} s
          (v/validate-projections-keys s inputs)
@@ -58,6 +59,7 @@
          (validate s :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns)
          (validate s :registered-for-vat [v/boolean-validator] true)
          (validate s :vat-payment-frequency [v/optional-single-or-multiple-months-validator] nil)
+         (validate s :vat-payment-months [v/single-or-multiple-months-or-weekly-or-daily-validator] months-12)
 
          (validate s :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10))
          (validate s :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10))
