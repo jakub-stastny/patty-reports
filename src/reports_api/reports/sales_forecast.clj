@@ -14,12 +14,6 @@
   (v/generate-options-validator
    :offering-type {"Product" :product "Service" :service}))
 
-(def customer-vat-status-validator
-  (v/generate-options-validator
-   :customer-vat-status
-   {"All customers VAT registered" :all-vat-registered
-    "Some customers VAT registered" :some-vat-registered}))
-
 (def revenue-model-validator
   (v/generate-options-validator :revenue-model
    {"One-time purchase" :purchase "Subscription" :subscription}))
@@ -60,7 +54,7 @@
          (v/validate-projections-keys s inputs)
          (validate s :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0)
          (validate s :bad-debt-provision [(v/generate-range-validator 0 1)] 0)
-         (validate s :customer-vat-status [customer-vat-status-validator] :all-vat-registered)
+         (validate s :percentage_eu_customers_vat_registered [(v/generate-range-validator 0 1)] 0)
          (validate s :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns)
          (validate s :registered-for-vat [v/boolean-validator] true)
          (validate s :vat-payment-frequency [v/optional-single-or-multiple-months-validator] nil)
