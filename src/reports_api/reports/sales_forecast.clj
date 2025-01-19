@@ -2,6 +2,7 @@
   (:require [reports-api.helpers :as h]
             [reports-api.time :as t]
             [reports-api.validators :as v]
+            [reports-api.xhelpers :as xh]
             [clojure.string :as str]))
 
 (def eu-vat-approach-validator
@@ -99,7 +100,12 @@
          (validate s :payment-terms-costs [v/month-timing-validator] :same-month)
          (validate s :monthly-contribution [monthly-contribution-validator] (vec (repeat 5 0)))))))
 
+(defn generate-report-month [prev-months month {:keys [yoy-sales-growth] :as inputs}]
+  (let [year-index (int (/ (inc (count prev-months)) 12))
+        sales-growth-rate (nth yoy-sales-growth year-index)]
+    {:sales-growth-rate sales-growth-rate}))
+
 (defn handle [raw-inputs]
-  (let [{:keys [projections-start-date projections-duration] :as inputs} (validate-inputs raw-inputs)]
-    (prn :clean-inputs inputs)
-    {:status "OK"}))
+  (let [inputs (validate-inputs raw-inputs)]
+    ;; (prn :clean-inputs inputs)
+    (xh/generate-projections inputs generate-report-month)))
