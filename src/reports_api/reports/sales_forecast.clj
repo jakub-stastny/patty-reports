@@ -48,6 +48,7 @@
    (str "must be a sequential of at least " c " items")
    #(and (<= c (count %)) %)))
 
+;; TODO: a lot of this is under offerings and need to be validated as pay-changes.
 (defn validate-inputs [inputs]
   (let [validate (fn [state & args] (apply v/validate state inputs args))
         months-12 (into (sorted-set) (range 1 13))]
@@ -98,12 +99,15 @@
          (v/validate-rate-changes s inputs :cost-of-sale-changes)
          (validate s :cost-vat [(v/generate-range-validator 0 1)] 0)
          (validate s :payment-terms-costs [v/month-timing-validator] :same-month)
-         (validate s :monthly-contribution [monthly-contribution-validator] (vec (repeat 5 0)))))))
+         (validate s :monthly-contribution [monthly-contribution-validator] (vec (repeat 12 (/ 1.0 12))))))))
 
-(defn generate-report-month [prev-months month {:keys [yoy-sales-growth] :as inputs}]
-  (let [year-index (int (/ (inc (count prev-months)) 12))
-        sales-growth-rate (nth yoy-sales-growth year-index)]
-    {:sales-growth-rate sales-growth-rate}))
+(defn generate-report-month [prev-months month {:keys [yoy-sales-growth starting-customers monthly-contribution] :as inputs}]
+  (let [year-index (int (/ (count prev-months) 12))
+        sales-growth-rate (nth yoy-sales-growth year-index)
+        last-month-customers (:customers (or (last prev-months) {:customers starting-customers}))
+        current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))]
+    (prn :mc monthly-contribution)
+    {:sales-growth-rate sales-growth-rate :customers current-month-customers}))
 
 (defn handle [raw-inputs]
   (let [inputs (validate-inputs raw-inputs)]
