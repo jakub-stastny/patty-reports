@@ -111,13 +111,15 @@
 (defn generate-report-month [prev-months month {:keys [yoy-sales-growth starting-customers monthly-contribution] :as inputs}]
   (let [year-index (int (/ (count prev-months) 12))
         sales-growth-rate (nth yoy-sales-growth year-index)
-        last-month-customers (:customers (or (last prev-months) {:customers starting-customers}))
+        last-month-customers (:total-customers (or (last prev-months) {:total-customers starting-customers}))
         current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))
         seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))]
     {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate
-     :customers current-month-customers}))
+     :total-customers current-month-customers
+     :new-customers (- current-month-customers last-month-customers)}))
 
-(def xkeys [:sales-growth-rate :seasonal-adjustment-rate :customers])
+(def tkeys [:new-customers :total-customers])
+(def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
 
 (defn handle [raw-inputs]
   (let [inputs (validate-inputs raw-inputs)
@@ -126,4 +128,4 @@
     (println) (prn :projections projections)
     (tot/add-yearly-totals-one
      (b/format-for-bubble-one projections xkeys)
-     [:customers])))
+     tkeys)))
