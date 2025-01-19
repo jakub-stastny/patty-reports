@@ -407,10 +407,14 @@
   - ~employment-end-date~: 5/10/2025.
   - ~pay-changes.effective-date~: 1/4/2025 and 12/6/2025.
 
-**** Minimal request
+**** Minimal valid request
 
-#+begin_src json :tangle data/requests/sales-forecast/01-basic.json :mkdirp yes
+#+begin_src json :tangle data/requests/sales-forecast/01-valid.json :mkdirp yes
   {
+    "projections-start-date": 1735687848739,
+    "projections-duration": 3,
+    "starting-customers": 10,
+    "yoy-sales-growth": [0.83, 0.66, 0.52]
   }
 #+end_src
 

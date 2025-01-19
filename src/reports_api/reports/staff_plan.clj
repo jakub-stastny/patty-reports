@@ -164,7 +164,7 @@
 
 (defn handle [raw-inputs]
   (let [{:keys [object-id] :as inputs} (validate-inputs raw-inputs nil)
-        ;; _ (prn :clean-inputs inputs)
+        ;; _ (prn :inputs inputs)
         projections (generate-projections inputs)
         bubble-formatted-projections (b/format-for-bubble-one projections (conj xkeys :timestamp))
         results (tot/add-yearly-totals-one bubble-formatted-projections xkeys)]

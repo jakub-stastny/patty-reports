@@ -1,5 +1,9 @@
 {:endpoint "/api/v1/reports/sales-forecast",
  :requests
  [{:label "Minimal request",
-   :request-data-path "data/requests/sales-forecast/01-basic.json",
+   :request-data {}
+   :expected-output {:status 200, :body {:status "OK"}}}
+
+  {:label "Minimal valid request",
+   :request-data-path "data/requests/sales-forecast/01-valid.json"
    :expected-output {:status 200, :body {:status "OK"}}}]}

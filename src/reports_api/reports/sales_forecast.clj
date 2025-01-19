@@ -3,6 +3,8 @@
             [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.xhelpers :as xh]
+            [reports-api.totals :as tot]
+            [reports-api.bubble :as b]
             [clojure.string :as str]))
 
 (def eu-vat-approach-validator
@@ -106,10 +108,15 @@
         sales-growth-rate (nth yoy-sales-growth year-index)
         last-month-customers (:customers (or (last prev-months) {:customers starting-customers}))
         current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))]
-    (prn :mc monthly-contribution)
     {:sales-growth-rate sales-growth-rate :customers current-month-customers}))
 
+(def xkeys [:sales-growth-rate :customers])
+
 (defn handle [raw-inputs]
-  (let [inputs (validate-inputs raw-inputs)]
-    ;; (prn :clean-inputs inputs)
-    (xh/generate-projections inputs generate-report-month)))
+  (let [inputs (validate-inputs raw-inputs)
+        _ (prn :inputs inputs)
+        projections (xh/generate-projections inputs generate-report-month)]
+    (println) (prn :projections projections)
+    (tot/add-yearly-totals-one
+     (b/format-for-bubble-one projections (conj xkeys :timestamp))
+     xkeys)))
