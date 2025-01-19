@@ -103,14 +103,21 @@
          (validate s :payment-terms-costs [v/month-timing-validator] :same-month)
          (validate s :monthly-contribution [monthly-contribution-validator] (vec (repeat 12 (/ 1.0 12))))))))
 
+;; Bound to sales, not to customer number.
+(defn month-adjustment-ratios [{:keys [monthly-contribution]}]
+  (let [base-value (/ 1.0 12)] ; The value for even distribution
+    (mapv #(/ % base-value) monthly-contribution)))
+
 (defn generate-report-month [prev-months month {:keys [yoy-sales-growth starting-customers monthly-contribution] :as inputs}]
   (let [year-index (int (/ (count prev-months) 12))
         sales-growth-rate (nth yoy-sales-growth year-index)
         last-month-customers (:customers (or (last prev-months) {:customers starting-customers}))
-        current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))]
-    {:sales-growth-rate sales-growth-rate :customers current-month-customers}))
+        current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))
+        seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))]
+    {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate
+     :customers current-month-customers}))
 
-(def xkeys [:sales-growth-rate :customers])
+(def xkeys [:sales-growth-rate :seasonal-adjustment-rate :customers])
 
 (defn handle [raw-inputs]
   (let [inputs (validate-inputs raw-inputs)
@@ -118,5 +125,5 @@
         projections (xh/generate-projections inputs generate-report-month)]
     (println) (prn :projections projections)
     (tot/add-yearly-totals-one
-     (b/format-for-bubble-one projections (conj xkeys :timestamp))
-     xkeys)))
+     (b/format-for-bubble-one projections xkeys)
+     [:customers])))
