@@ -1,6 +1,7 @@
 (ns reports-api.reports.staff-plan
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
+            [reports-api.xhelpers :as xh]
             [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.totals :as tot]
@@ -156,18 +157,15 @@
     {:month month :timestamp (t/month-to-ts month) :monthly-pay monthly-pay
      :benefits benefits :payroll-tax payroll-tax :staff-cost staff-cost :headcount headcount}))
 
-(defn generate-projections [projections-start-date projections-duration inputs]
-  (first (reduce (fn [[report month] _]
-                   [(conj report (generate-report-month report month inputs)) (t/next-month month)])
-                 [[] projections-start-date]
-                 (repeat (* projections-duration 12) nil))))
+(defn generate-projections [inputs]
+  (xh/generate-projections inputs generate-report-month))
 
 (def xkeys [:monthly-pay :benefits :payroll-tax :staff-cost :headcount])
 
 (defn handle [raw-inputs]
-  (let [{:keys [projections-start-date projections-duration object-id] :as inputs} (validate-inputs raw-inputs nil)
+  (let [{:keys [object-id] :as inputs} (validate-inputs raw-inputs nil)
         ;; _ (prn :clean-inputs inputs)
-        projections (generate-projections projections-start-date projections-duration inputs)
+        projections (generate-projections inputs)
         bubble-formatted-projections (b/format-for-bubble-one projections (conj xkeys :timestamp))
         results (tot/add-yearly-totals-one bubble-formatted-projections xkeys)]
     (merge {:object-id object-id} results)))

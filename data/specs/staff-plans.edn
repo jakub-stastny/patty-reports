@@ -1,23 +1,12 @@
 {:endpoint "/api/v1/reports/staff-plans",
  :requests
  [{:label "With an invalid staff member",
-   :request-data {:staff [{:pay-structure "Hourly Rate"}]},
+   :request-data {:staff [{}]}
    :expected-output
    {:status 400,
     :body
-    {:error "validation-error",
-     :reason
-     {:staff
-      {:message "The following values are not in the correct format",
-       :values
-       [{:object-id
-         {:type "string", :message "must be a string", :value nil},
-         :base-pay
-         {:type "number", :message "must be 0 or larger", :value nil},
-         :business-function
-         {:type "string",
-          :message "must be a string",
-          :value nil}}]}}}}}
+    {:error "validation-error", :reason {:staff {:message "The following values are not in the correct format", :values [{:object-id {:type "string", :message "must be a string", :value nil}, :base-pay {:type "number", :message "must be 0 or larger", :value nil}, :business-function {:type "string", :message "must be a string", :value nil}, :pay-structure {:type "pay-structure", :message "must be one of: Hourly Rate, Weekly Salary, Monthly Salary, Annual Salary", :value nil}}]}}}
+}}
   {:label "One department",
    :request-data-path
    "data/requests/staff-plans/02-staff-plans-one.json",

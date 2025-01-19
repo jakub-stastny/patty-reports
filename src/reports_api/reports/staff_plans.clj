@@ -60,9 +60,8 @@
         (flatten (map (fn [{:keys [business-function] :as member}]
                         {:business-function business-function
                          :projections (sp/generate-projections
-                                       projections-start-date
-                                       projections-duration
-                                       member)})
+                                       (merge member {:projections-start-date projections-start-date
+                                                      :projections-duration projections-duration}))})
                       staff))
 
         timestamps (map :timestamp (:projections (first results)))
