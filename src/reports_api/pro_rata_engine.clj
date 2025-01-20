@@ -9,7 +9,7 @@
 
 (defn- assert-changes [changes]
   (h/assertions :assert-changes changes [sequential?] "changes must be a sequential")
-  (map assert-change changes))
+  (doseq [change changes] (assert-change change)))
 
 ;; Staff plan: employment-start/end-date, base-pay, pay-changes
 ;; Sales forecast: sales-start/end-date, selling-price, selling-price-changes
@@ -86,6 +86,35 @@
       [{:since 1 :rate current-month-rate}]
       (calculate-pro-rata-initial-rate
        month initial-rate current-month-rate all-changes start-date end-date))))
+
+(defn calculate-pro-rata-factor [month start-date end-date]
+  (let [month-str (t/format-month month)           ;; Format month map to string
+        start-str (t/format-date start-date)       ;; Format start date to string
+        end-str   (t/format-date end-date)         ;; Format end date to string
+        days-in-month 30                          ;; Assume 30 days per month
+        first-day-of-month 1
+        last-day-of-month days-in-month]
+
+    (cond
+      ;; Case 1: Month is completely outside the range
+      (or (not= month-str start-str)               ;; Start date not in this month
+          (not= month-str end-str))               ;; End date not in this month
+      [{:since first-day-of-month :rate 0}]
+
+      ;; Case 2: Whole month is within the range
+      (and (= month-str start-str) (= month-str end-str))
+      [{:since first-day-of-month :rate 1}]
+
+      ;; Case 3: Partial overlap
+      :else
+      (let [start-day (if (= month-str start-str)  ;; Get start day for this month
+                        (.getDayOfMonth start-date)
+                        first-day-of-month)
+            end-day   (if (= month-str end-str)    ;; Get end day for this month
+                        (.getDayOfMonth end-date)
+                        last-day-of-month)]
+        [{:since start-day :rate 1}
+         {:since (inc end-day) :rate 0}]))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
