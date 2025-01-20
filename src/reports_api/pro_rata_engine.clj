@@ -134,3 +134,9 @@
                            (- days-in-month (:since current) -1))
                    :rate (:rate current)})))
          (remove nil?))))
+
+(defn pro-rata-factor [rates]
+  (let [ratios (convert-rates-to-ratios rates)
+        total-days (reduce + (map :days ratios))
+        weighted-sum (reduce + (map #(* (:days %) (:rate %)) ratios))]
+    (/ weighted-sum total-days)))
