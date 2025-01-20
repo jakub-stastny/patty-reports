@@ -1,11 +1,12 @@
 (ns reports-api.reports.sales-forecast
-  (:require [reports-api.helpers :as h]
+  (:require [clojure.string :as str]
+            [reports-api.helpers :as h]
             [reports-api.time :as t]
             [reports-api.validators :as v]
             [reports-api.xhelpers :as xh]
-            [reports-api.totals :as tot]
+            [reports-api.pro-rata-engine :as pr]
             [reports-api.bubble :as b]
-            [clojure.string :as str]))
+            [reports-api.totals :as tot]))
 
 (def eu-vat-approach-validator
   (v/generate-options-validator
@@ -21,9 +22,9 @@
   (v/generate-options-validator :revenue-model
    {"One-time purchase" :purchase "Subscription" :subscription}))
 
-(def monthly-contribution-validator
+(def customer-activity-pattern-validator
   (v/make-validator
-   :monthly-contribution
+   :customer-activity-pattern
    "must be an array of 12 numbers between 0 and 1 that sum to 1.0"
    (fn [v]
      (when (and (sequential? v)
@@ -50,7 +51,6 @@
    (str "must be a sequential of at least " c " items")
    #(and (<= c (count %)) %)))
 
-;; TODO: a lot of this is under offerings and need to be validated as pay-changes.
 (defn validate-inputs [inputs]
   (let [validate (fn [state & args] (apply v/validate state inputs args))
         months-12 (into (sorted-set) (range 1 13))]
@@ -71,12 +71,11 @@
          (validate s :offering-type [offering-type-validator] :product)
          (validate s :revenue-model [revenue-model-validator] :purchase)
          (validate s :starting-customers [v/number-validator] 0)
-         (validate s :typical-purchase-quantity [v/number-validator] 0)
-         (validate s :annual-repeat-purchase [v/number-validator] 0)
-         (validate s :yearly-purchase-frequency [v/number-validator] 0)
+         (validate s :units-per-transaction [v/number-validator] 0)
+         (validate s :transactions-per-year [v/number-validator] 0)
          (validate s :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1)
          (validate s :retention-rate [(v/generate-range-validator 0 1)] 0)
-         (validate s :yoy-sales-growth
+         (validate s :yoy-growth-rate
                    [growth-curve-validator
                     (generate-yoy-fulfills-projections-duration
                      (get-in s [:data :projections-duration]))]
@@ -101,24 +100,39 @@
          (v/validate-rate-changes s inputs :cost-of-sale-changes)
          (validate s :cost-vat [(v/generate-range-validator 0 1)] 0)
          (validate s :payment-terms-costs [v/month-timing-validator] :same-month)
-         (validate s :monthly-contribution [monthly-contribution-validator] (vec (repeat 12 (/ 1.0 12))))))))
+         (validate s :customer-activity-pattern [customer-activity-pattern-validator] (vec (repeat 12 (/ 1.0 12))))))))
 
 ;; Bound to sales, not to customer number.
-(defn month-adjustment-ratios [{:keys [monthly-contribution]}]
+(defn month-adjustment-ratios [{:keys [customer-activity-pattern]}]
   (let [base-value (/ 1.0 12)] ; The value for even distribution
-    (mapv #(/ % base-value) monthly-contribution)))
+    (mapv #(/ % base-value) customer-activity-pattern)))
 
-(defn generate-report-month [prev-months month {:keys [yoy-sales-growth starting-customers monthly-contribution] :as inputs}]
+(defn calculate-lost-customers [{:keys [revenue-model transactions-per-year units-per-transaction]} existing-customers pro-rata-factor]
+  (case revenue-model
+    :purchase (let [rate (Math/pow (- 1 (* transactions-per-year units-per-transaction)) (/ 1 12))]
+                (* existing-customers rate pro-rata-factor))
+
+    :subscription 0.05
+
+    (throw (ex-info "Default branch" {:revenue-model revenue-model}))))
+
+(defn generate-report-month [prev-months month
+                             {:keys [yoy-growth-rate starting-customers customer-activity-pattern sales-start-date sales-end-date]
+                              :as inputs}]
   (let [year-index (int (/ (count prev-months) 12))
-        sales-growth-rate (nth yoy-sales-growth year-index)
-        last-month-customers (:total-customers (or (last prev-months) {:total-customers starting-customers}))
-        current-month-customers (* last-month-customers (+ 1 (/ sales-growth-rate 12)))
-        seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))]
+        sales-growth-rate (nth yoy-growth-rate year-index)
+        existing-customers (:total-customers (or (last prev-months) {:total-customers starting-customers}))
+        new-customers (* existing-customers (/ sales-growth-rate 12))
+        seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))
+        pro-rata-factor (pr/pro-rata-factor (pr/calculate-pro-rata-factor month sales-start-date sales-end-date))
+        _ (prn :prf pro-rata-factor)
+        lost-customers (calculate-lost-customers inputs existing-customers pro-rata-factor)]
     {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate
-     :total-customers current-month-customers
-     :new-customers (- current-month-customers last-month-customers)}))
+     :new-customers new-customers
+     :lost-customers lost-customers
+     :total-customers (- (+ existing-customers new-customers) lost-customers)}))
 
-(def tkeys [:new-customers :total-customers])
+(def tkeys [:new-customers :lost-customers :total-customers])
 (def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
 
 (defn handle [raw-inputs]
