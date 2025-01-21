@@ -71,8 +71,8 @@
          (validate s :offering-type [offering-type-validator] :product)
          (validate s :revenue-model [revenue-model-validator] :purchase)
          (validate s :starting-customers [v/number-validator] 0)
-         (validate s :units-per-transaction [v/number-validator] 0)
-         (validate s :transactions-per-year [v/number-validator] 0)
+         (validate s :units-per-transaction [v/number-validator] 1)
+         (validate s :transactions-per-year [v/number-validator] 1)
          (validate s :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1)
          (validate s :retention-rate [(v/generate-range-validator 0 1)] 0)
          (validate s :yoy-growth-rate
@@ -107,14 +107,23 @@
   (let [base-value (/ 1.0 12)] ; The value for even distribution
     (mapv #(/ % base-value) customer-activity-pattern)))
 
-(defn calculate-lost-customers [{:keys [revenue-model transactions-per-year units-per-transaction]} existing-customers pro-rata-factor]
-  (case revenue-model
-    :purchase (let [rate (Math/pow (- 1 (* transactions-per-year units-per-transaction)) (/ 1 12))]
-                (* existing-customers rate pro-rata-factor))
+;; Generic monthly decay rate.
+(defn calculate-monthly-loss-rate-purchase [{:keys [transactions-per-year]}]
+  (Math/pow (- 1 (/ transactions-per-year 100.0)) (/ 1.0 12.0)))
 
-    :subscription 0.05
+(defn calculate-monthly-loss-rate-subscription [{:keys [retention-rate billing-cycles-per-year]}]
+  (Math/pow (- 1 (/ retention-rate 100.0)) (/ 1.0 billing-cycles-per-year)))
 
-    (throw (ex-info "Default branch" {:revenue-model revenue-model}))))
+(def monthly-loss-rate-fns
+  {:purchase calculate-monthly-loss-rate-purchase
+   :subscription calculate-monthly-loss-rate-subscription})
+
+(defn calculate-lost-customers [{:keys [revenue-model] :as inputs} existing-customers pro-rata-factor]
+  (let [monthly-loss-rate
+        (if-let [calc-fn (get monthly-loss-rate-fns revenue-model)]
+          (calc-fn inputs)
+          (throw (ex-info "Unsupported revenue model" {:revenue-model revenue-model})))]
+    (* existing-customers monthly-loss-rate pro-rata-factor)))
 
 (defn generate-report-month [prev-months month
                              {:keys [yoy-growth-rate starting-customers customer-activity-pattern sales-start-date sales-end-date]
@@ -122,11 +131,9 @@
   (let [year-index (int (/ (count prev-months) 12))
         sales-growth-rate (nth yoy-growth-rate year-index)
         existing-customers (:total-customers (or (last prev-months) {:total-customers starting-customers}))
-        new-customers (* existing-customers (/ sales-growth-rate 12))
         seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))
         pro-rata-factor (pr/pro-rata-factor (pr/calculate-pro-rata-factor month sales-start-date sales-end-date))
-        _ (prn :prf pro-rata-factor)
-        lost-customers (calculate-lost-customers inputs existing-customers pro-rata-factor)]
+        new-customers (* existing-customers (/ sales-growth-rate 12) pro-rata-factor)]
     {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate
      :new-customers new-customers
      :lost-customers lost-customers

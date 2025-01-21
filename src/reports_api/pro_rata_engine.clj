@@ -99,12 +99,12 @@
       ;; Case 1: Month is completely outside the range
       (or (< month-comparison-start 0)
           (> month-comparison-end 0))
-      [{:since first-day-of-month :rate 0}]
+      [{:since first-day-of-month :rate 0.0}]
 
       ;; Case 2: Whole month is within the range
       (and (= month-comparison-start 0)
            (= month-comparison-end 0))
-      [{:since first-day-of-month :rate 1}]
+      [{:since first-day-of-month :rate 1.0}]
 
       ;; Case 3: Partial month
       :else
@@ -114,8 +114,8 @@
             end-day   (if (= month-comparison-end 0)   ;; End date within the month
                         (.getDayOfMonth end-date)
                         last-day-of-month)]
-        [{:since start-day :rate 1}
-         {:since (inc end-day) :rate 0}]))))
+        [{:since start-day :rate 1.0}
+         {:since (inc end-day) :rate 0.0}]))))
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
