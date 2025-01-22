@@ -131,9 +131,16 @@
         ;; First round: :new 10 0 1.0 -> RESULT 0.0       (* 10 (/ 0 12) 1.0)
         _ (prn :new existing-customers sales-growth-rate pro-rata-factor)
         lost-customers (calculate-lost-customers inputs existing-customers pro-rata-factor)
-        _ (prn :lost lost-customers)]
-    {:new-customers new-customers :lost-customers lost-customers
-     :total-customers (- (+ existing-customers new-customers) lost-customers)}))
+        _ (prn :lost lost-customers)
+        total-customers (- (+ existing-customers new-customers) lost-customers)]
+    {:existing-customers existing-customers :new-customers new-customers
+     :lost-customers lost-customers :total-customers total-customers}))
+
+(defn revenue-rows [{:keys [] :as inputs}]
+  {})
+
+(defn sales-revenue-rows [{:keys [] :as inputs}]
+  {})
 
 (defn generate-report-month [prev-months month
                              {:keys [yoy-growth-rate starting-customers customer-activity-pattern sales-start-date sales-end-date]
@@ -143,14 +150,18 @@
         seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))
         pro-rata-factor (pr/pro-rata-factor (pr/calculate-pro-rata-factor month sales-start-date sales-end-date))]
     (-> {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate}
-        (merge (customer-rows inputs (last prev-months) sales-growth-rate pro-rata-factor)))))
+        (merge (customer-rows inputs (last prev-months) sales-growth-rate pro-rata-factor))
+        (merge (revenue-rows inputs))
+        (merge (sales-revenue-rows inputs)))))
 
-(def tkeys [:new-customers :lost-customers :total-customers])
+(def customer-keys [:existing-customers :new-customers :lost-customers :total-customers])
+;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
+(def revenue-keys [])
+;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
+(def sales-revenue-keys [])
+(def tkeys (concat customer-keys revenue-keys sales-revenue-keys))
 (def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
 
-;; existing, new, lost & total-customers
-;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
-;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
 (defn handle [raw-inputs]
   (let [inputs (validate-inputs raw-inputs)
         _ (prn :inputs inputs)
