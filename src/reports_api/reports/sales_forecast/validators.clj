@@ -72,6 +72,7 @@
          (validate s :transactions-per-year [v/number-validator] 1)
          (validate s :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1)
          (validate s :retention-rate [(v/generate-range-validator 0 1)] 0)
+         ;; YoY growth rate is for SELLING years, not projection years.
          (validate s :yoy-growth-rate
                    [growth-curve-validator
                     (generate-yoy-fulfills-projections-duration
@@ -97,4 +98,5 @@
          (v/validate-rate-changes s inputs :cost-of-sale-changes)
          (validate s :cost-vat [(v/generate-range-validator 0 1)] 0)
          (validate s :payment-terms-costs [v/month-timing-validator] :same-month)
+         ;; Seasonality is for SELLING years, not projection years.
          (validate s :customer-activity-pattern [customer-activity-pattern-validator] (vec (repeat 12 (/ 1.0 12))))))))
