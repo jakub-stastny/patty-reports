@@ -3,33 +3,30 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
+(defmacro when-model [{:keys [revenue-model]} expected-revenue-model & body]
+  `(if (= ~revenue-model ~expected-revenue-model) (do ~@body) 0))
+
 ;; REVENUE ROWS
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
-(def revenue-keys [:non-seasonal-revenue-target])
+(def revenue-keys [:non-seasonal-revenue-target :required-customers])
 
 ;; Calculate the base revenue target before applying seasonality.
 (defn calculate-non-seasonal-revenue-target [{:keys [revenue-model] :as inputs} results]
-  (if (= revenue-model :subscription)
-    (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
-          {:keys [existing-customers sales-growth-rate pro-rata-factor price]} results]
-      (* existing-customers units-per-transaction
-         (/ billing-cycles-per-year 12)
-         price sales-growth-rate pro-rata-factor))
-
-    ;; Return blank for purchase.
-    0))
+  (when-model inputs :subscription
+              (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
+                    {:keys [existing-customers sales-growth-rate pro-rata-factor price]} results]
+                (* existing-customers units-per-transaction
+                   (/ billing-cycles-per-year 12)
+                   price sales-growth-rate pro-rata-factor))))
 
 ;; Once we have our revenue target, we work backwards to figure out how many customers we need.
-(defn calculate-required-customers [{:keys [revenue-model] :as inputs} results]
-  (if (= revenue-model :subscription)
+(defn calculate-required-customers [inputs results]
+  (when-model inputs :subscription
     (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
           {:keys [non-seasonal-revenue price pro-rata-factor price]} results]
       (if (= 0 pro-rata-factor)
         0
-        (/ non-seasonal-revenue price units-per-transaction (/ billing-cycles-per-year 12))))
-
-    ;; Return blank for purchase.
-    0))
+        (/ non-seasonal-revenue price units-per-transaction (/ billing-cycles-per-year 12))))))
 
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price
