@@ -7,13 +7,18 @@
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
 (def revenue-keys [:non-seasonal-revenue-target])
 
-(defn calculate-non-seasonal-revenue-target [inputs results]
-  (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
-        {:keys [existing-customers sales-growth-rate pro-rata-factor]} results
-        price 1]
-    (* existing-customers units-per-transaction
-       (/ billing-cycles-per-year 12)
-       price sales-growth-rate pro-rata-factor)))
+;; Calculate the base revenue target before applying seasonality.
+(defn calculate-non-seasonal-revenue-target [{:keys [revenue-model] :as inputs} results]
+  (if (= revenue-model :subscription)
+    (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
+          {:keys [existing-customers sales-growth-rate pro-rata-factor]} results
+          price 1]
+      (* existing-customers units-per-transaction
+         (/ billing-cycles-per-year 12)
+         price sales-growth-rate pro-rata-factor))
+
+    ;; Return nil for purchase.
+    nil))
 
 (defn revenue-rows [prev-months month inputs results]
   {:non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results)})
