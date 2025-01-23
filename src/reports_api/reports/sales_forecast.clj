@@ -45,10 +45,7 @@
 (defn customer-rows [{:keys [starting-customers] :as inputs} {:keys [sales-growth-rate pro-rata-factor]} last-month]
   (let [existing-customers (:total-customers (or last-month {:total-customers starting-customers}))
         new-customers (* existing-customers (/ sales-growth-rate 12) pro-rata-factor)
-        ;; First round: :new 10 0 1.0 -> RESULT 0.0       (* 10 (/ 0 12) 1.0)
-        _ (prn :new existing-customers sales-growth-rate pro-rata-factor)
         lost-customers (calculate-lost-customers inputs existing-customers pro-rata-factor)
-        _ (prn :lost lost-customers)
         total-customers (- (+ existing-customers new-customers) lost-customers)]
     {:existing-customers existing-customers :new-customers new-customers
      :lost-customers lost-customers :total-customers total-customers}))
@@ -69,9 +66,9 @@
 
 (defn generate-report-month [prev-months month inputs]
   (as-> (helper-rows inputs prev-months month) results
-    (merge (customer-rows inputs results (last prev-months)))
-    (merge (revenue-rows inputs results))
-    (merge (sales-revenue-rows inputs results))))
+    (merge results (customer-rows inputs results (last prev-months)))
+    (merge results (revenue-rows inputs results))
+    (merge results (sales-revenue-rows inputs results))))
 
 (def tkeys (concat customer-keys revenue-keys sales-revenue-keys))
 (def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
