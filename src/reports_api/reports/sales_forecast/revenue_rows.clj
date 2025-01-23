@@ -11,17 +11,31 @@
 (defn calculate-non-seasonal-revenue-target [{:keys [revenue-model] :as inputs} results]
   (if (= revenue-model :subscription)
     (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
-          {:keys [existing-customers sales-growth-rate pro-rata-factor]} results
-          price 1]
+          {:keys [existing-customers sales-growth-rate pro-rata-factor price]} results]
       (* existing-customers units-per-transaction
          (/ billing-cycles-per-year 12)
          price sales-growth-rate pro-rata-factor))
 
-    ;; Return nil for purchase.
-    nil))
+    ;; Return blank for purchase.
+    0))
+
+;; Once we have our revenue target, we work backwards to figure out how many customers we need.
+(defn calculate-required-customers [{:keys [revenue-model] :as inputs} results]
+  (if (= revenue-model :subscription)
+    (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
+          {:keys [non-seasonal-revenue price pro-rata-factor price]} results]
+      (if (= 0 pro-rata-factor)
+        0
+        (/ non-seasonal-revenue price units-per-transaction (/ billing-cycles-per-year 12))))
+
+    ;; Return blank for purchase.
+    0))
 
 (defn revenue-rows [prev-months month inputs results]
-  {:non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results)})
+  ;; TODO: Price
+  (as-> (merge {:price 1} results) results
+    (assoc results :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results))
+    (assoc results :required-customers (calculate-required-customers inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow

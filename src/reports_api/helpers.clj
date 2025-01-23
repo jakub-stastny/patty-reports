@@ -73,3 +73,6 @@
 (defn assertions [fn-name value checks message]
   (assert (every? #(% value) checks)
           (str (name fn-name) ": " message ", got " (pr-str value))))
+
+(defn assoc-if-value-present [m k v]
+  (if v (assoc m k v) m))
