@@ -77,7 +77,7 @@
                    [growth-curve-validator
                     (generate-yoy-fulfills-projections-duration
                      (get-in s [:data :projections-duration]))]
-                   (vec (repeat 5 0)))
+                   (vec [0.05 0.10 0.17 0.30 0.50]))
          (validate s :selling-price [v/number-validator] 0)
          (v/validate-rate-changes s inputs :selling-price-changes)
 

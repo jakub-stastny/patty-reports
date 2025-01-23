@@ -8,10 +8,12 @@
 (def revenue-keys [:non-seasonal-revenue-target])
 
 (defn calculate-non-seasonal-revenue-target [inputs results]
-  (let [{:keys [starting-customers units-per-transaction billing-cycles-per-year]} inputs
-        {:keys [sales-growth-rate pro-rata-factor]} results
+  (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
+        {:keys [existing-customers sales-growth-rate pro-rata-factor]} results
         price 1]
-    (* starting-customers units-per-transaction (/ billing-cycles-per-year 12) price sales-growth-rate pro-rata-factor)))
+    (* existing-customers units-per-transaction
+       (/ billing-cycles-per-year 12)
+       price sales-growth-rate pro-rata-factor)))
 
 (defn revenue-rows [prev-months month inputs results]
   {:non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results)})
