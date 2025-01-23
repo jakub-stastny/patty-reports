@@ -13,7 +13,7 @@
   (let [base-value (/ 1.0 12)] ; The value for even distribution
     (mapv #(/ % base-value) customer-activity-pattern)))
 
-(defn helper-rows [{:keys [yoy-growth-rate sales-start-date sales-end-date] :as inputs} prev-months month]
+(defn helper-rows [prev-months month {:keys [yoy-growth-rate sales-start-date sales-end-date] :as inputs}]
   (let [year-index (int (/ (count prev-months) 12))
         sales-growth-rate (nth yoy-growth-rate year-index)
         seasonal-adjustment-rate (nth (month-adjustment-ratios inputs) (dec (:month month)))
@@ -27,7 +27,6 @@
 (defn calculate-monthly-loss-rate-subscription [{:keys [retention-rate billing-cycles-per-year]}]
   (Math/pow (- 1 (/ retention-rate 100.0)) (/ 1.0 billing-cycles-per-year)))
 
-;; TODO: defmulti?
 (def monthly-loss-rate-fns
   {:purchase calculate-monthly-loss-rate-purchase
    :subscription calculate-monthly-loss-rate-subscription})
@@ -42,7 +41,7 @@
 
 (def customer-keys [:existing-customers :new-customers :lost-customers :total-customers])
 
-(defn customer-rows [{:keys [starting-customers] :as inputs} {:keys [sales-growth-rate pro-rata-factor]} last-month]
+(defn customer-rows [prev-months month {:keys [starting-customers] :as inputs} {:keys [sales-growth-rate pro-rata-factor]} last-month]
   (let [existing-customers (:total-customers (or last-month {:total-customers starting-customers}))
         new-customers (* existing-customers (/ sales-growth-rate 12) pro-rata-factor)
         lost-customers (calculate-lost-customers inputs existing-customers pro-rata-factor)
@@ -52,23 +51,29 @@
 
 ;; REVENUE ROWS
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
-(def revenue-keys [])
+(def revenue-keys [:non-seasonal-revenue-target])
 
-(defn revenue-rows [{:keys [] :as inputs} {:keys [] :as results}]
-  {})
+(defn calculate-non-seasonal-revenue-target [inputs results]
+  (let [{:keys [starting-customers units-per-transaction billing-cycles-per-year]} inputs
+        {:keys [sales-growth-rate pro-rata-factor]} results
+        price 1]
+    (* starting-customers units-per-transaction (/ billing-cycles-per-year 12) price sales-growth-rate pro-rata-factor)))
+
+(defn revenue-rows [prev-months month inputs results]
+  {:non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results)})
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
 (def sales-revenue-keys [])
 
-(defn sales-revenue-rows [{:keys [] :as inputs} {:keys [] :as results}]
+(defn sales-revenue-rows [prev-months month inputs results]
   {})
 
 (defn generate-report-month [prev-months month inputs]
-  (as-> (helper-rows inputs prev-months month) results
-    (merge results (customer-rows inputs results (last prev-months)))
-    (merge results (revenue-rows inputs results))
-    (merge results (sales-revenue-rows inputs results))))
+  (as-> (helper-rows prev-months month inputs) results
+    (merge results (customer-rows prev-months month inputs results (last prev-months)))
+    (merge results (revenue-rows prev-months month inputs results))
+    (merge results (sales-revenue-rows prev-months month inputs results))))
 
 (def tkeys (concat customer-keys revenue-keys sales-revenue-keys))
 (def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
