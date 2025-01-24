@@ -77,7 +77,7 @@
 (defn assoc-if-value-present [m k v]
   (if v (assoc m k v) m))
 
-(defn rename-keys [m prefix]
+(defn prefix-keys [m prefix]
   (let [mkprefix #(keyword (str (name prefix) "-" (name %)))]
     (into {} (map (fn [[k v]] [(mkprefix k) v]) m))))
 
