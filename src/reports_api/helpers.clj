@@ -80,3 +80,7 @@
 (defn rename-keys [m prefix]
   (let [mkprefix #(keyword (str (name prefix) "-" (name %)))]
     (into {} (map (fn [[k v]] [(mkprefix k) v]) m))))
+
+(defn prn-ret
+  ([thingy] (prn thingy) thingy)
+  ([label thingy] (prn label thingy) thingy))
