@@ -42,7 +42,7 @@
 (defn calculate-customer-base [inputs results]
   (when-model inputs :purchase
               (let [{:keys [customer-activity-pattern]} inputs
-                    {:keys [existing-customers sales-growth-rate pro-rata-factor] results}]
+                    {:keys [existing-customers sales-growth-rate pro-rata-factor]} results]
                 (* existing-customers sales-growth-rate customer-activity-pattern pro-rata-factor))))
 
 (defn revenue-rows [prev-months month inputs results]
