@@ -6,11 +6,15 @@
 (defmacro when-model [{:keys [revenue-model]} expected-revenue-model & body]
   `(if (= ~revenue-model ~expected-revenue-model) (do ~@body) 0))
 
+(defmacro if-subscription [{:keys [revenue-model]} if-yes if-not]
+  `(if (= ~revenue-model :subscription) ~if-yes ~if-not))
+
 ;; REVENUE ROWS
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
 (def subscription-keys [:non-seasonal-revenue-target :required-customers])
 (def purchase-keys [:customer-base])
-(def revenue-keys (concat subscription-keys purchase-keys))
+(def shared-keys [:customer-movement])
+(def revenue-keys (concat subscription-keys purchase-keys shared-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Revenue model: subscription.           ;;
@@ -45,13 +49,31 @@
                     {:keys [existing-customers sales-growth-rate pro-rata-factor]} results]
                 (* existing-customers sales-growth-rate customer-activity-pattern pro-rata-factor))))
 
+;; TODO: this will create problems for the totals etc as they expect given
+;; number of branches (non-variable) before leaves.
+;; I will have to make it either recursive or with clojure.walk possibly.
+;;
+;; The lazy variant would be to make all these as :customer-movement-underlying etc,
+;; so we preserve the current structure.
+(defn calculate-customer-movement [inputs results]
+  (if-subscription inputs
+    (let [{:keys [retention-rate]} inputs
+          {:keys [existing-customers]} results]
+      {:underlying 1 :lost 2 :new 3 :active 4})
+
+    (let [{:keys []} inputs
+          {:keys [base-customers]} results]
+      {:underlying 1 :lost 2 :new 3 :active 4})))
+
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price
   (as-> (merge {:price 1} results) results
     (assoc results :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results))
     (assoc results :required-customers (calculate-required-customers inputs results))
 
-    (assoc results :customer-base (calculate-customer-base inputs results))))
+    (assoc results :customer-base (calculate-customer-base inputs results))
+
+    (assoc results :customer-movement (calculate-customer-movement inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
