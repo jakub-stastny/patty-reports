@@ -8,14 +8,16 @@
 
 (defn- generate-reduce-fn [results]
   (fn [acc key]
-    (let [vals (get results key)
+    (let [vals (h/get! results key)
           years (partition 12 vals)
           value (map #(reduce + %) years)
 
           processed-value
           (if-let [filter (get filters key)]
             (filter value) value)]
-      (update acc :totals merge {key processed-value}))))
+      (if (some nil? vals)
+        (throw (ex-info "Value was nil" {:key key :vals vals}))
+        (update acc :totals merge {key processed-value})))))
 
 (defn add-yearly-totals-one [results keys]
   (merge results
