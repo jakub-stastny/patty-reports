@@ -53,7 +53,7 @@
 ;; Revenue model: either purchase or subscription  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn calculate-customer-movement [inputs results]
+(defn calculate-customer-movement [{:keys [month]} inputs results]
   (if-subscription inputs
     (let [{:keys [retention-rate]} inputs
           {:keys [existing-customers underlying-customers required-customers]} results]
@@ -61,9 +61,12 @@
        :lost (* underlying-customers (- 1 retention-rate))
        :new required-customers :active required-customers})
 
-    (let [{:keys []} inputs
-          {:keys [base-customers]} results]
-      {:underlying 1 :lost 2 :new 3 :active 4})))
+    (let [{:keys [customer-activity-pattern]} inputs
+          {:keys [sales-growth-rate customer-base]} results
+          seasonality-rate (get customer-activity-pattern (dec month))]
+      {:underlying customer-base :lost 0
+       :new (* sales-growth-rate seasonality-rate)
+       :active customer-base})))
 
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price
@@ -73,7 +76,7 @@
 
     (assoc results :customer-base (calculate-customer-base inputs results))
 
-    (merge results (h/prefix-keys (calculate-customer-movement inputs results)
+    (merge results (h/prefix-keys (calculate-customer-movement month inputs results)
                                   :customer-movement))))
 
 ;; SALES REVENUE ROWS
