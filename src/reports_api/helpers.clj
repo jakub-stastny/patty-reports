@@ -84,3 +84,8 @@
 (defn prn-ret
   ([thingy] (prn thingy) thingy)
   ([label thingy] (prn label thingy) thingy))
+
+(defn get! [m k]
+  (if (contains? m k)
+    (get m k)
+    (throw (ex-info "Key not found in map" {:key k :map m}))))
