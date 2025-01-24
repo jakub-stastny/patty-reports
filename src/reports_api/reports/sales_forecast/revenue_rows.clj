@@ -13,7 +13,7 @@
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
 (def subscription-keys [:non-seasonal-revenue-target :required-customers])
 (def purchase-keys [:customer-base])
-(def shared-keys [:customer-movement])
+(def shared-keys [:customer-movement-underlying :customer-movement-lost :customer-movement-new :customer-movement-active])
 (def revenue-keys (concat subscription-keys purchase-keys shared-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,7 +73,8 @@
 
     (assoc results :customer-base (calculate-customer-base inputs results))
 
-    (assoc results :customer-movement (calculate-customer-movement inputs results))))
+    (merge results (h/prefix-keys (calculate-customer-movement inputs results)
+                                  :customer-movement))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
