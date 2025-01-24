@@ -12,7 +12,9 @@
 (def purchase-keys [:customer-base])
 (def revenue-keys (concat subscription-keys purchase-keys))
 
-;; Revenue model: subscription.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Revenue model: subscription.           ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Calculate the base revenue target before applying seasonality.
 (defn calculate-non-seasonal-revenue-target [inputs results]
@@ -32,20 +34,24 @@
         0
         (/ non-seasonal-revenue price units-per-transaction (/ billing-cycles-per-year 12))))))
 
-;; Revenue model: purchase.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Revenue model: purchase.               ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Calculate base customer numbers for one-time purchases.
 (defn calculate-customer-base [inputs results]
   (when-model inputs :purchase
-              (let [{:keys []} inputs
+              (let [{:keys [customer-activity-pattern]} inputs
                     {:keys [existing-customers sales-growth-rate pro-rata-factor] results}]
-                )))
+                (* existing-customers sales-growth-rate customer-activity-pattern pro-rata-factor))))
 
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price
   (as-> (merge {:price 1} results) results
     (assoc results :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results))
-    (assoc results :required-customers (calculate-required-customers inputs results))))
+    (assoc results :required-customers (calculate-required-customers inputs results))
+
+    (assoc results :customer-base (calculate-customer-base inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
