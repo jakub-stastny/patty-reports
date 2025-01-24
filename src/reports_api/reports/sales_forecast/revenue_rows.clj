@@ -49,17 +49,17 @@
                     {:keys [existing-customers sales-growth-rate pro-rata-factor]} results]
                 (* existing-customers sales-growth-rate customer-activity-pattern pro-rata-factor))))
 
-;; TODO: this will create problems for the totals etc as they expect given
-;; number of branches (non-variable) before leaves.
-;; I will have to make it either recursive or with clojure.walk possibly.
-;;
-;; The lazy variant would be to make all these as :customer-movement-underlying etc,
-;; so we preserve the current structure.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Revenue model: either purchase or subscription  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defn calculate-customer-movement [inputs results]
   (if-subscription inputs
     (let [{:keys [retention-rate]} inputs
-          {:keys [existing-customers]} results]
-      {:underlying 1 :lost 2 :new 3 :active 4})
+          {:keys [existing-customers underlying-customers required-customers]} results]
+      {:underlying (* existing-customers retention-rate)
+       :lost (* underlying-customers (- 1 retention-rate))
+       :new required-customers :active required-customers})
 
     (let [{:keys []} inputs
           {:keys [base-customers]} results]
