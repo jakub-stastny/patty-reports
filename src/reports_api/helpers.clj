@@ -89,3 +89,9 @@
   (if (contains? m k)
     (get m k)
     (throw (ex-info "Key not found in map" {:key k :map m}))))
+
+(defmacro when-model [{:keys [revenue-model]} expected-revenue-model & body]
+  `(if (= ~revenue-model ~expected-revenue-model) (do ~@body) 0))
+
+(defmacro if-subscription [{:keys [revenue-model]} if-yes if-not]
+  `(if (= ~revenue-model :subscription) ~if-yes ~if-not))
