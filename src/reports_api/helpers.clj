@@ -77,6 +77,7 @@
 (defn assoc-if-value-present [m k v]
   (if v (assoc m k v) m))
 
+;; Deprecated.
 (defn prefix-keys [m prefix]
   (let [mkprefix #(keyword (str (name prefix) "-" (name %)))]
     (into {} (map (fn [[k v]] [(mkprefix k) v]) m))))
@@ -95,3 +96,10 @@
 
 (defmacro if-subscription [{:keys [revenue-model]} if-yes if-not]
   `(if (= ~revenue-model :subscription) ~if-yes ~if-not))
+
+(defn validate-sums [vectors]
+  (doseq [values (apply map vector vectors)] ; Iterate over corresponding elements
+    (let [sum (reduce + values)]             ; Sum the elements at the current index
+      (when (not= sum 1.0)
+        (throw (ex-info "Sum at index does not equal 1.0"
+                        {:values values :sum sum}))))))
