@@ -81,7 +81,15 @@
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
-(def sales-revenue-keys [])
+(def sales-revenue-keys [:units-sold])
+
+;; Calculate actual units sold based on active customers.
+(defn calculate-units-sold [inputs results]
+  (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
+        {:keys [active-customers pro-rata-factor]} results
+        x (if-subscription inputs (/ billing-cycles-per-year 12) 1)]
+    (* active-customers units-per-transaction x pro-rata-factor)))
 
 (defn sales-revenue-rows [prev-months month inputs results]
-  {})
+  (as-> (merge {:active-customers 1} results) results
+   (assoc results :units-sold (calculate-units-sold inputs results))))
