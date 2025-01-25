@@ -56,7 +56,7 @@
          (v/validate-projections-keys s inputs)
          (validate s :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0)
          (validate s :bad-debt-provision [(v/generate-range-validator 0 1)] 0)
-         (validate s :percentage_eu_customers_vat_registered [(v/generate-range-validator 0 1)] 0)
+         (validate s :percentage-eu-customers-vat-registered [(v/generate-range-validator 0 1)] 0)
          (validate s :eu-vat-approach [eu-vat-approach-validator] :own-vat-returns)
          (validate s :registered-for-vat [v/boolean-validator] true)
          (validate s :vat-payment-frequency [v/optional-single-or-multiple-months-validator] nil)
