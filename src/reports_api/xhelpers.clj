@@ -10,10 +10,16 @@
   (let [total-months (* projections-duration 12)]
     (take total-months (iterate t/next-month projections-start-date))))
 
+;; Month carries relative month thus:
+;; {:year 2025 :month 1 :relative {:year 0 :month 1}}}
 (defn generate-projections [inputs generate-report-month-fn]
   (let [months (projection-months inputs)]
     (reduce
-     (fn [report-acc month]
-       (let [current-month-report (generate-report-month-fn report-acc month inputs)]
-         (conj report-acc current-month-report)))
-     [] months)))
+     (fn [{:keys [report-acc relative-month]} month]
+       (let [updated-month (merge month relative-month)
+             current-month-report (generate-report-month-fn report-acc updated-month inputs)]
+         {:relative-month (t/next-month relative-month)
+          :report-acc (conj report-acc current-month-report)}))
+
+     [{:relative-month {:year 0 :month 1} :report-acc []}]
+     months)))
