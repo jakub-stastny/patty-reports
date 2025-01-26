@@ -30,3 +30,18 @@
         total-customers (- (+ existing-customers new-customers) lost-customers)]
     {:existing-customers existing-customers :new-customers new-customers
      :lost-customers lost-customers :total-customers total-customers}))
+
+;; (defn calculate-customer-movement [{:keys [month]} inputs results]
+;;   (if-subscription inputs
+;;     (let [{:keys [retention-rate]} inputs
+;;           {:keys [existing-customers underlying-customers required-customers]} results]
+;;       {:underlying (* existing-customers retention-rate)
+;;        :lost (* underlying-customers (- 1 retention-rate))
+;;        :new required-customers :active required-customers})
+
+;;     (let [{:keys [customer-activity-pattern]} inputs
+;;           {:keys [sales-growth-rate customer-base]} results
+;;           seasonality-rate (get customer-activity-pattern (dec month))]
+;;       {:underlying customer-base :lost 0
+;;        :new (* sales-growth-rate seasonality-rate)
+;;        :active customer-base})))
