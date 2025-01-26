@@ -77,10 +77,9 @@
 (defn assoc-if-value-present [m k v]
   (if v (assoc m k v) m))
 
-;; Deprecated.
-(defn prefix-keys [m prefix]
-  (let [mkprefix #(keyword (str (name prefix) "-" (name %)))]
-    (into {} (map (fn [[k v]] [(mkprefix k) v]) m))))
+;; (defn transform-keys [m tfn]
+;;   (let [tform #(keyword (str/join "-" (map name (tfn (name %)))))]
+;;     (into {} (map (fn [[k v]] [(tform k) v]) m))))
 
 (defn prn-ret
   ([thingy] (prn thingy) thingy)
