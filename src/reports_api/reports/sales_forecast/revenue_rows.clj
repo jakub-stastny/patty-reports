@@ -13,7 +13,7 @@
 ;; Revenue model: subscription.           ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Calculate the base revenue target before applying seasonality.
+;; Calculate the base revenue target before applying seasonality, using initial customer base.
 (defn calculate-non-seasonal-revenue-target [inputs results]
   (h/when-model inputs :subscription
               (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
@@ -42,17 +42,30 @@
                     {:keys [existing-customers sales-growth-rate pro-rata-factor]} results]
                 (* existing-customers sales-growth-rate customer-activity-pattern pro-rata-factor))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Revenue model: either purchase or subscription  ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Revenue model: either.                 ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn calculate-geographic-splits [{:keys [relative]} inputs results]
+  (let [{:keys [domestic-sales eu-sales rest-of-world-sales]} inputs
+        {:keys [total-revenue]} results
+        relative-year (:year relative)]
+
+    (h/assertions :calculate-geographic-splits total-revenue [number?] "total-revenue must be a number")
+
+    {:domestic-sales (* total-revenue (get domestic-sales relative-year))
+     :eu-sales (* total-revenue (get eu-sales relative-year))
+     :rest-of-world-sales (* total-revenue (get rest-of-world-sales relative-year))}))
 
 (defn revenue-rows [prev-months month inputs results]
-  ;; TODO: Price
-  (as-> (merge {:price 1} results) results
+  ;; TODO: Price (from the helpers Claude).
+  (as-> (merge {:price 1 :total-revenue 1000} results) results
     (assoc results :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results))
     (assoc results :required-customers (calculate-required-customers inputs results))
 
-    (assoc results :customer-base (calculate-customer-base inputs results))))
+    (assoc results :customer-base (calculate-customer-base inputs results))
+
+    (merge results (calculate-geographic-splits month inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
