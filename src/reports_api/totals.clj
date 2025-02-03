@@ -16,7 +16,8 @@
           (if-let [filter (get filters key)]
             (filter value) value)]
       (if (some nil? vals)
-        (throw (ex-info "Value was nil" {:key key :vals vals}))
+        (throw (ex-info "Value was nil"
+                        {:fn :generate-reduce-fn :key key :results results}))
         (update acc :totals merge {key processed-value})))))
 
 (defn add-yearly-totals-one [results keys]
