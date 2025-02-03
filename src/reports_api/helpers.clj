@@ -111,3 +111,7 @@
         (println (str "\nError in custom fn " var-name ":"))
         (println error)
         (throw error)))))
+
+;; Round to 3 decimal places.
+(defn round [double]
+  (/ (Math/round (* double 1000.0)) 1000.0))
