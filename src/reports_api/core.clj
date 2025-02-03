@@ -23,6 +23,11 @@
    :headers {"Content-Type" "application/json"}
    :body (format-json body)})
 
+(defn error-response [status error data]
+  (println (str "\nHTTP " status ":\n\n  " (pr-str data) "\n"))
+  (when error (prn error))
+  (response status data))
+
 (defn handler [handle-fn request]
   (try
     (let [raw-inputs (parse-json-body request)
@@ -32,21 +37,20 @@
           ;; _ (prn :response result)
           ]
       (response 200 (h/transform-keys-to-snake-case result)))
-    (catch clojure.lang.ExceptionInfo e
-      (let [data (ex-data e)]
+    (catch clojure.lang.ExceptionInfo error
+      (let [data (ex-data error)]
         (if (= :validation-error (:type data))
-          (response 400 (merge {:error (:type data)} (dissoc data :type)))
-          (response 500 data))))
-    (catch Throwable e
-      (prn e)
-      (response 500 {:error (str (type e) ": " (.getMessage e))}))))
+          (error-response 400 error (merge {:error (:type data)} (dissoc data :type)))
+          (error-response 500 error data))))
+    (catch Throwable error
+      (error-response 500 {:error (str (type error) ": " (.getMessage error))}))))
 
 (defroutes app
   (GET "/api/v1/ping" [] (response 200 {:status "OK" :response "pong"}))
   (POST "/api/v1/reports/staff-plan" request (handler handle-staff-plan request))
   (POST "/api/v1/reports/staff-plans" request (handler handle-staff-plans request))
   (POST "/api/v1/reports/sales-forecast" request (handler handle-sales-forecast request))
-  (route/not-found (response 404 {:error "Not found"})))
+  (route/not-found #(error-response 404 nil {:error "Not found"})))
 
 (defn -main []
   (println "Starting server on port 8080 ...")
