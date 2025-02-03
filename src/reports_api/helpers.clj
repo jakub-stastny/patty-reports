@@ -102,3 +102,12 @@
       (when (not= sum 1.0)
         (throw (ex-info "Sum at index does not equal 1.0"
                         {:values values :sum sum}))))))
+
+(defn run-custom-fn [fun & args]
+  (try
+    (apply fun args)
+    (catch Exception error
+      (let [var-name (some-> fun class .getName)]
+        (println "Error in custom fn" var-name)
+        (println error)
+        (throw error)))))

@@ -17,7 +17,7 @@
     (reduce
      (fn [{:keys [report-acc relative-month]} month]
        (let [updated-month (merge month relative-month)
-             current-month-report (generate-report-month-fn report-acc updated-month inputs)]
+             current-month-report (h/run-custom-fn generate-report-month-fn updated-month inputs)]
          {:relative-month (t/next-month relative-month)
           :report-acc (conj report-acc current-month-report)}))
 
