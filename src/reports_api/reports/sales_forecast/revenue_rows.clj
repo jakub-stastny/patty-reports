@@ -46,10 +46,10 @@
 ;; Revenue model: either.                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn calculate-geographic-splits [{:keys [relative]} inputs results]
+(defn calculate-geographic-splits [{:keys [relative] :as m} inputs results]
   (let [{:keys [domestic-sales eu-sales rest-of-world-sales]} inputs
         {:keys [total-revenue]} results
-        relative-year (:year relative)]
+        relative-year (h/get! relative :year)]
 
     (h/assertions :calculate-geographic-splits total-revenue [number?] "total-revenue must be a number")
 

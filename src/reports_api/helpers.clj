@@ -108,6 +108,6 @@
     (apply fun args)
     (catch Exception error
       (let [var-name (some-> fun class .getName)]
-        (println "Error in custom fn" var-name)
+        (println (str "\nError in custom fn " var-name ":"))
         (println error)
         (throw error)))))
