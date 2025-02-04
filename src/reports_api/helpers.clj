@@ -115,3 +115,11 @@
 ;; Round to 3 decimal places.
 (defn round [double]
   (/ (Math/round (* double 1000.0)) 1000.0))
+
+(defmacro defn-pass-name [fn-name args & body]
+  (let [internal-args (vec (rest args))] ; Remove fn-name from args for external interface
+    `(def ~fn-name
+       (let [name# (keyword '~fn-name)] ; Capture the name in a closure
+         (fn ~internal-args
+           (let [~(first args) name#] ; Bind fn-name locally for the body
+             ~@body))))))
