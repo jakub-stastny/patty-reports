@@ -5,9 +5,9 @@
 
 ;; REVENUE ROWS
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
-(def subscription-keys [:non-seasonal-revenue-target :required-customers])
-(def purchase-keys [:customer-base])
-(def revenue-keys (concat subscription-keys purchase-keys))
+;; (def subscription-keys [:non-seasonal-revenue-target :required-customers])
+;; (def purchase-keys [:customer-base])
+;; (def revenue-keys (concat subscription-keys purchase-keys))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Revenue model: subscription.           ;;
@@ -46,41 +46,32 @@
 ;; Revenue model: either.                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn calculate-geographic-splits [{:keys [relative] :as m} inputs results]
-  (let [{:keys [domestic-sales eu-sales rest-of-world-sales]} inputs
-        {:keys [total-revenue]} results
-        relative-year (h/get! relative :year)]
+;; (defn calculate-geographic-splits [{:keys [relative] :as m} inputs results]
+;;   (let [{:keys [domestic-sales eu-sales rest-of-world-sales]} inputs
+;;         {:keys [total-revenue]} results
+;;         relative-year (h/get! relative :year)]
 
-    (h/assertions :calculate-geographic-splits total-revenue [number?] "total-revenue must be a number")
+;;     (h/assertions :calculate-geographic-splits total-revenue [number?] "total-revenue must be a number")
 
-    {:domestic-sales (* total-revenue (get domestic-sales relative-year))
-     :eu-sales (* total-revenue (get eu-sales relative-year))
-     :rest-of-world-sales (* total-revenue (get rest-of-world-sales relative-year))}))
+;;     {:domestic-sales (* total-revenue (get domestic-sales relative-year))
+;;      :eu-sales (* total-revenue (get eu-sales relative-year))
+;;      :rest-of-world-sales (* total-revenue (get rest-of-world-sales relative-year))}))
 
-(defn calculate-returns-and-refunds [inputs results]
+(h/defn-pass-name calculate-returns-and-refunds [fn-name inputs results]
   (let [{:keys [refund-returns-allowance]} inputs
         {:keys [total-revenue]} results]
+    (prn fn-name refund-returns-allowance results)
+    (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* -1 total-revenue refund-returns-allowance)))
 
-(defn calculate-net-sales-revenue [inputs results]
+(h/defn-pass-name calculate-net-sales-revenue [fn-name inputs results]
   (let [{:keys [total-revenue returns-and-refunds]} results]
+    (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (- total-revenue returns-and-refunds)))
-
-(defn revenue-rows [prev-months month inputs results]
-  ;; TODO: Price (from the helpers Claude).
-  (as-> (merge {:price 1 :total-revenue 1000} results) results
-    (assoc results :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs results))
-    (assoc results :required-customers (calculate-required-customers inputs results))
-
-    (assoc results :customer-base (calculate-customer-base inputs results))
-
-    (merge results (calculate-geographic-splits month inputs results))
-    (assoc results :returns-and-refunds (calculate-returns-and-refunds inputs results))
-    (assoc results :net-sales-revenue (calculate-net-sales-revenue inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
-(def sales-revenue-keys [:units-sold])
+;; (def sales-revenue-keys [:units-sold])
 
 ;; Calculate actual units sold based on active customers.
 (defn calculate-units-sold [inputs results]
@@ -89,6 +80,16 @@
         x (h/if-subscription inputs (/ billing-cycles-per-year 12) 1)]
     (* active-customers units-per-transaction x pro-rata-factor)))
 
-(defn sales-revenue-rows [prev-months month inputs results]
-  (as-> (merge {:active-customers 1} results) results
-   (assoc results :units-sold (calculate-units-sold inputs results))))
+(defn process [prev-months month inputs results]
+  ;; TODO: Price (from the helpers Claude).
+  (as-> (merge {:price 1 :total-revenue 1000 :active-customers 1} results) r
+    (assoc r :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs r))
+    (assoc r :required-customers (calculate-required-customers inputs r))
+
+    (assoc r :customer-base (calculate-customer-base inputs r))
+
+    ;; (merge r (calculate-geographic-splits month inputs r))
+    (assoc r :returns-and-refunds (calculate-returns-and-refunds inputs r))
+    (assoc r :net-sales-revenue (calculate-net-sales-revenue inputs r))
+
+    (assoc r :units-sold (calculate-units-sold inputs r))))
