@@ -41,7 +41,7 @@
       (let [data (ex-data error)]
         (if (= :validation-error (:type data))
           (error-response 400 error (merge {:error (:type data)} (dissoc data :type)))
-          (error-response 500 error data))))
+          (error-response 500 error (merge {:error (ex-message error)} data)))))
     (catch Throwable error
       (error-response 500 {:error (str (type error) ": " (.getMessage error))}))))
 
