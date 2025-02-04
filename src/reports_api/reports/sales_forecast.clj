@@ -23,17 +23,23 @@
         pro-rata-factor (pr/pro-rata-factor (pr/calculate-pro-rata-factor month sales-start-date sales-end-date))]
     {:sales-growth-rate sales-growth-rate :seasonal-adjustment-rate seasonal-adjustment-rate :pro-rata-factor pro-rata-factor}))
 
-(defn generate-report-month [prev-months month inputs]
-  (as-> (helper-rows prev-months month inputs) results
-    (merge results (cr/customer-rows prev-months month inputs results (last prev-months)))
-    (merge results (rr/revenue-rows prev-months month inputs results))
-    (merge results (rr/sales-revenue-rows prev-months month inputs results))))
-
 ;; TODO: Review all of these and get rid of the multi-key merge (rather than assoc) properties.
 (def ^:private row-namespaces
   ['reports-api.reports.sales-forecast.vat-rows
    'reports-api.reports.sales-forecast.revenue-rows
    'reports-api.reports.sales-forecast.customer-rows])
+
+;; (defn generate-report-month [prev-months month inputs]
+;;   (as-> (helper-rows prev-months month inputs) results
+;;     (merge results (cr/customer-rows prev-months month inputs results (last prev-months)))
+;;     (merge results (rr/revenue-rows prev-months month inputs results))
+;;     (merge results (rr/sales-revenue-rows prev-months month inputs results))))
+(defn generate-report-month [prev-months month inputs]
+  (let [processing-fns (keep #(ns-resolve % 'rows) row-namespaces)]  ;; Resolve `rows` from each namespace
+    (reduce (fn [results f]
+              (merge results (f prev-months month inputs)))
+            (helper-rows prev-months month inputs)
+            processing-fns)))
 
 (def row-ns-props
   (reduce (fn [acc namespace]
