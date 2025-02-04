@@ -57,6 +57,11 @@
      :eu-sales (* total-revenue (get eu-sales relative-year))
      :rest-of-world-sales (* total-revenue (get rest-of-world-sales relative-year))}))
 
+(defn calculate-returns-and-refunds [inputs results]
+  (let [{:keys [refund-returns-allowance]} inputs
+        {:keys [total-revenue]} results]
+    (* -1 total-revenue refund-returns-allowance)))
+
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price (from the helpers Claude).
   (as-> (merge {:price 1 :total-revenue 1000} results) results
@@ -65,7 +70,8 @@
 
     (assoc results :customer-base (calculate-customer-base inputs results))
 
-    (merge results (calculate-geographic-splits month inputs results))))
+    (merge results (calculate-geographic-splits month inputs results))
+    (assoc results :returns-and-refunds (calculate-returns-and-refunds inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
