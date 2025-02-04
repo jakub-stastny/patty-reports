@@ -62,6 +62,10 @@
         {:keys [total-revenue]} results]
     (* -1 total-revenue refund-returns-allowance)))
 
+(defn calculate-net-sales-revenue [inputs results]
+  (let [{:keys [total-revenue returns-and-refunds]} results]
+    (- total-revenue returns-and-refunds)))
+
 (defn revenue-rows [prev-months month inputs results]
   ;; TODO: Price (from the helpers Claude).
   (as-> (merge {:price 1 :total-revenue 1000} results) results
@@ -71,7 +75,8 @@
     (assoc results :customer-base (calculate-customer-base inputs results))
 
     (merge results (calculate-geographic-splits month inputs results))
-    (assoc results :returns-and-refunds (calculate-returns-and-refunds inputs results))))
+    (assoc results :returns-and-refunds (calculate-returns-and-refunds inputs results))
+    (assoc results :net-sales-revenue (calculate-net-sales-revenue inputs results))))
 
 ;; SALES REVENUE ROWS
 ;; sales-revenue-due, bad-debts, sales-revenue-received, cost-of-sales-paid, net-cash-flow
