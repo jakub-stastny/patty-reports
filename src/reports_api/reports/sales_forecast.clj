@@ -25,9 +25,10 @@
 
 ;; TODO: Review all of these and get rid of the multi-key merge (rather than assoc) properties.
 (def ^:private row-namespaces
-  ['reports-api.reports.sales-forecast.vat-rows
+  ['reports-api.reports.sales-forecast.helper-rows
    'reports-api.reports.sales-forecast.revenue-rows
-   'reports-api.reports.sales-forecast.customer-rows])
+   'reports-api.reports.sales-forecast.customer-rows
+   'reports-api.reports.sales-forecast.vat-rows])
 
 ;; (defn generate-report-month [prev-months month inputs]
 ;;   (as-> (helper-rows prev-months month inputs) results
