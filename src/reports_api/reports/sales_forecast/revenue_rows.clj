@@ -60,7 +60,6 @@
 (h/defn-pass-name calculate-returns-and-refunds [fn-name inputs results]
   (let [{:keys [refund-returns-allowance]} inputs
         {:keys [total-revenue]} results]
-    (prn fn-name refund-returns-allowance results)
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* -1 total-revenue refund-returns-allowance)))
 

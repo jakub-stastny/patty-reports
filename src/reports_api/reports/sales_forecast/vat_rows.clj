@@ -8,6 +8,7 @@
         {:keys []} results]
     ;; TODO
     ;; (if registered-for-vat)
+    0
     ))
 
 (defn calculate-vat-out [inputs results]
@@ -15,11 +16,10 @@
         {:keys [domestic-sales eu-sales]} results]
     ;; TODO
     ;; (if registered-for-vat)
+    0
     ))
 
-(defn vat-rows [prev-months month inputs results]
-  (as-> (merge {:price 1 :total-vat 1000} results) results
-    (assoc results :vat-in (calculate-vat-in inputs results))
-    (assoc results :vat-out (calculate-vat-out inputs results))))
-
-(def vat-keys [:vat-in :vat-out])
+(defn process [prev-months month inputs results]
+  (as-> results r
+    (assoc r :vat-in (calculate-vat-in inputs r))
+    (assoc r :vat-out (calculate-vat-out inputs r))))
