@@ -5,6 +5,7 @@
             [reports-api.reports.sales-forecast.validators :as v]
             [reports-api.reports.sales-forecast.customer-rows :as cr]
             [reports-api.reports.sales-forecast.revenue-rows :as rr]
+            [reports-api.reports.sales-forecast.vat-rows :as vr]
             [reports-api.xhelpers :as xh]
             [reports-api.pro-rata-engine :as pr]
             [reports-api.bubble :as b]
@@ -28,7 +29,26 @@
     (merge results (rr/revenue-rows prev-months month inputs results))
     (merge results (rr/sales-revenue-rows prev-months month inputs results))))
 
-(def tkeys (concat cr/customer-keys rr/revenue-keys rr/sales-revenue-keys))
+;; TODO: Review all of these and get rid of the multi-key merge (rather than assoc) properties.
+(def ^:private row-namespaces
+  ['reports-api.reports.sales-forecast.vat-rows
+   'reports-api.reports.sales-forecast.revenue-rows
+   'reports-api.reports.sales-forecast.customer-rows])
+
+(def row-ns-props
+  (reduce (fn [acc namespace]
+            (let [all-fns (map str (keys (ns-publics namespace)))
+
+                  calculate-fns
+                  (filter #(str/starts-with? % "calculate-") all-fns)
+
+                  properties
+                  (map #(str/replace-first % #"^calculate-" "") calculate-fns)]
+              (merge {(keyword namespace) (map keyword properties)})))
+          {}
+          row-namespaces))
+
+(def tkeys (apply concat (vals row-ns-props)))
 (def xkeys (conj tkeys :sales-growth-rate :seasonal-adjustment-rate))
 
 (defn handle [raw-inputs]
