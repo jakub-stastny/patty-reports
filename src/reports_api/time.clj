@@ -26,45 +26,46 @@
    (assert (instance? LocalDateTime date)
            (str (name fn-name) ": date must be an LocalDateTime, got " (pr-str date)))))
 
-(defn ts-to-date [ts]
-  (assert-timestamp :ts-to-date ts)
+(h/defn-pass-name ts-to-date [fn-name ts]
+  (assert-timestamp fn-name ts)
   (LocalDateTime/ofInstant (Instant/ofEpochMilli ts) utc))
 
-(defn years-from [ts years]
-  (assert-timestamp :years-from ts)
-  (h/assertions :years-from years [int?] "Years must be a number")
+(h/defn-pass-name years-from [fn-name ts years]
+  (assert-timestamp fn-name ts)
+  (h/assertions fn-name years [int?] "Years must be a number")
   (ts-to-date (+ ts (* years 31536000000))))
 
-(defn years-from-now [years]
-  (h/assertions :years-from years [int?] "Years must be a number")
+(h/defn-pass-name years-from-now [fn-name years]
+  (h/assertions fn-name years [int?] "Years must be a number")
   (years-from (System/currentTimeMillis) years))
 
 (defn- now []
   (.toLocalDateTime (ZonedDateTime/now utc)))
 
-(defn format-date [date]
-  (assert-date :format-date date)
+(h/defn-pass-name format-date [fn-name date]
+  (assert-date fn-name date)
   (format "%d-%02d" (.getYear date) (.getMonthValue date)))
 
-(defn date-to-ts [local-date-time] ;; Rename to date as in format-date?
-  (assert-date :date-to-ts local-date-time)
+(h/defn-pass-name date-to-ts [fn-name local-date-time] ;; Rename to date as in format-date?
+  (assert-date fn-name local-date-time)
   (.toEpochMilli (.toInstant local-date-time ZoneOffset/UTC)))
 
-(defn date-to-month [local-date-time] ;; Rename to date as in format-date?
-  (assert-date :date-to-month local-date-time)
+(h/defn-pass-name date-to-month [fn-name local-date-time] ;; Rename to date as in format-date?
+  (assert-date fn-name local-date-time)
   {:year (.getYear local-date-time)
    :month (.getMonthValue local-date-time)})
 
-(defn next-month
-  ([month] (next-month month 1))
+(h/defn-pass-name next-month
+  ([_ month] (next-month month 1))
 
-  ([month step]
-   (assert-month :next-month month)
+  ([fn-name month step]
+   (assert-month fn-name month)
    (let [total-months (+ (* (:year month) 12) (:month month) step)
          years (quot (dec total-months) 12)
          months (inc (mod (dec total-months) 12))]
      {:year years :month months})))
 
+;; TODO: Will the pass macro work here?
 (defn prev-month
   ([month] (prev-month month 1))
 
@@ -78,21 +79,21 @@
 (defn current-month []
   (date-to-month (now)))
 
-(defn format-month [{:keys [year month] :as m}]
-  (assert-month :format-month m)
+(h/defn-pass-name format-month [fn-name {:keys [year month] :as m}]
+  (assert-month fn-name m)
   (format "%d-%02d" year month))
 
-(defn month-to-int [{:keys [year month] :as m}]
-  (assert-month :month-to-int m)
+(h/defn-pass-name month-to-int [fn-name {:keys [year month] :as m}]
+  (assert-month fn-name m)
   (+ (* year 12) month))
 
-(defn compare-month [m1 m2]
-  (and (assert-month :compare-month m1)
-       (assert-month :compare-month m2))
+(h/defn-pass-name compare-month [fn-name m1 m2]
+  (and (assert-month fn-name m1)
+       (assert-month fn-name m2))
   (compare (month-to-int m1) (month-to-int m2)))
 
-(defn month-to-ts [{:keys [year month] :as m}]
-  (assert-month :month-to-ts m)
+(h/defn-pass-name month-to-ts [fn-name {:keys [year month] :as m}]
+  (assert-month fn-name m)
   (-> (LocalDateTime/of year month 1 0 0)
       (.atZone ZoneOffset/UTC)
       (.toInstant)

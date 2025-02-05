@@ -3,9 +3,9 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
-(defn projection-months [{:keys [projections-start-date projections-duration]}]
-  (t/assert-month :projection-months projections-start-date)
-  (h/assertions :projection-months projections-duration [int?] "must be int")
+(h/defn-pass-name projection-months [fn-name {:keys [projections-start-date projections-duration]}]
+  (t/assert-month fn-name projections-start-date)
+  (h/assertions fn-name projections-duration [int?] "must be int")
 
   (let [total-months (* projections-duration 12)]
     (take total-months (iterate t/next-month projections-start-date))))

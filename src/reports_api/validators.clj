@@ -87,9 +87,9 @@
 (def month-converter
   (make-validator :month-converter "" #(t/date-to-month (t/ts-to-date %))))
 
-(defn generate-options-validator [field-name options-map]
-  (h/assertions :generate-options-validator field-name [keyword?] "field-name must be a keyword")
-  (h/assertions :generate-options-validator options-map [map?] "options-map must be a map")
+(h/defn-pass-name generate-options-validator [fn-name field-name options-map]
+  (h/assertions fn-name field-name [keyword?] "field-name must be a keyword")
+  (h/assertions fn-name options-map [map?] "options-map must be a map")
 
   (make-validator field-name
                  (str "must be one of: " (str/join ", " (keys options-map)))

@@ -117,9 +117,21 @@
   (/ (Math/round (* double 1000.0)) 1000.0))
 
 (defmacro defn-pass-name [fn-name args & body]
-  (let [internal-args (vec (rest args))] ; Remove fn-name from args for external interface
-    `(def ~fn-name
-       (let [name# (keyword '~fn-name)] ; Capture the name in a closure
-         (fn ~internal-args
-           (let [~(first args) name#] ; Bind fn-name locally for the body
-             ~@body))))))
+  (if (vector? args)
+
+    ;; Single arity case
+    (let [internal-args (vec (rest args))]
+      `(def ~(with-meta fn-name (meta fn-name))
+         (let [name# '~fn-name]
+           (fn ~internal-args
+             (let [~(first args) name#]
+               ~@body)))))
+
+    ;; Multi-arity case
+    (let [process-arity (fn [[args & body]]
+                          (let [internal-args (vec (rest args))]
+                            `(~internal-args
+                              (let [~(first args) '~fn-name]
+                                ~@body))))]
+      `(def ~(with-meta fn-name (meta fn-name))
+         (fn ~@(map process-arity (cons args body)))))))

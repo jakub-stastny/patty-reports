@@ -3,25 +3,27 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
-(defn- assert-change [{:keys [effective-date new-value]}]
-  (t/assert-date effective-date)
-  (h/assertions :assert-change new-value [number?] "new-value must be a number"))
+(h/defn-pass-name ^:private assert-change [fn-name {:keys [effective-date new-value]}]
+  (t/assert-date fn-name effective-date)
+  (h/assertions fn-name new-value [number?] "new-value must be a number"))
 
-(defn- assert-changes [changes]
-  (h/assertions :assert-changes changes [sequential?] "changes must be a sequential")
+(h/defn-pass-name ^:private assert-changes [fn-name changes]
+  (h/assertions fn-name changes [sequential?] "changes must be a sequential")
   (doseq [change changes] (assert-change change)))
 
 ;; Staff plan: employment-start/end-date, base-pay, pay-changes
 ;; Sales forecast: sales-start/end-date, selling-price, selling-price-changes
-(defn- calculate-pro-rata-initial-rate [month initial-rate current-month-rate current-month-changes start-date end-date]
-  (t/assert-month :calculate-pro-rata-initial-rate month)
-  (h/assertions :calculate-pro-rata-initial-rate initial-rate [number?]
+(h/defn-pass-name ^:private calculate-pro-rata-initial-rate
+  [fn-name month initial-rate current-month-rate current-month-changes start-date end-date]
+
+  (t/assert-month fn-name month)
+  (h/assertions fn-name initial-rate [number?]
                 "initial-rate must be a positive number")
-  (h/assertions :calculate-pro-rata-initial-rate current-month-rate [number?]
+  (h/assertions fn-name current-month-rate [number?]
                 "current-month-rate must be a positive number")
   (assert-changes current-month-changes)
-  (and (t/assert-date :calculate-pro-rata-initial-rate start-date)
-       (t/assert-date :calculate-pro-rata-initial-rate end-date))
+  (and (t/assert-date fn-name start-date)
+       (t/assert-date fn-name end-date))
 
   (let [rates
         (map (fn [pc]
@@ -48,10 +50,9 @@
 (defn- filter-changes [month all-changes]
   (filter #(= 0 (t/compare-month month (t/date-to-month (:effective-date %)))) all-changes))
 
-(defn calculate-current-rates [month initial-rate all-changes start-date end-date]
-  (t/assert-month :calculate-current-rates month)
-  (h/assertions :calculate-current-rates initial-rate [number? pos?]
-                "initial-rate must be a positive number")
+(h/defn-pass-name calculate-current-rates [fn-name month initial-rate all-changes start-date end-date]
+  (t/assert-month fn-name month)
+  (h/assertions fn-name initial-rate [number? pos?] "initial-rate must be a positive number")
   (assert-changes all-changes)
   (and (t/assert-date start-date) (t/assert-date end-date))
 
@@ -119,9 +120,9 @@
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
-(defn convert-rates-to-ratios [rates]
-  (h/assertions :convert-rates-to-ratios rates [sequential?] "Must be a sequential")
-  (h/assertions :convert-rates-to-ratios rates
+(h/defn-pass-name convert-rates-to-ratios [fn-name rates]
+  (h/assertions fn-name rates [sequential?] "Must be a sequential")
+  (h/assertions fn-name rates
                 [(fn [changes] (every? #(and (number? (:since %)) (number? (:rate %))) changes))]
                 "must contain maps with :since and :rate, both being numbers")
 
