@@ -27,7 +27,7 @@
 
 (defn process [prev-months month inputs results]
   ;; TODO: Cost (from the helpers Claude).
-  (as-> (merge {:cost 1} results) r
+  (as-> (merge {:cost 1 :net-revenue 200} results) r
     (assoc r :cost-of-sales (calculate-cost-of-sales inputs r))
     (assoc r :bad-debt-provision (calculate-bad-debt-provision inputs r))
     (assoc r :gross-profit (calculate-gross-profit inputs r))))
