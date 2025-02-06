@@ -149,3 +149,8 @@
               (assoc acc prop (apply resolved-fn (concat args [acc])))))
           results
           props))
+
+(defmacro calculate [prop & body]
+  `(defn ~(symbol (str "calculate-" (name prop)))
+     [~'prev-months ~'month ~'inputs ~'results]
+     ~@body))
