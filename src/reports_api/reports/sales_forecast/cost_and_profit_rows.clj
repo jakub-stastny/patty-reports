@@ -3,21 +3,21 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
-(h/defn-pass-name calculate-cost-of-sales [fn-name _ _ inputs results]
+(h/calculate :cost-of-sales
   (let [{:keys []} inputs
         {:keys [units-sold cost]} results]
     (h/assert-number fn-name :units-sold units-sold)
     (h/assert-number fn-name :cost cost)
     (* units-sold cost)))
 
-(h/defn-pass-name calculate-bad-debt-provision [fn-name _ _ inputs results]
+(h/calculate :bad-debt-provision
   (let [{:keys [bad-debt-provision]} inputs
         {:keys [total-revenue]} results]
     (h/assert-number fn-name :bad-debt-provision bad-debt-provision)
     (h/assert-number fn-name :total-revenue total-revenue)
     (* -1 bad-debt-provision total-revenue)))
 
-(h/defn-pass-name calculate-gross-profit [fn-name _ _ inputs results]
+(h/calculate :gross-profit
   (let [{:keys []} inputs
         {:keys [net-revenue cost bad-debt-provision]} results]
     (h/assert-number fn-name :net-revenue net-revenue)

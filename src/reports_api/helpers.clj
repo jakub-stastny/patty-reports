@@ -151,6 +151,6 @@
           props))
 
 (defmacro calculate [prop & body]
-  `(defn ~(symbol (str "calculate-" (name prop)))
-     [~'prev-months ~'month ~'inputs ~'results]
+  `(defn-pass-name ~(symbol (str "calculate-" (name prop)))
+     [~'fn-name ~'prev-months ~'month ~'inputs ~'results]
      ~@body))
