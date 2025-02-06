@@ -11,14 +11,16 @@
             [reports-api.reports.sales-forecast.customer-rows]
             [reports-api.reports.sales-forecast.revenue-rows]
             [reports-api.reports.sales-forecast.vat-rows]
-            [reports-api.reports.sales-forecast.cost-and-profit-rows]))
+            [reports-api.reports.sales-forecast.cost-and-profit-rows]
+            [reports-api.reports.sales-forecast.cash-flow-rows]))
 
 (def ^:private row-namespaces
   ['reports-api.reports.sales-forecast.helper-rows
    'reports-api.reports.sales-forecast.revenue-rows
    ;; 'reports-api.reports.sales-forecast.customer-rows
    'reports-api.reports.sales-forecast.vat-rows
-   'reports-api.reports.sales-forecast.cost-and-profit-rows])
+   'reports-api.reports.sales-forecast.cost-and-profit-rows
+   'reports-api.reports.sales-forecast.cash-flow-rows])
 
 (defn generate-report-month [prev-months month inputs]
   (let [processing-fns (keep #(ns-resolve % 'process) row-namespaces)]
