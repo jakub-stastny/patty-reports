@@ -3,19 +3,22 @@
             [reports-api.helpers :as h]
             [reports-api.time :as t]
             [reports-api.reports.sales-forecast.validators :as v]
-            [reports-api.reports.sales-forecast.helper-rows :as hr]
-            [reports-api.reports.sales-forecast.customer-rows :as cr]
-            [reports-api.reports.sales-forecast.revenue-rows :as rr]
-            [reports-api.reports.sales-forecast.vat-rows :as vr]
             [reports-api.xhelpers :as xh]
             [reports-api.bubble :as b]
-            [reports-api.totals :as tot]))
+            [reports-api.totals :as tot]
+
+            [reports-api.reports.sales-forecast.helper-rows]
+            [reports-api.reports.sales-forecast.customer-rows]
+            [reports-api.reports.sales-forecast.revenue-rows]
+            [reports-api.reports.sales-forecast.vat-rows]
+            [reports-api.reports.sales-forecast.cost-and-profit-rows]))
 
 (def ^:private row-namespaces
   ['reports-api.reports.sales-forecast.helper-rows
    'reports-api.reports.sales-forecast.revenue-rows
    ;; 'reports-api.reports.sales-forecast.customer-rows
-   'reports-api.reports.sales-forecast.vat-rows])
+   'reports-api.reports.sales-forecast.vat-rows
+   'reports-api.reports.sales-forecast.cost-and-profit-rows])
 
 (defn generate-report-month [prev-months month inputs]
   (let [processing-fns (keep #(ns-resolve % 'process) row-namespaces)]
