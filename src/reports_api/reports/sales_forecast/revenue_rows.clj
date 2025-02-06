@@ -46,16 +46,26 @@
 ;; Revenue model: either.                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; (defn calculate-geographic-splits [{:keys [relative] :as m} inputs results]
-;;   (let [{:keys [domestic-sales eu-sales rest-of-world-sales]} inputs
-;;         {:keys [total-revenue]} results
-;;         relative-year (h/get! relative :year)]
+(h/defn-pass-name calculate-domestic-sales [fn-name {:keys [relative]} inputs results]
+  (let [{:keys [domestic-sales]} inputs
+        {:keys [total-revenue]} results
+        relative-year (h/get! relative :year)]
+    (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
+    (* total-revenue (h/get! domestic-sales relative-year))))
 
-;;     (h/assertions :calculate-geographic-splits total-revenue [number?] "total-revenue must be a number")
+(h/defn-pass-name calculate-eu-sales [fn-name {:keys [relative]} inputs results]
+  (let [{:keys [eu-sales]} inputs
+        {:keys [total-revenue]} results
+        relative-year (h/get! relative :year)]
+    (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
+    (* total-revenue (h/get! eu-sales relative-year))))
 
-;;     {:domestic-sales (* total-revenue (get domestic-sales relative-year))
-;;      :eu-sales (* total-revenue (get eu-sales relative-year))
-;;      :rest-of-world-sales (* total-revenue (get rest-of-world-sales relative-year))}))
+(h/defn-pass-name calculate-rest-of-world-sales [fn-name {:keys [relative]} inputs results]
+  (let [{:keys [rest-of-world-sales]} inputs
+        {:keys [total-revenue]} results
+        relative-year (h/get! relative :year)]
+    (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
+    (* total-revenue (h/get! rest-of-world-sales relative-year))))
 
 (h/defn-pass-name calculate-returns-and-refunds [fn-name inputs results]
   (let [{:keys [refund-returns-allowance]} inputs
@@ -87,7 +97,10 @@
 
     (assoc r :customer-base (calculate-customer-base inputs r))
 
-    ;; (merge r (calculate-geographic-splits month inputs r))
+    (assoc r :domestic-sales (calculate-domestic-sales month inputs r))
+    (assoc r :eu-sales (calculate-eu-sales month inputs r))
+    (assoc r :rest-of-world-sales (calculate-rest-of-world-sales month inputs r))
+
     (assoc r :returns-and-refunds (calculate-returns-and-refunds inputs r))
     (assoc r :net-sales-revenue (calculate-net-sales-revenue inputs r))
 
