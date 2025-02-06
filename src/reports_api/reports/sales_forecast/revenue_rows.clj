@@ -14,7 +14,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Calculate the base revenue target before applying seasonality, using initial customer base.
-(defn calculate-non-seasonal-revenue-target [inputs results]
+(defn calculate-non-seasonal-revenue-target [_ _ inputs results]
   (h/when-model inputs :subscription
               (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
                     {:keys [existing-customers sales-growth-rate pro-rata-factor price]} results]
@@ -23,7 +23,7 @@
                    price sales-growth-rate pro-rata-factor))))
 
 ;; Once we have our revenue target, we work backwards to figure out how many customers we need.
-(defn calculate-required-customers [inputs results]
+(defn calculate-required-customers [_ _ inputs results]
   (h/when-model inputs :subscription
     (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
           {:keys [non-seasonal-revenue price pro-rata-factor price]} results]
@@ -36,7 +36,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Calculate base customer numbers for one-time purchases.
-(defn calculate-customer-base [inputs results]
+(defn calculate-customer-base [_ _ inputs results]
   (h/when-model inputs :purchase
               (let [{:keys [customer-activity-pattern]} inputs
                     {:keys [existing-customers sales-growth-rate pro-rata-factor]} results]
@@ -46,34 +46,34 @@
 ;; Revenue model: either.                 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(h/defn-pass-name calculate-domestic-sales [fn-name {:keys [relative]} inputs results]
+(h/defn-pass-name calculate-domestic-sales [fn-name _ {:keys [relative]} inputs results]
   (let [{:keys [domestic-sales]} inputs
         {:keys [total-revenue]} results
         relative-year (h/get! relative :year)]
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* total-revenue (h/get! domestic-sales relative-year))))
 
-(h/defn-pass-name calculate-eu-sales [fn-name {:keys [relative]} inputs results]
+(h/defn-pass-name calculate-eu-sales [fn-name _ {:keys [relative]} inputs results]
   (let [{:keys [eu-sales]} inputs
         {:keys [total-revenue]} results
         relative-year (h/get! relative :year)]
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* total-revenue (h/get! eu-sales relative-year))))
 
-(h/defn-pass-name calculate-rest-of-world-sales [fn-name {:keys [relative]} inputs results]
+(h/defn-pass-name calculate-rest-of-world-sales [fn-name _ {:keys [relative]} inputs results]
   (let [{:keys [rest-of-world-sales]} inputs
         {:keys [total-revenue]} results
         relative-year (h/get! relative :year)]
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* total-revenue (h/get! rest-of-world-sales relative-year))))
 
-(h/defn-pass-name calculate-returns-and-refunds [fn-name inputs results]
+(h/defn-pass-name calculate-returns-and-refunds [fn-name _ _ inputs results]
   (let [{:keys [refund-returns-allowance]} inputs
         {:keys [total-revenue]} results]
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (* -1 total-revenue refund-returns-allowance)))
 
-(h/defn-pass-name calculate-net-sales-revenue [fn-name inputs results]
+(h/defn-pass-name calculate-net-sales-revenue [fn-name _ _ inputs results]
   (let [{:keys [total-revenue returns-and-refunds]} results]
     (h/assertions fn-name total-revenue [number?] "Total revenue must be a number")
     (- total-revenue returns-and-refunds)))
@@ -83,25 +83,15 @@
 ;; (def sales-revenue-keys [:units-sold])
 
 ;; Calculate actual units sold based on active customers.
-(defn calculate-units-sold [inputs results]
+(defn calculate-units-sold [_ _ inputs results]
   (let [{:keys [units-per-transaction billing-cycles-per-year]} inputs
         {:keys [active-customers pro-rata-factor]} results
         x (h/if-subscription inputs (/ billing-cycles-per-year 12) 1)]
     (* active-customers units-per-transaction x pro-rata-factor)))
 
 (defn process [prev-months month inputs results]
-  ;; TODO: Price (from the helpers Claude).
-  (as-> (merge {:price 1 :total-revenue 1000 :active-customers 1} results) r
-    (assoc r :non-seasonal-revenue-target (calculate-non-seasonal-revenue-target inputs r))
-    (assoc r :required-customers (calculate-required-customers inputs r))
-
-    (assoc r :customer-base (calculate-customer-base inputs r))
-
-    (assoc r :domestic-sales (calculate-domestic-sales month inputs r))
-    (assoc r :eu-sales (calculate-eu-sales month inputs r))
-    (assoc r :rest-of-world-sales (calculate-rest-of-world-sales month inputs r))
-
-    (assoc r :returns-and-refunds (calculate-returns-and-refunds inputs r))
-    (assoc r :net-sales-revenue (calculate-net-sales-revenue inputs r))
-
-    (assoc r :units-sold (calculate-units-sold inputs r))))
+  (h/calculate-properties
+   'reports-api.reports.sales-forecast.revenue-rows
+   [:non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
+    :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold]
+   (merge results {:price 1 :total-revenue 10000 :active-customers 1}) prev-months month inputs))
