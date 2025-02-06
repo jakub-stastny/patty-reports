@@ -138,3 +138,14 @@
                                 ~@body))))]
       `(def ~(with-meta fn-name (meta fn-name))
          (fn ~@(map process-arity (cons args body)))))))
+
+(defn calculate-properties [ns-sym props results & args]
+  (reduce (fn [acc prop]
+            (let [fn-name (symbol (str "calculate-" (name prop)))
+                  resolved-fn (ns-resolve (find-ns ns-sym) fn-name)]
+              (when-not resolved-fn
+                (throw (ex-info "Missing calc fn" {:fn-name fn-name :ns ns-sym})))
+
+              (assoc acc prop (apply resolved-fn (concat args [acc])))))
+          results
+          props))
