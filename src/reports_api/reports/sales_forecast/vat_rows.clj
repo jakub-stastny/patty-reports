@@ -19,7 +19,8 @@
     0
     ))
 
-(defn process [prev-months month inputs results]
-  (as-> results r
-    (assoc r :vat-in (calculate-vat-in inputs r))
-    (assoc r :vat-out (calculate-vat-out inputs r))))
+(defn process [_ _ inputs results]
+  (h/calculate-properties
+   'reports-api.reports.sales-forecast.vat-rows
+   [:vat-in :vat-out]
+   results inputs))
