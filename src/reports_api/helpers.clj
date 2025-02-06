@@ -74,6 +74,9 @@
   (assert (every? #(% value) checks)
           (str (name fn-name) ": " message ", got " (pr-str value))))
 
+(defn assert-number [fn-name prop-name value]
+  (assertions fn-name value [number?] (str "Variable " (name prop-name) " must be a number")))
+
 (defn assoc-if-value-present [m k v]
   (if v (assoc m k v) m))
 
