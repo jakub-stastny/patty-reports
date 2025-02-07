@@ -18,8 +18,16 @@
                (h/assert-number fn-name :bad-debt-provision bad-debt-provision)
                (* -1 sales-revenue-due bad-debt-provision)))
 
+(h/calculate :sales-revenue-received
+             (let [{:keys [sales-revenue-due bad-debts]} results]
+               (+ sales-revenue-due bad-debts)))
+
+;; Is this perhaps more explicit?
+;; (h/calculate :sales-revenue-received
+;;              (+ (:sales-revenue-due results) (:bad-debts results)))
+
 (defn process [prev-months month inputs results]
   (h/calculate-properties
    'reports-api.reports.sales-forecast.cash-flow-rows
-   [:sales-revenue-due :bad-debts]
+   [:sales-revenue-due :bad-debts :sales-revenue-received]
    (merge results {:cost 1}) prev-months month inputs))
