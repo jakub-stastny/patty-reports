@@ -150,6 +150,7 @@
           results
           props))
 
+;; TODO: consider fetching the props vector automatically based on metadata.
 (defmacro calc-prop [prop & body]
   `(defn-pass-name ~(symbol (str "calculate-" (name prop)))
      [~'fn-name ~'prev-months ~'month ~'in~'rs]
