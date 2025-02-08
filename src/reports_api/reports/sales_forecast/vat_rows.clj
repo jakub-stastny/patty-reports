@@ -7,7 +7,8 @@
 ;; TODO
 (property :vat-in
           (if (:registered-for-vat in)
-            (* (:cost-vat in) (:costs rs))
+            ;; (* (:cost-vat in) (:costs rs))
+            1
             0))
 
 ;; TODO
@@ -15,7 +16,8 @@
 ;; {:keys [domestic-sales eu-sales]} results
 (property :vat-out
           (if (:registered-for-vat in)
-            (* (:cost-vat in) (:costs rs))
+            ;; (* (:cost-vat in) (:costs rs))
+            1
             0))
 
 (defn process [prev-months month inputs results]
