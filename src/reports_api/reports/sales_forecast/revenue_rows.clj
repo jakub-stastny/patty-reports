@@ -1,6 +1,7 @@
 (ns reports-api.reports.sales-forecast.revenue-rows
   (:require [clojure.string :as str]
-            [reports-api.helpers :as h :refer [calc-prop] :rename {calc-prop property}]
+            [reports-api.helpers :as h]
+            [reports-api.fsl :refer :all]
             [reports-api.time :as t]))
 
 ;; REVENUE ROWS
@@ -15,14 +16,14 @@
 
 ;; Calculate the base revenue target before applying seasonality, using initial customer base.
 (property :non-seasonal-revenue-target
-          (h/when-model in :subscription
+          (when-model :subscription
                         (* (:existing-customers rs) (:units-per-transaction in)
                            (/ (:billing-cycles-per-year in) 12)
                            (:price rs) (:sales-growth-rate rs) (:pro-rata-factor rs))))
 
 ;; Once we have our revenue target, we work backwards to figure out how many customers we need.
 (property :required-customers
-          (h/when-model in :subscription
+          (when-model :subscription
                         (if (= 0 (:pro-rata-factor rs))
                           0
                           (/ (:non-seasonal-revenue rs)
@@ -36,7 +37,7 @@
 
 ;; Calculate base customer numbers for one-time purchases.
 (property :customer-base
-          (h/when-model in :purchase ;;; TODO: It's a macro and inputs are always passed as 'in'. Can I perhaps make the macro to inject in?
+          (when-model :purchase
                         (* (:existing-customers rs)
                            (:sales-growth-rate rs)
                            (:customer-activity-pattern in)
@@ -82,7 +83,7 @@
 
 ;; Calculate actual units sold based on active customers.
 (property :units-sold
-          (let [x (h/if-subscription in (/ (:billing-cycles-per-year in) 12) 1)]
+          (let [x (if-subscription (/ (:billing-cycles-per-year in) 12) 1)]
             (* (:active-customers rs) (:units-per-transaction in) x (:pro-rata-factor rs))))
 
 (defn process [prev-months month inputs results]

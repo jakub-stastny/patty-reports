@@ -1,6 +1,7 @@
 (ns reports-api.reports.sales-forecast.helper-rows
   (:require [clojure.string :as str]
-            [reports-api.helpers :as h :refer [calc-prop] :rename {calc-prop property}]
+            [reports-api.helpers :as h]
+            [reports-api.fsl :refer :all]
             [reports-api.pro-rata-engine :as pr]
             [reports-api.time :as t]))
 

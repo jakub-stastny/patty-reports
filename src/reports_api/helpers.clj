@@ -93,13 +93,6 @@
     (get m k)
     (throw (ex-info "Key not found in map" {:key k :map m}))))
 
- ;;; TODO: It's a macro and inputs are always passed as 'in'. Can I perhaps make the macro to inject in?
-(defmacro when-model [{:keys [revenue-model]} expected-revenue-model & body]
-  `(if (= ~revenue-model ~expected-revenue-model) (do ~@body) 0))
-
-(defmacro if-subscription [{:keys [revenue-model]} if-yes if-not]
-  `(if (= ~revenue-model :subscription) ~if-yes ~if-not))
-
 (defn validate-sums [vectors]
   (doseq [values (apply map vector vectors)] ; Iterate over corresponding elements
     (let [sum (reduce + values)]             ; Sum the elements at the current index
@@ -150,9 +143,3 @@
               (assoc acc prop (apply resolved-fn (concat args [acc])))))
           results
           props))
-
-;; TODO: consider fetching the props vector automatically based on metadata.
-(defmacro calc-prop [prop & body]
-  `(defn-pass-name ~(symbol (str "calculate-" (name prop)))
-     [~'fn-name ~'prev-months ~'month ~'in~'rs]
-     ~@body))

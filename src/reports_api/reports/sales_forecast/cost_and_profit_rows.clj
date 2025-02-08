@@ -1,6 +1,7 @@
 (ns reports-api.reports.sales-forecast.cost-and-profit-rows
   (:require [clojure.string :as str]
-            [reports-api.helpers :as h :refer [calc-prop] :rename {calc-prop property}]
+            [reports-api.helpers :as h]
+            [reports-api.fsl :refer :all]
             [reports-api.time :as t]))
 
 (property :cost-of-sales (* (:units-sold rs) (:cost rs)))

@@ -1,6 +1,7 @@
 (ns reports-api.reports.sales-forecast.vat-rows
   (:require [clojure.string :as str]
-            [reports-api.helpers :as h :refer [calc-prop] :rename {calc-prop property}]
+            [reports-api.helpers :as h]
+            [reports-api.fsl :refer :all]
             [reports-api.time :as t]))
 
 ;; TODO
