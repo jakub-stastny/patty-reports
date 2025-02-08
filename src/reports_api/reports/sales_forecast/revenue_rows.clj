@@ -17,19 +17,19 @@
 ;; Calculate the base revenue target before applying seasonality, using initial customer base.
 (property :non-seasonal-revenue-target
           (when-model :subscription
-                        (* (:existing-customers rs) (:units-per-transaction in)
-                           (/ (:billing-cycles-per-year in) 12)
-                           (:price rs) (:sales-growth-rate rs) (:pro-rata-factor rs))))
+            (* (:existing-customers rs) (:units-per-transaction in)
+               (/ (:billing-cycles-per-year in) 12)
+               (:price rs) (:sales-growth-rate rs) (:pro-rata-factor rs))))
 
 ;; Once we have our revenue target, we work backwards to figure out how many customers we need.
 (property :required-customers
           (when-model :subscription
-                        (if (= 0 (:pro-rata-factor rs))
-                          0
-                          (/ (:non-seasonal-revenue rs)
-                             (:price rs)
-                             (:units-per-transaction in)
-                             (/ (:billing-cycles-per-year in) 12)))))
+            (if (= 0 (:pro-rata-factor rs))
+              0
+              (/ (:non-seasonal-revenue rs)
+                 (:price rs)
+                 (:units-per-transaction in)
+                 (/ (:billing-cycles-per-year in) 12)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Revenue model: purchase.               ;;
@@ -38,10 +38,10 @@
 ;; Calculate base customer numbers for one-time purchases.
 (property :customer-base
           (when-model :purchase
-                        (* (:existing-customers rs)
-                           (:sales-growth-rate rs)
-                           (:customer-activity-pattern in)
-                           (:pro-rata-factor rs))))
+            (* (:existing-customers rs)
+               (:sales-growth-rate rs)
+               (:customer-activity-pattern in)
+               (:pro-rata-factor rs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Revenue model: either.                 ;;
