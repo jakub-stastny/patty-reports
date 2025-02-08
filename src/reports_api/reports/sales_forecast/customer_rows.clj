@@ -29,5 +29,10 @@
 (defn process [prev-months month inputs results]
   (h/calc-props
    'reports-api.reports.sales-forecast.customer-rows
-   [:existing-customers :new-customers :lost-customers :total-customers]
-   (merge results {:price 1}) prev-months month inputs))
+   []
+   ;; [:existing-customers :new-customers :lost-customers :total-customers]
+
+   results
+   ;; (merge results {:price 1})
+
+   prev-months month inputs))

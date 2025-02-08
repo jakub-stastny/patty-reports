@@ -90,6 +90,11 @@
 (defn process [prev-months month inputs results]
   (h/calc-props
    'reports-api.reports.sales-forecast.revenue-rows
-   [:non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
-    :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold]
-   (merge results {:price 1 :total-revenue 10000 :active-customers 1}) prev-months month inputs))
+   []
+   ;; [:non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
+   ;;  :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold]
+
+   results
+   ;; (merge results {:price 1 :total-revenue 10000 :active-customers 1})
+
+   prev-months month inputs))

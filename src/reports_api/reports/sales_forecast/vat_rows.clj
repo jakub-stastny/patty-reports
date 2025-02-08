@@ -23,5 +23,6 @@
 (defn process [prev-months month inputs results]
   (h/calc-props
    'reports-api.reports.sales-forecast.vat-rows
-   [:vat-in :vat-out]
+   []
+   ;; [:vat-in :vat-out]
    results prev-months month inputs))

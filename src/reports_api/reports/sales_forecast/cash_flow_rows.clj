@@ -24,5 +24,10 @@
 (defn process [prev-months month inputs results]
   (h/calc-props
    'reports-api.reports.sales-forecast.cash-flow-rows
-   [:sales-revenue-due :bad-debts :sales-revenue-received]
-   (merge results {:cost 1}) prev-months month inputs))
+   []
+   ;; [:sales-revenue-due :bad-debts :sales-revenue-received]
+
+   results
+   ;; (merge results {:cost 1})
+
+   prev-months month inputs))

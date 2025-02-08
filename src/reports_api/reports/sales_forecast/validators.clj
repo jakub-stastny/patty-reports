@@ -82,12 +82,11 @@
         (validate s :transactions-per-year [v/number-validator] 1)
         (validate s :billing-cycles-per-year [v/single-or-multiple-months-or-weekly-or-daily-validator] 1)
         (validate s :retention-rate [(v/generate-range-validator 0 1)] 0)
-        ;; YoY growth rate is for SELLING years, not projection years.
         (validate s :yoy-growth-rate
                   [growth-curve-validator
                    (generate-yoy-fulfills-projections-duration
                     (get-in s [:data :projections-duration]))]
-                  (vec [0.05 0.10 0.17 0.30 0.50]))
+                  [0.05 0.10 0.17 0.30 0.50])
         (validate s :selling-price [v/number-validator] 0)
         (v/validate-rate-changes s inputs :selling-price-changes)
 
