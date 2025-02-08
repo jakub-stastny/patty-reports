@@ -61,6 +61,8 @@
     (validate-interdependent-sales-props
      (v/ensure-valid
       (as-> {:errors {} :data {}} s
+        ;; TODO: Make this also declarative, so we can read all the input properties (in helpers).
+        ;; How to avoid the typical @@properties ||= Array.new BS: ^{:property true}}, then iterate over them.
         (v/validate-projections-keys s inputs)
         (validate s :average-eu-vat-rate [(v/generate-range-validator 0 1)] 0)
         (validate s :bad-debt-provision [(v/generate-range-validator 0 1)] 0)

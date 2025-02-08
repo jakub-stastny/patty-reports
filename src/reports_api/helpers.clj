@@ -93,6 +93,7 @@
     (get m k)
     (throw (ex-info "Key not found in map" {:key k :map m}))))
 
+ ;;; TODO: It's a macro and inputs are always passed as 'in'. Can I perhaps make the macro to inject in?
 (defmacro when-model [{:keys [revenue-model]} expected-revenue-model & body]
   `(if (= ~revenue-model ~expected-revenue-model) (do ~@body) 0))
 

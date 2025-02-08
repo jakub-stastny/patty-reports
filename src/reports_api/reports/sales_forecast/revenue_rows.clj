@@ -61,6 +61,15 @@
              (h/get! (:rest-of-world-sales in)
                      (get-in month [:relative :year]))))
 
+;; TODO
+;; (doseq [geo [:domestic :eu :rest-of-world]]
+;;   (let [geo-sales (keyword (str (name geo) "-sales"))]
+;;     (prn :x geo geo-sales)
+;;     (property geo-sales
+;;               (* (:total-revenue rs)
+;;                  (h/get! (get in geo-sales)
+;;                          (get-in month [:relative :year]))))))
+
 (property :returns-and-refunds
           (* -1 (:total-revenue rs) (:refund-returns-allowance in)))
 
