@@ -44,11 +44,11 @@
 
 (defn- find-last-pay-change-before-current-month [month all-changes]
   (let [prev-changes
-        (filter #(= 1 (t/compare-month month (t/date-to-month (:effective-date %)))) all-changes)]
+        (filter #(= 1 (t/compare month (t/date-to-month (:effective-date %)))) all-changes)]
     (last (sort-by :effective-date prev-changes))))
 
 (defn- filter-changes [month all-changes]
-  (filter #(= 0 (t/compare-month month (t/date-to-month (:effective-date %)))) all-changes))
+  (filter #(= 0 (t/compare month (t/date-to-month (:effective-date %)))) all-changes))
 
 (h/defn-pass-name calculate-current-rates [fn-name month initial-rate all-changes start-date end-date]
   (t/assert-month fn-name month)
@@ -93,8 +93,8 @@
         end-month   (t/date-to-month end-date)
         first-day-of-month 1
         last-day-of-month 30
-        month-comparison-start (t/compare-month month start-month)
-        month-comparison-end   (t/compare-month month end-month)]
+        month-comparison-start (t/compare month start-month)
+        month-comparison-end   (t/compare month end-month)]
 
     (cond
       ;; Case 1: Month is completely outside the range

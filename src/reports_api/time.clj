@@ -88,10 +88,10 @@
   (assert-month fn-name m)
   (+ (* year 12) month))
 
-(h/defn-pass-name compare-month [fn-name m1 m2]
+(h/defn-pass-name compare [fn-name m1 m2]
   (and (assert-month fn-name m1)
        (assert-month fn-name m2))
-  (compare (month-to-int m1) (month-to-int m2)))
+  (clojure.core/compare (month-to-int m1) (month-to-int m2)))
 
 (h/defn-pass-name <= [fn-name & ms]
   (apply clojure.core/<= (map month-to-int ms)))
