@@ -1,29 +1,5 @@
 (ns reports-api.helpers
-  (:require [clojure.string :as str]
-            [clojure.walk :as walk]))
-
-(defn snake-to-kebab [key]
-  "Converts a snake_case keyword to kebab-case."
-  (-> key name (str/replace "_" "-") keyword))
-
-(defn kebab-to-snake [key]
-  "Converts a kebab-case keyword to snake_case."
-  (-> key name (str/replace "-" "_")))
-
-(defn transform-keys [trans-fn data]
-  "Recursively transforms all map keys using the provided transformation function."
-  (walk/postwalk
-   (fn [x]
-     (if (map? x)
-       (into {} (map (fn [[k v]] [(trans-fn k) v])) x)
-       x))
-   data))
-
-(defn transform-keys-to-kebab-case [data]
-  (transform-keys snake-to-kebab data))
-
-(defn transform-keys-to-snake-case [data]
-  (transform-keys kebab-to-snake data))
+  (:require [clojure.string :as str]))
 
 (defn last-3-items [v]
   (let [n (count v)]
@@ -70,13 +46,6 @@
     (if (empty? v1) v2 v1)
     (mapv + (vec v1) (vec v2))))
 
-(defn assertions [fn-name value checks message]
-  (assert (every? #(% value) checks)
-          (str (name fn-name) ": " message ", got " (pr-str value))))
-
-(defn assert-number [fn-name prop-name value]
-  (assertions fn-name value [number?] (str "Variable " (name prop-name) " must be a number")))
-
 (defn assoc-if-value-present [m k v]
   (if v (assoc m k v) m))
 
@@ -112,26 +81,6 @@
 ;; Round to 3 decimal places.
 (defn round [double]
   (/ (Math/round (* double 1000.0)) 1000.0))
-
-(defmacro defn-pass-name [fn-name args & body]
-  (if (vector? args)
-
-    ;; Single arity case
-    (let [internal-args (vec (rest args))]
-      `(def ~(with-meta fn-name (meta fn-name))
-         (let [name# '~fn-name]
-           (fn ~internal-args
-             (let [~(first args) name#]
-               ~@body)))))
-
-    ;; Multi-arity case
-    (let [process-arity (fn [[args & body]]
-                          (let [internal-args (vec (rest args))]
-                            `(~internal-args
-                              (let [~(first args) '~fn-name]
-                                ~@body))))]
-      `(def ~(with-meta fn-name (meta fn-name))
-         (fn ~@(map process-arity (cons args body)))))))
 
 (defn calc-props [ns-sym props results & args]
   (reduce (fn [acc prop]
