@@ -1,5 +1,5 @@
 (ns jakub-stastny.month
-  (:refer-clojure :exclude [<= compare])
+  (:refer-clojure :exclude [<= compare min max])
   (:require [jakub-stastny.extensions.define :refer [define]]
             [jakub-stastny.extensions.assertions :as a]))
 
@@ -54,3 +54,9 @@
 
 (define <= [fn-name & ms]
   (apply clojure.core/<= (map month-to-int ms)))
+
+(define min [fn-name & ms]
+  (apply clojure.core/min (map month-to-int ms)))
+
+(define max [fn-name & ms]
+  (apply clojure.core/max (map month-to-int ms)))
