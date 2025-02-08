@@ -10,9 +10,30 @@
 (property :month (t/format-month month))
 (property :relative-month (t/month-to-int (:relative month)))
 
+;; The inputs.yoy-growth-rate vector contains (decimal) rates, where
+;; each rate is expected growth per each selling year (not projection year).
 (property :sales-growth-rate
-          (let [year-index (int (/ (count prev-months) 12))]
-            (nth (:yoy-growth-rate in) year-index)))
+          (let [ ;; This is the original approx, using projection years:
+
+                ;;year-index
+                ;; (int (/ (count prev-months) 12))
+
+                ;; New approach that uses selling years, but it's unclear how it should handle past data.
+                ;; Technically you can fill with 0s to offset until the projection year.
+                ;;
+                ;; Make sure this is validate if we go with it.
+
+                first-month
+                (t/date-to-month (:sales-start-date in))
+
+                month-diff
+                (-
+                 (t/month-to-int month)
+                 (t/month-to-int first-month))
+
+                year-index (/ month-diff 12)]
+            (prn :1st-month [(:sales-start-date in) first-month])
+            (prn :current-month month)))
 
 (property :seasonal-adjustment-rate
           (let [base-value (/ 1.0 12) ; The value for even distribution
