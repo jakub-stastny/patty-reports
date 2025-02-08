@@ -1,4 +1,5 @@
 (ns reports-api.time
+  (:refer-clojure :exclude [<=])
   (:import [java.time Instant LocalDateTime ZoneId ZonedDateTime ZoneOffset])
   (:require [reports-api.helpers :as h]))
 
@@ -16,7 +17,7 @@
   ([fn-name {:keys [year month] :as m}]
    (assert (int? year)
            (str (name fn-name) ": year must be a number, got " (pr-str m)))
-   (assert (and (int? month) (<= 1 month 12))
+   (assert (and (int? month) (clojure.core/<= 1 month 12))
            (str (name fn-name) ": month must be a number between 1 and 12, got " (pr-str m)))))
 
 (defn assert-date
@@ -91,6 +92,9 @@
   (and (assert-month fn-name m1)
        (assert-month fn-name m2))
   (compare (month-to-int m1) (month-to-int m2)))
+
+(h/defn-pass-name <= [fn-name & ms]
+  (apply clojure.core/<= (map month-to-int ms)))
 
 (h/defn-pass-name month-to-ts [fn-name {:keys [year month] :as m}]
   (assert-month fn-name m)
