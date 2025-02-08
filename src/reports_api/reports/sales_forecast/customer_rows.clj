@@ -1,8 +1,7 @@
 (ns reports-api.reports.sales-forecast.customer-rows
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
-            [reports-api.fsl :refer :all]
-            [reports-api.time :as t]))
+            [reports-api.fsl :refer :all]))
 
 (property :existing-customers
           (:total-customers (or (last prev-months)

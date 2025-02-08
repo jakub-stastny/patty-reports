@@ -1,8 +1,7 @@
 (ns reports-api.reports.sales-forecast.revenue-rows
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
-            [reports-api.fsl :refer :all]
-            [reports-api.time :as t]))
+            [reports-api.fsl :refer :all]))
 
 ;; REVENUE ROWS
 ;; units-sold, sales-revenue-{domestic,eu,rest-of-world}, total-sales-revenue, expected-returns-refunds, net-total-sales-revenue, vat-out-on-net-total-sales-revenue, cost-of-sales, bad-debt-provision, vat-in-on-cost-of-sales, gross-profit
@@ -38,10 +37,12 @@
 ;; Calculate base customer numbers for one-time purchases.
 (property :customer-base
           (when-model :purchase
-            (* (:existing-customers rs)
-               (:sales-growth-rate rs)
-               (:customer-activity-pattern in)
-               (:pro-rata-factor rs))))
+            (let [month-activity-pattern
+                  (get (:customer-activity-pattern in) (dec (:month month)))]
+              (* (:existing-customers rs)
+                 (:sales-growth-rate rs)
+                 month-activity-pattern
+                 (:pro-rata-factor rs)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Revenue model: either.                 ;;
