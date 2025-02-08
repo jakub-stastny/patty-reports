@@ -1,6 +1,6 @@
 (ns reports-api.time
   "My extensions to the jakub-stastny.month library."
-  (:refer-clojure :exclude [<= compare])
+  (:refer-clojure :exclude [<= compare min max])
   (:import [java.time Instant LocalDateTime ZoneId ZonedDateTime ZoneOffset])
   (:require [jakub-stastny.month]
             [jakub-stastny.extensions.define :refer [define]]
@@ -57,3 +57,6 @@
       (.atZone ZoneOffset/UTC)
       (.toInstant)
       (.toEpochMilli)))
+
+(defn month-to-date [{:keys [year month]}]
+  (LocalDateTime/of year month 1 0 0 0 0))
