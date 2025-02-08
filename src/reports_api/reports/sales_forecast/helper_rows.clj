@@ -8,7 +8,7 @@
 
 ;; Show actual and relative month for easier inspection.
 (property :month (t/format-month month))
-(property :relative-month (t/month-to-int (:relative month)))
+(property :relative-month (t/month-to-int (:relative month))) ; TODO: Should the {:month m :year y :relative {:y y :m m}} be instead in this format?
 
 ;; The inputs.yoy-growth-rate vector contains (decimal) rates, where
 ;; each rate is expected growth per each selling year (not projection year).
