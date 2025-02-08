@@ -8,9 +8,10 @@
           (:total-customers (or (last prev-months)
                                 {:total-customers (:starting-customers in)})))
 
-(property :new-customers (* (:existing-customers rs)
-                            (/ (:sales-growth-rate in) 12)
-                            (:pro-rata-factor rs)))
+(property :new-customers
+          (* (:existing-customers rs)
+             (/ (:sales-growth-rate rs) 12)
+             (:pro-rata-factor rs)))
 
 (property :lost-customers
           (let [monthly-loss-rate
