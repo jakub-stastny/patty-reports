@@ -9,8 +9,10 @@
 (defmacro if-subscription [if-yes if-not]
   `(if (= (:revenue-model ~'in) :subscription) ~if-yes ~if-not))
 
-;; TODO: consider fetching the props vector automatically based on metadata.
 (defmacro property [prop & body]
   `(h/defn-pass-name ~(symbol (str "calculate-" (name prop)))
-     [~'fn-name ~'prev-months ~'month ~'in~'rs]
-     ~@body))
+     [~'fn-name ~'prev-months ~'month ~'in ~'rs]
+     (let [result# (do ~@body)]
+       (assert (not (nil? result#))
+               ~(str "FSL property " prop " calculation returned nil"))
+       result#)))
