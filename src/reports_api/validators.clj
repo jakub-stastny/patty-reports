@@ -1,5 +1,7 @@
 (ns reports-api.validators
   (:require [clojure.string :as str]
+            [jakub-stastny.extensions.define :refer [define]]
+            [jakub-stastny.extensions.assertions :as jsa]
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
@@ -87,9 +89,9 @@
 (def month-converter
   (make-validator :month-converter "" #(t/date-to-month (t/ts-to-date %))))
 
-(h/defn-pass-name generate-options-validator [fn-name field-name options-map]
-  (h/assertions fn-name field-name [keyword?] "field-name must be a keyword")
-  (h/assertions fn-name options-map [map?] "options-map must be a map")
+(define generate-options-validator [fn-name field-name options-map]
+  (jsa/assertions fn-name field-name [keyword?] "field-name must be a keyword")
+  (jsa/assertions fn-name options-map [map?] "options-map must be a map")
 
   (make-validator field-name
                  (str "must be one of: " (str/join ", " (keys options-map)))

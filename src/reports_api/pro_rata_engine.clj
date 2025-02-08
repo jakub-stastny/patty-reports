@@ -1,25 +1,27 @@
 (ns reports-api.pro-rata-engine
   (:require [clojure.string :as str]
+            [jakub-stastny.extensions.define :refer [define]]
+            [jakub-stastny.extensions.assertions :as jsa]
             [reports-api.helpers :as h]
             [reports-api.time :as t]))
 
-(h/defn-pass-name ^:private assert-change [fn-name {:keys [effective-date new-value]}]
+(define ^:private assert-change [fn-name {:keys [effective-date new-value]}]
   (t/assert-date fn-name effective-date)
-  (h/assertions fn-name new-value [number?] "new-value must be a number"))
+  (jsa/assertions fn-name new-value [number?] "new-value must be a number"))
 
-(h/defn-pass-name ^:private assert-changes [fn-name changes]
-  (h/assertions fn-name changes [sequential?] "changes must be a sequential")
+(define ^:private assert-changes [fn-name changes]
+  (jsa/assertions fn-name changes [sequential?] "changes must be a sequential")
   (doseq [change changes] (assert-change change)))
 
 ;; Staff plan: employment-start/end-date, base-pay, pay-changes
 ;; Sales forecast: sales-start/end-date, selling-price, selling-price-changes
-(h/defn-pass-name ^:private calculate-pro-rata-initial-rate
+(define ^:private calculate-pro-rata-initial-rate
   [fn-name month initial-rate current-month-rate current-month-changes start-date end-date]
 
   (t/assert-month fn-name month)
-  (h/assertions fn-name initial-rate [number?]
+  (jsa/assertions fn-name initial-rate [number?]
                 "initial-rate must be a positive number")
-  (h/assertions fn-name current-month-rate [number?]
+  (jsa/assertions fn-name current-month-rate [number?]
                 "current-month-rate must be a positive number")
   (assert-changes current-month-changes)
   (and (t/assert-date fn-name start-date)
@@ -50,9 +52,9 @@
 (defn- filter-changes [month all-changes]
   (filter #(= 0 (t/compare month (t/date-to-month (:effective-date %)))) all-changes))
 
-(h/defn-pass-name calculate-current-rates [fn-name month initial-rate all-changes start-date end-date]
+(define calculate-current-rates [fn-name month initial-rate all-changes start-date end-date]
   (t/assert-month fn-name month)
-  (h/assertions fn-name initial-rate [number? pos?] "initial-rate must be a positive number")
+  (jsa/assertions fn-name initial-rate [number? pos?] "initial-rate must be a positive number")
   (assert-changes all-changes)
   (and (t/assert-date start-date) (t/assert-date end-date))
 
@@ -120,11 +122,11 @@
 
 ;; Converts: [{:since 1, :rate 90} {:since 13, :rate 100}]
 ;; to:       [{:days 12 :rate 90}  {:days 18 :rate 100}]
-(h/defn-pass-name convert-rates-to-ratios [fn-name rates]
-  (h/assertions fn-name rates [sequential?] "Must be a sequential")
-  (h/assertions fn-name rates
-                [(fn [changes] (every? #(and (number? (:since %)) (number? (:rate %))) changes))]
-                "must contain maps with :since and :rate, both being numbers")
+(define convert-rates-to-ratios [fn-name rates]
+  (jsa/assertions fn-name rates [sequential?] "Must be a sequential")
+  (jsa/assertions fn-name rates
+                  [(fn [changes] (every? #(and (number? (:since %)) (number? (:rate %))) changes))]
+                  "must contain maps with :since and :rate, both being numbers")
 
   (let [days-in-month 30]
     (->> (partition 2 1 (concat rates [nil]))

@@ -1,11 +1,13 @@
 (ns reports-api.xhelpers
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
+            [jakub-stastny.extensions.define :refer [define]]
+            [jakub-stastny.extensions.assertions :as jsa]
             [reports-api.time :as t]))
 
-(h/defn-pass-name projection-months [fn-name {:keys [projections-start-date projections-duration]}]
+(define projection-months [fn-name {:keys [projections-start-date projections-duration]}]
   (t/assert-month fn-name projections-start-date)
-  (h/assertions fn-name projections-duration [int?] "must be int")
+  (jsa/assertions fn-name projections-duration [int?] "must be int")
 
   (let [total-months (* projections-duration 12)]
     (take total-months (iterate t/next-month projections-start-date))))

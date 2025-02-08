@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [cheshire.core :as json]
             [ring.adapter.jetty :refer [run-jetty]]
+            [jakub-stastny.extensions.case :as jsc]
             [reports-api.helpers :as h]
             [reports-api.reports.staff-plan :refer [handle] :rename {handle handle-staff-plan}]
             [reports-api.reports.staff-plans :refer [handle] :rename {handle handle-staff-plans}]
@@ -31,12 +32,12 @@
 (defn handler [handle-fn request]
   (try
     (let [raw-inputs (parse-json-body request)
-          inputs (h/transform-keys-to-kebab-case raw-inputs)
+          inputs (jsc/transform-keys-to-kebab-case raw-inputs)
           ;; _ (prn :provided-inputs inputs)
           result (handle-fn inputs)
           ;; _ (prn :response result)
           ]
-      (response 200 (h/transform-keys-to-snake-case result)))
+      (response 200 (jsc/transform-keys-to-snake-case result)))
     (catch clojure.lang.ExceptionInfo error
       (let [data (ex-data error)]
         (if (= :validation-error (:type data))
