@@ -139,7 +139,7 @@
       `(def ~(with-meta fn-name (meta fn-name))
          (fn ~@(map process-arity (cons args body)))))))
 
-(defn calculate-properties [ns-sym props results & args]
+(defn calc-props [ns-sym props results & args]
   (reduce (fn [acc prop]
             (let [fn-name (symbol (str "calculate-" (name prop)))
                   resolved-fn (ns-resolve (find-ns ns-sym) fn-name)]
@@ -150,7 +150,7 @@
           results
           props))
 
-(defmacro calculate [prop & body]
+(defmacro calc-prop [prop & body]
   `(defn-pass-name ~(symbol (str "calculate-" (name prop)))
-     [~'fn-name ~'prev-months ~'month ~'inputs ~'results]
+     [~'fn-name ~'prev-months ~'month ~'in~'rs]
      ~@body))
