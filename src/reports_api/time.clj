@@ -31,7 +31,7 @@
 (define years-from [fn-name ts years]
   (assert-timestamp fn-name ts)
   (jsa/assertions fn-name years [int?] "Years must be a number")
-  (ts-to-date (+ ts (* years 31536000000))))
+  (ts-to-date (clojure.core/+ ts (* years 31536000000))))
 
 (define years-from-now [fn-name years]
   (jsa/assertions fn-name years [int?] "Years must be a number")
