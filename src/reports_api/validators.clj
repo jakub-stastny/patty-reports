@@ -146,6 +146,7 @@
 (defn validate-or-default [m k validators default-value]
   (prn :DEPRECATED :validate-or-default k))
 
+;; TODO: We probably should rename projections-start-date to projections-start-MONTH.
 (defn validate-projections-keys [state inputs]
   (-> state
       (validate inputs :projections-duration
