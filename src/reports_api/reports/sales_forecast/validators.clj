@@ -76,25 +76,20 @@
                   [v/timestamp-validator
                    v/dt-converter
                    (v/make-validator :sales-start-date-resetter ""
-                                     identity
-                                     ;; #(let [dates (filter some? [% (get-in s [:data :projections-start-date])])]
-                                     ;;    (prn :initial % s) ; HERE we are resetting the whole s/data?!
-                                     ;;    (t/month-to-date (apply t/max dates)))
-                                     )]
+                                     #(let [psd (get-in s [:data :projections-start-date])
+                                            dates (filter some? [psd (t/date-to-month %)])]
+                                        (t/month-to-date (apply t/max dates))))]
                   (t/years-from-now -1))
 
         (validate s :sales-end-date
                   [v/timestamp-validator
                    v/dt-converter
                    (v/make-validator :sales-end-date-resetter ""
-                                     identity
-                                     ;; #(let [_ (prn :after % s) ;; That fucking shit just ain't 'ere!
-                                     ;;        duration (get-in s [:data :projections-duration])
-                                     ;;        psd (get-in s [:data :projections-start-date])
-                                     ;;        projections-end-date (t/+ psd (* duration 12))
-                                     ;;        dates (filter some? [% projections-end-date])]
-                                     ;;    (t/month-to-date (apply t/min dates)))
-                                     )]
+                                     #(let [duration (get-in s [:data :projections-duration])
+                                            psd (get-in s [:data :projections-start-date])
+                                            ped (t/+ psd (* duration 12))
+                                            dates (filter some? [ped (t/date-to-month %)])]
+                                        (t/month-to-date (apply t/min dates))))]
                   (t/years-from-now 6))
 
         (validate s :offering-type [offering-type-validator] :product)
