@@ -1,5 +1,5 @@
 (ns jakub-stastny.month
-  (:refer-clojure :exclude [<= compare min max])
+  (:refer-clojure :exclude [<= compare min max +])
   (:require [jakub-stastny.extensions.define :refer [define]]
             [jakub-stastny.extensions.assertions :as a]))
 
@@ -13,8 +13,8 @@
            (str (name fn-name) ": month must be a number between 1 and 12, got " (pr-str m)))))
 
 (defn assert-timestamp
-  ([ts]
-   (assert-timestamp :assert-timestamp ts))
+  ([ts] (assert-timestamp :assert-timestamp ts))
+
   ([fn-name ts]
    (a/assertions fn-name ts [int?] "Timestamp must be a number")))
 
@@ -23,7 +23,7 @@
 
   ([fn-name month step]
    (assert-month fn-name month)
-   (let [total-months (+ (* (:year month) 12) (:month month) step)
+   (let [total-months (clojure.core/+ (* (:year month) 12) (:month month) step)
          years (quot (dec total-months) 12)
          months (inc (mod (dec total-months) 12))]
      {:year years :month months})))
@@ -34,7 +34,7 @@
 
   ([month step]
    (assert-month :prev-month month)
-   (let [total-months (+ (* (:year month) 12) (:month month) step)
+   (let [total-months (clojure.core/+ (* (:year month) 12) (:month month) step)
          years (quot total-months 12)
          months (mod total-months 12)]
      {:year years :month months})))
@@ -43,9 +43,18 @@
   (assert-month fn-name m)
   (format "%d-%02d" year month))
 
-(define month-to-int [fn-name {:keys [year month] :as m}]
-  (assert-month fn-name m)
-  (+ (* year 12) month))
+(define month-to-int
+  ([fn-name month] (month-to-int fn-name month))
+
+  ([_ fn-name {:keys [year month] :as m}]
+   (assert-month fn-name m)
+   (clojure.core/+ (* year 12) month)))
+
+(define int-to-month
+  ([fn-name total-months] (int-to-month fn-name total-months))
+
+  ([_ fn-name total-months]
+   {:year (quot total-months 12) :month (inc (mod total-months 12))}))
 
 (define compare [fn-name m1 m2]
   (and (assert-month fn-name m1)
@@ -53,10 +62,21 @@
   (clojure.core/compare (month-to-int m1) (month-to-int m2)))
 
 (define <= [fn-name & ms]
-  (apply clojure.core/<= (map month-to-int ms)))
+  (apply clojure.core/<= (map (partial month-to-int fn-name) ms)))
 
 (define min [fn-name & ms]
-  (apply clojure.core/min (map month-to-int ms)))
+  (int-to-month (apply clojure.core/min (map (partial month-to-int fn-name) ms))))
 
 (define max [fn-name & ms]
-  (apply clojure.core/max (map month-to-int ms)))
+  (int-to-month (apply clojure.core/max (map (partial month-to-int fn-name) ms))))
+
+(define + [fn-name & ms]
+  (let [items
+        (map
+         (fn [value]
+           (prn :v value ms) ;;;;
+           (if (number? value)
+             value
+             ((partial month-to-int fn-name) value)))
+         ms)]
+    (int-to-month (apply clojure.core/+ items))))
