@@ -1,5 +1,5 @@
 (ns reports-api.reports.sales-forecast.helper-rows
-  "These are intermediate values that are repeatedly used in subsequent calculating"
+  "These are intermediate values that are repeatedly used in subsequent calculations."
   (:require [clojure.string :as str]
             [reports-api.helpers :as h]
             [reports-api.fsl :refer :all]
@@ -8,32 +8,29 @@
 
 ;; Show actual and relative month for easier inspection.
 (property :month (t/format-month month))
-(property :relative-month (t/month-to-int (:relative month))) ; TODO: Should the {:month m :year y :relative {:y y :m m}} be instead in this format?
+(property :relative-month (t/month-to-int (:relative month)))
+
+(property :being-sold (t/<=
+                       (t/date-to-month (:sales-start-date in))
+                       month
+                       (t/date-to-month (:sales-end-date in))))
 
 ;; The inputs.yoy-growth-rate vector contains (decimal) rates, where
 ;; each rate is expected growth per each selling year (not projection year).
+;; The rates are not for the first year of selling off the product but for
+;; the first year of selling off the product in the projection period.
 (property :sales-growth-rate
-          (let [ ;; This is the original approx, using projection years:
+          (if (:being-sold rs)
+            (let [month-diff (- (t/month-to-int month)
+                                (t/month-to-int (t/date-to-month (:sales-start-date in))))
+                  year-index (int (/ month-diff 12))]
+              ;; (prn :1st-month [(:sales-start-date in) first-month])
+              ;; (prn :current-month month)
+              ;; (prn :yi year-index)
 
-                ;;year-index
-                ;; (int (/ (count prev-months) 12))
+              (nth (:yoy-growth-rate in) year-index))
 
-                ;; New approach that uses selling years, but it's unclear how it should handle past data.
-                ;; Technically you can fill with 0s to offset until the projection year.
-                ;;
-                ;; Make sure this is validate if we go with it.
-
-                first-month
-                (t/date-to-month (:sales-start-date in))
-
-                month-diff
-                (-
-                 (t/month-to-int month)
-                 (t/month-to-int first-month))
-
-                year-index (/ month-diff 12)]
-            (prn :1st-month [(:sales-start-date in) first-month])
-            (prn :current-month month)))
+            0))
 
 (property :seasonal-adjustment-rate
           (let [base-value (/ 1.0 12) ; The value for even distribution
@@ -48,5 +45,5 @@
 (defn process [prev-months month inputs results]
   (h/calc-props
    'reports-api.reports.sales-forecast.helper-rows
-   [:month :relative-month :sales-growth-rate :seasonal-adjustment-rate :pro-rata-factor]
+   [:month :relative-month :being-sold :sales-growth-rate :seasonal-adjustment-rate :pro-rata-factor]
    results prev-months month inputs))
