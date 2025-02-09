@@ -7,7 +7,7 @@
 
 (define projection-months [fn-name {:keys [projections-start-date projections-duration]}]
   (t/assert-month fn-name projections-start-date)
-  (jsa/assertions fn-name projections-duration [int?] "must be int")
+  (jsa/assertions fn-name projections-duration [int?] "projections-duration must be int")
 
   (let [total-months (* projections-duration 12)]
     (take total-months (iterate t/next-month projections-start-date))))
