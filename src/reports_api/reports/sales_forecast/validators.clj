@@ -72,8 +72,28 @@
         (validate s :vat-payment-frequency [v/optional-single-or-multiple-months-validator] nil)
         (validate s :vat-payment-months [v/single-or-multiple-months-or-weekly-or-daily-validator] months-12)
 
-        (validate s :sales-start-date [v/timestamp-validator v/dt-converter] (t/years-from-now -10))
-        (validate s :sales-end-date [v/timestamp-validator v/dt-converter] (t/years-from-now 10))
+        (validate s :sales-start-date
+                  [v/timestamp-validator
+                   v/dt-converter
+                   ;; (v/make-validator :sales-start-date-resetter ""
+                   ;;                   #(let [dates (filter some? [% (get-in s [:data :projections-start-date])])]
+                   ;;                      (prn :initial % s) ; HERE we are resetting the whole s/data?!
+                   ;;                      (t/month-to-date (apply t/max dates))))
+                   ]
+                  (t/years-from-now -1))
+
+        (validate s :sales-end-date
+                  [v/timestamp-validator
+                   v/dt-converter
+                   ;; (v/make-validator :sales-end-date-resetter ""
+                   ;;                   #(let [_ (prn :after % s) ;; That fucking shit just ain't 'ere!
+                   ;;                          duration (get-in s [:data :projections-duration])
+                   ;;                          psd (get-in s [:data :projections-start-date])
+                   ;;                          projections-end-date (t/+ psd (* duration 12))
+                   ;;                          dates (filter some? [% projections-end-date])]
+                   ;;                      (t/month-to-date (apply t/min dates))))
+                   ]
+                  (t/years-from-now 6))
 
         (validate s :offering-type [offering-type-validator] :product)
         (validate s :revenue-model [revenue-model-validator] :purchase)
