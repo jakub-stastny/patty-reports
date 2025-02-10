@@ -5,13 +5,13 @@
 
 (property :existing-customers
           (let [prev-month (or (last prev-months)
-                               {:total-customers (:starting-customers in)})]
-            (:total-customers prev-month)))
+                               {:total-customers (in! :starting-customers)})]
+            (h/get! prev-month :total-customers)))
 
 (property :new-customers
-          (* (:existing-customers rs)
-             (/ (:sales-growth-rate rs) 12)
-             (:pro-rata-factor rs)))
+          (* (rs! :existing-customers)
+             (/ (rs! :sales-growth-rate) 12)
+             (rs! :pro-rata-factor)))
 
 ;; TODO: Fix lost customers.
 (property :lost-customers
@@ -27,7 +27,7 @@
           )
 
 (property :total-customers
-          (- (+ (:existing-customers rs) (:new-customers rs)) (:lost-customers rs)))
+          (- (+ (rs! :existing-customers) (rs! :new-customers)) (rs! :lost-customers)))
 
 
 (defn process [prev-months month inputs results]

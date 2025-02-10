@@ -10,6 +10,10 @@
 (defmacro if-subscription [if-yes if-not]
   `(if (= (:revenue-model ~'in) :subscription) ~if-yes ~if-not))
 
+(defmacro in! [key] `(h/get! ~'in ~key))
+(defmacro rs! [key] `(h/get! ~'rs ~key))
+
+;; TODO: wrap in try/catch.
 (defmacro property [prop & body]
   `(define ~(symbol (str "calculate-" (name prop)))
      [~'fn-name ~'prev-months ~'month ~'in ~'rs]
