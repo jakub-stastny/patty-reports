@@ -1,5 +1,6 @@
 (ns reports-api.reports.sales-forecast
   (:require [clojure.string :as str]
+            [clojure.set :as set]
             [reports-api.helpers :as h]
             [reports-api.time :as t]
             [reports-api.reports.sales-forecast.validators :as v]
@@ -41,7 +42,9 @@
           {}
           row-namespaces))
 
-(def xkeys (apply concat (vals row-ns-props)))
+(def all-keys (set (apply concat (vals row-ns-props))))
+(def ignored-keys #{:month :relative-month :being-sold :sales-growth-rate
+                    :seasonal-adjustment-rate :pro-rata-factor})
 
 (defn handle [raw-inputs]
   (let [inputs (v/validate-inputs raw-inputs)
@@ -49,5 +52,5 @@
         projections (xh/generate-projections inputs generate-report-month)]
     (println) (prn :projections projections)
     (tot/add-yearly-totals-one
-     (b/format-for-bubble-one projections xkeys)
-     xkeys)))
+     (b/format-for-bubble-one projections (set/difference all-keys ignored-keys))
+     (set/difference all-keys ignored-keys))))
