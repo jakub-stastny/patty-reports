@@ -13,11 +13,18 @@
 (defmacro in! [key] `(h/get! ~'in ~key))
 (defmacro rs! [key] `(h/get! ~'rs ~key))
 
-;; TODO: wrap in try/catch.
 (defmacro property [prop & body]
   `(define ~(symbol (str "calculate-" (name prop)))
      [~'fn-name ~'prev-months ~'month ~'in ~'rs]
-     (let [result# (do ~@body)]
-       (assert (not (nil? result#))
-               ~(str "FSL property " prop " calculation returned nil"))
-       result#)))
+     (try
+       (let [result# (do ~@body)]
+         (assert (not (nil? result#))
+                 ~(str "FSL property " prop " calculation returned nil"))
+         result#)
+       (catch clojure.lang.ExceptionInfo e#
+         (println (str "Error in FSL property " ~prop ": " (.getMessage e#)))
+         (println "Additional data:" (ex-data e#))
+         (throw e#))
+       (catch Throwable e#
+         (println (str "Error in FSL property " ~prop ": " (.getMessage e#)))
+         (throw e#)))))
