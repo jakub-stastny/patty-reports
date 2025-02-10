@@ -44,11 +44,10 @@
 
 (def all-keys (set (apply concat (vals row-ns-props))))
 
-(def ignored-keys #{:month :relative-month :being-sold :sales-growth-rate
-                    :seasonal-adjustment-rate :pro-rata-factor
+(def ignored-keys #{:month :relative-month :being-sold ; These are definitely not useful at all.
+                    :sales-growth-rate :seasonal-adjustment-rate :pro-rata-factor ; We could include these, but remove them from totals.
 
-                    :existing-customers :new-customers :lost-customers :total-customers
-
+                    ;; Only temporarily disabled.
                     :sales-revenue-due :bad-debts :sales-revenue-received
 
                     :cost-of-sales :bad-debt-provision :gross-profit
