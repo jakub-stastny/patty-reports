@@ -8,7 +8,7 @@
           (when-model :subscription
             (* (:existing-customers rs) (:units-per-transaction in)
                (/ (:billing-cycles-per-year in) 12)
-               (:price rs) (:sales-growth-rate rs) (:pro-rata-factor rs))))
+               (:selling-price in) (:sales-growth-rate rs) (:pro-rata-factor rs))))
 
 ;; Once we have our revenue target, we work backwards to figure out how many customers we need.
 (property :required-customers
@@ -16,7 +16,7 @@
             (if (= 0 (:pro-rata-factor rs))
               0
               (/ (:non-seasonal-revenue rs)
-                 (:price rs)
+                 (:selling-price in)
                  (:units-per-transaction in)
                  (/ (:billing-cycles-per-year in) 12)))))
 
@@ -63,6 +63,6 @@
     :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold]
 
    ;; results
-   (merge results {:price 1 :total-revenue 10000 :active-customers 1})
+   (merge results {:total-revenue 10000 :active-customers 1})
 
    prev-months month inputs))
