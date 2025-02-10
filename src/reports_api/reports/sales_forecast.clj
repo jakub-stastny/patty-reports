@@ -43,8 +43,20 @@
           row-namespaces))
 
 (def all-keys (set (apply concat (vals row-ns-props))))
+
 (def ignored-keys #{:month :relative-month :being-sold :sales-growth-rate
-                    :seasonal-adjustment-rate :pro-rata-factor})
+                    :seasonal-adjustment-rate :pro-rata-factor
+
+                    :existing-customers :new-customers :lost-customers :total-customers
+
+                    :sales-revenue-due :bad-debts :sales-revenue-received
+
+                    :cost-of-sales :bad-debt-provision :gross-profit
+
+                    :vat-in :vat-out
+
+                    :non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
+                    :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold})
 
 (defn handle [raw-inputs]
   (let [inputs (v/validate-inputs raw-inputs)
