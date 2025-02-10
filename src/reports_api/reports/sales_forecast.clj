@@ -54,8 +54,9 @@
 
                     :vat-in :vat-out
 
-                    :non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
-                    :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold})
+                    ;; :non-seasonal-revenue-target :required-customers :customer-base :domestic-sales
+                    ;; :eu-sales :rest-of-world-sales :returns-and-refunds :net-sales-revenue :units-sold
+                    })
 
 (defn handle [raw-inputs]
   (let [inputs (v/validate-inputs raw-inputs)
