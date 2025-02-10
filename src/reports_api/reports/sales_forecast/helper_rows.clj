@@ -6,6 +6,12 @@
             [reports-api.pro-rata-engine :as pr]
             [reports-api.time :as t]))
 
+;; TODO: Apart from checking manually, regenerate the specs.
+;; There however we might need to break the things down
+;; rather than testing the whole blob.
+;; I think the whole blob testing is useful, but these
+;; two things should be probably done in parallel.
+
 ;; Show actual and relative month for easier inspection.
 (property :month (t/format-month month))
 (property :relative-month (t/month-to-int (:relative month)))
