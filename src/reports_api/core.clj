@@ -44,7 +44,7 @@
           (error-response 400 error (merge {:error (:type data)} (dissoc data :type)))
           (error-response 500 error (merge {:error (ex-message error)} data)))))
     (catch Throwable error
-      (error-response 500 nil {:error (str (type error) ": " (.getMessage error))}))))
+      (error-response 500 error {:error (str (type error) ": " (.getMessage error))}))))
 
 (defroutes app
   (GET "/api/v1/ping" [] (response 200 {:status "OK" :response "pong"}))
